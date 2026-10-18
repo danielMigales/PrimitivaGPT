@@ -171,3 +171,15 @@ El seguimiento solo registra propuestas antes de su sorteo, con un corte propio 
 Validación: 39 pruebas Node y 3 Python, compilación y validación del Worker. Nuevas pruebas cubren calendario y cambio de año, estado pendiente, inmutabilidad, publicación con tres aciertos y reintegro, rotación al siguiente sorteo, correcciones oficiales, consultas concurrentes, caché y presentación de la comparación. Los ejemplos sintéticos se usan exclusivamente en pruebas locales.
 
 La consulta de pruebas históricas se actualiza directamente al seleccionar el sorteo. Se elimina el botón redundante «Ver simulación» y se anuncia el cambio de contenido para tecnologías de asistencia. La prueba de interfaz verifica el evento de selección real.
+
+## 18. Resumen real y laboratorio compacto
+
+La propuesta fechada y el seguimiento real ocupan el primer bloque del laboratorio. Las simulaciones históricas, los patrones y los métodos se organizan en tres apartados desplegables, cerrados inicialmente. Las descargas se encuentran junto a los métodos. Cambiar el sorteo de una prueba sigue actualizando su contenido automáticamente.
+
+El resumen muestra propuestas emitidas, evaluadas, pendientes, reintegros, tres o más aciertos, coincidencia de ambos objetivos y media de aciertos. Usa únicamente el registro persistente del experimento seleccionado; recalcula los aciertos desde las combinaciones guardadas y sus resultados oficiales. Nunca suma ventanas solapadas ni mezcla sus simulaciones con propuestas emitidas. Sin resultados publicados se muestran guiones para los porcentajes, no éxitos o fracasos inventados. La copia estática identifica la ausencia de seguimiento persistente.
+
+Al existir resultados, la proporción de reintegros incluye un intervalo descriptivo orientativo de Wilson al 95 % y la referencia uniforme del 10 %, sin afirmar superioridad ni significación estadística. Se muestra un desglose de evaluaciones por versión conservada, advirtiendo que sus muestras pueden corresponder a distintas fechas. La sincronización y el aprendizaje existentes continúan; este cambio no modifica los números de propuestas ya registradas.
+
+La fecha de consulta a SELAE, la fecha del último sorteo y los problemas de actualización quedan visibles dentro del laboratorio. Se conservan los avisos y los datos previos ante fallos.
+
+Validación: 42 pruebas Node y 3 Python superadas, compilación del Worker y del sitio estático. Las pruebas nuevas cubren exclusión de pendientes, recálculo desde el resultado oficial, separación por versiones, ausencia de porcentajes sin observaciones y actualización de las tarjetas reales. Se comprueba además el intervalo de Wilson con un caso conocido. No se ha realizado inspección visual en navegador en este entorno.
