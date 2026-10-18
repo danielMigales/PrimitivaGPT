@@ -69,6 +69,13 @@ test('Corregir cualquiera de las fechas permite repetir la consulta',async()=>{
  assert.match(els.get('query-summary').textContent,/1 sorteo encontrado/);
 });
 
+test('Todas las referencias DOM del HTML apuntan a elementos existentes',()=>{
+ const ids=new Set([...html.matchAll(/\\bid="([^"]+)"/g)].map(m=>m[1]));
+ const refs=[...html.matchAll(/\\$\\(['"]([^'"]+)['"]\\)/g)].map(m=>m[1]);
+ assert.deepEqual([...new Set(refs.filter(id=>!ids.has(id)))],[]);
+ assert.equal(ids.size,[...ids].length,'No debe haber IDs duplicados');
+});
+
 test('La vista del laboratorio muestra la propuesta sin renderizar paneles retirados',async()=>{
  const els=await renderData(seed);els.get('view-ai').onclick();await new Promise(resolve=>setImmediate(resolve));
  assert.equal(els.get('ai-content').hidden,false);assert.equal(els.get('ai-error').hidden,true);
