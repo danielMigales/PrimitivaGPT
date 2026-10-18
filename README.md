@@ -7,7 +7,7 @@ Aplicación web en español para consultar los cinco últimos sorteos de La Prim
 - El reintegro tiene su propio recuento. El complementario queda fuera del cálculo.
 - Histórico por fechas, paginación de cinco sorteos y exportación JSON.
 - Resultados de SELAE, conservados como JSON normalizado y respuestas mensuales originales.
-- Worker de Cloudflare con almacenamiento R2, comprobaciones cada 15 minutos al consultar y conservación ante errores.
+- Worker de Cloudflare con almacenamiento R2, lectura del archivo persistente y carga privada del histórico validado.
 - Alternativa estática para GitHub Pages con generación de una versión estática y validación mediante GitHub Actions.
 
 ## Ejecutar
@@ -38,6 +38,6 @@ Ver [MEMORIA.md](MEMORIA.md) para decisiones, estructura, limitaciones y validac
 
 ## Estado de esta entrega
 
-La aplicación privada está publicada en https://primitiva-archivo-2026.wittyeel5.chatgpt.site y tiene una tarea vinculada cada hora, en el minuto 35 (Europe/Madrid), para mantener el archivo alojado. El procedimiento de actualización está en `SYNC.md`.
+La aplicación privada está publicada en https://primitiva-archivo-2026.wittyeel5.chatgpt.site y tiene una tarea vinculada cada hora, en el minuto 35 (Europe/Madrid), para mantener el archivo alojado. El procedimiento de actualización está en `SYNC.md`: el importador consulta SELAE y `scripts/sync_site.py` carga y verifica el archivo en la web privada.
 
 El proyecto se conserva también en el repositorio público `danielMigales/PrimitivaGPT`. La versión de Sites tiene una tarea independiente para actualizar sus propios datos; los cambios de código en GitHub no redespliegan Sites automáticamente.

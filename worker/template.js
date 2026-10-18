@@ -1,8 +1,7 @@
 const SEED = /*SEED*/;
 const HTML = /*HTML*/;
-const TTL=15*60*1000;
+const MAX_AGE=3*60*60*1000;
 const KEY='history/draws.json';
-let pending;
 export function parseDraw(row){
  const m=/^\s*(\d+)\s*-\s*(\d+)\s*-\s*(\d+)\s*-\s*(\d+)\s*-\s*(\d+)\s*-\s*(\d+)\s+C\((\d+)\)\s+R\((\d+)\)\s*$/.exec(row.combinacion||'');
  if(!m||row.game_id!=='LAPR')throw Error('Formato SELAE inesperado');
@@ -16,25 +15,27 @@ export function validateHistory(draws){
  const dates=new Set(draws.map(d=>d.date)),end=draws[0].date;
  for(let d=new Date('2026-01-01T12:00:00Z');d.toISOString().slice(0,10)<=end;d.setUTCDate(d.getUTCDate()+1))if([1,4,6].includes(d.getUTCDay())&&!dates.has(d.toISOString().slice(0,10)))throw Error('Cobertura incompleta');
 }
-async function refresh(env,current){
+export function validateArchive(input){
+ if(!input||input.schemaVersion!==1||input.source!=='SELAE'||input.startDate!=='2026-01-01'||!Array.isArray(input.draws))throw Error('Archivo no reconocido');
+ const stamp=Date.parse(input.checkedAt);
+ if(!Number.isFinite(stamp)||stamp>Date.now()+5*60*1000||stamp<Date.now()-24*60*60*1000)throw Error('Fecha de consulta no válida o demasiado antigua');
  const today=new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Madrid'}).format(new Date());
- const merged=new Map(current.draws.map(d=>[d.date,d]));
- // Reconsultar el mes del último sorteo y los posteriores para incorporar correcciones y novedades.
- const start=current.latestDate.slice(0,7)+'-01',cursor=new Date(start+'T12:00:00Z'),raw=[];
- while(cursor.toISOString().slice(0,10)<=today){
-  const begin=cursor.toISOString().slice(0,10),last=new Date(Date.UTC(cursor.getUTCFullYear(),cursor.getUTCMonth()+1,0,12)).toISOString().slice(0,10),end=last<today?last:today;
-  const url='https://www.loteriasyapuestas.es/servicios/buscadorSorteos?game_id=LAPR&celebrados=true&fechaInicioInclusiva='+begin.replaceAll('-','')+'&fechaFinInclusiva='+end.replaceAll('-','');
-  const res=await fetch(url,{signal:AbortSignal.timeout(20000)});
-  if(!res.ok)throw Error('SELAE HTTP '+res.status);
-  const rows=await res.json();if(!Array.isArray(rows)||rows.length===0)throw Error('Respuesta SELAE vacía o inesperada');
-  for(const row of rows){const d=parseDraw(row);if(d.date<begin||d.date>end)throw Error('Fecha fuera del intervalo');merged.set(d.date,d);}
-  raw.push([begin.slice(0,7),rows]);cursor.setUTCMonth(cursor.getUTCMonth()+1);
- }
- const draws=[...merged.values()].sort((a,b)=>b.date.localeCompare(a.date));validateHistory(draws);
- const next={schemaVersion:1,startDate:'2026-01-01',source:'SELAE',checkedAt:new Date().toISOString(),latestDate:draws[0].date,draws};
- for(const [month,rows]of raw)await env.BUCKET.put('raw/'+month+'.json',JSON.stringify(rows),{httpMetadata:{contentType:'application/json'}});
- // Guardar un registro por sorteo evita perder la consulta histórica.
- for(const d of draws.filter(d=>d.date>=start))await env.BUCKET.put('draws/'+d.date+'.json',JSON.stringify(d),{httpMetadata:{contentType:'application/json'}});
+ const draws=input.draws.map(d=>{
+  if(!d||!Array.isArray(d.numbers)||d.numbers.length!==6||![...d.numbers,d.complementary,d.refund].every(Number.isInteger)||!/^\d{4}-\d{2}-\d{2}$/.test(d.date)||!Number.isFinite(Date.parse(d.date))||new Date(d.date).toISOString().slice(0,10)!==d.date||d.date>today||typeof d.id!=='string'||!/^\d+$/.test(d.id))throw Error('Sorteo inválido');
+  return parseDraw({game_id:'LAPR',fecha_sorteo:d.date,id_sorteo:d.id,combinacion:d.numbers.join(' - ')+' C('+d.complementary+') R('+d.refund+')'});
+ }).sort((a,b)=>b.date.localeCompare(a.date));
+ validateHistory(draws);
+ if(input.latestDate!==draws[0].date)throw Error('Última fecha inconsistente');
+ return {schemaVersion:1,startDate:'2026-01-01',source:'SELAE',checkedAt:new Date(stamp).toISOString(),latestDate:draws[0].date,draws};
+}
+export async function saveArchive(env,input){
+ if(!env.BUCKET)throw Error('Almacenamiento no disponible');
+ const next=validateArchive(input),object=await env.BUCKET.get(KEY),current=object?await object.json():SEED;
+ if(Date.parse(next.checkedAt)<Date.parse(current.checkedAt))throw Error('No se permite retroceder la fecha de consulta');
+ const dates=new Set(next.draws.map(d=>d.date));
+ if(current.draws.some(d=>!dates.has(d.date)))throw Error('No se permite perder sorteos guardados');
+ const old=new Map(current.draws.map(d=>[d.date,JSON.stringify(d)]));
+ for(const d of next.draws)if(old.get(d.date)!==JSON.stringify(d))await env.BUCKET.put('draws/'+d.date+'.json',JSON.stringify(d),{httpMetadata:{contentType:'application/json'}});
  await env.BUCKET.put(KEY,JSON.stringify(next),{httpMetadata:{contentType:'application/json'}});
  return next;
 }
@@ -43,12 +44,22 @@ export async function getData(env){
  if(!env.BUCKET)return {...SEED,warning:'Almacenamiento no disponible. Se muestra la copia incluida en el proyecto.'};
  try{const obj=await env.BUCKET.get(KEY);if(obj)current=await obj.json();else await env.BUCKET.put(KEY,JSON.stringify(SEED));}
  catch{return {...SEED,warning:'No se pudo leer el archivo del servidor. Se muestra la última copia incluida en el proyecto.'};}
- if(Date.now()-Date.parse(current.checkedAt)<TTL)return current;
- try{if(!pending)pending=refresh(env,current).finally(()=>{pending=undefined;});return await pending;}
- catch{return {...current,warning:'SELAE no ha podido actualizarse ahora. Se conservan los resultados guardados; la fecha de última consulta indica su antigüedad.'};}
+ if(Date.now()-Date.parse(current.checkedAt)>MAX_AGE)return {...current,warning:'La última consulta a SELAE tiene más de tres horas. Se conservan los resultados guardados mientras se reintenta la sincronización.'};
+ return current;
 }
 export default {async fetch(request,env){
  const url=new URL(request.url);
+ if(url.pathname==='/api/sync'){
+  if(request.method!=='POST')return new Response('Método no permitido',{status:405,headers:{Allow:'POST'}});
+  // La puerta de acceso privada de Sites autentica al propietario y el acceso de servicio.
+  // El sitio debe seguir siendo privado; no exponer este escritor con audiencia pública.
+  if(request.headers.has('Origin'))return new Response('Solo sincronización de servicio',{status:403});
+  if(!(request.headers.get('Content-Type')||'').startsWith('application/json'))return new Response('Se requiere JSON',{status:415});
+  const body=await request.text();if(body.length>2*1024*1024)return new Response('Archivo demasiado grande',{status:413});
+  let input;try{input=JSON.parse(body);}catch{return Response.json({error:'JSON inválido'},{status:400});}
+  let next;try{next=await saveArchive(env,input);}catch(error){return Response.json({error:error.message},{status:422,headers:{'Cache-Control':'no-store'}});}
+  return Response.json({ok:true,count:next.draws.length,latestDate:next.latestDate,checkedAt:next.checkedAt},{headers:{'Cache-Control':'no-store'}});
+ }
  if(request.method!=='GET')return new Response('Método no permitido',{status:405,headers:{Allow:'GET'}});
  const headers={'X-Content-Type-Options':'nosniff','Referrer-Policy':'strict-origin-when-cross-origin'};
  if(url.pathname==='/api/draws'){const data=await getData(env);return Response.json(data,{headers:{...headers,'Cache-Control':'no-store',...(url.searchParams.has('download')?{'Content-Disposition':'attachment; filename="primitiva-historico.json"'}:{})}});}

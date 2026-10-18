@@ -36,9 +36,11 @@ El cliente usa HTML, CSS y JavaScript nativos, sin dependencias. El diseño resp
 
 `worker/template.js` implementa el servidor. `scripts/build.mjs` incorpora la interfaz y el JSON validado en `worker/index.js`. El Worker sirve `/` y `/api/draws`. Sites conecta un bucket R2 llamado lógicamente BUCKET. La copia normalizada se conserva en `history/draws.json`; las nuevas respuestas mensuales en `raw/AAAA-MM.json`; los sorteos consultados en registros por fecha dentro de `draws/`. La copia incorporada al proyecto conserva también todos los sorteos iniciales.
 
-La primera petición inicializa el archivo persistente con la copia del proyecto. Pasados quince minutos desde la última consulta válida, una petición vuelve a SELAE, consulta desde el mes del último resultado guardado y mezcla las novedades. La última escritura del JSON normalizado ocurre tras validar la respuesta. Ante fallos de SELAE o del almacenamiento, el cliente recibe los resultados conservados y un aviso visible con la fecha de consulta. El servidor limita los métodos a GET y aplica cabeceras de seguridad.
+La primera petición inicializa el archivo con la copia incorporada. GET `/api/draws` lee el histórico persistente sin consultar servicios externos; indica un aviso si la última consulta oficial confirmada tiene más de tres horas. La tarea descarga los resultados desde SELAE en el entorno donde se ha verificado el acceso, valida y carga el JSON mediante POST `/api/sync`. El endpoint admite solo peticiones de servicio sin Origin, JSON acotado a 2 MiB y el acceso privado de Sites. Revalida combinaciones, fechas, identificadores, cobertura y conservación de todas las fechas existentes. No permite retroceder la fecha de consulta. Reconstruye los enlaces oficiales y confirma la escritura del archivo normalizado al final.
 
-La interfaz consulta al abrirse y cada quince minutos mientras está visible. El botón manual consulta el servidor, que respeta la ventana de quince minutos para no sobrecargar SELAE. Esta comprobación depende de visitas: por sí sola no actualiza el archivo con la aplicación cerrada.
+`scripts/sync_site.py` recibe el acceso efímero por stdin, carga los datos y realiza dos lecturas comparando fecha, último sorteo e identificadores. No guarda ni imprime credenciales. La tarea carga los datos incluso si no hay sorteos nuevos; en GitHub no crea commits por cambiar únicamente la marca de consulta. La interfaz recarga el archivo al abrir y cada quince minutos mientras está visible. El botón Recargar datos obtiene la última copia guardada. Si falla el almacenamiento mantiene la copia incorporada con un aviso.
+
+La audiencia permanece privada: la autorización del escritor depende de la puerta de acceso de Sites. Antes de hacer público el sitio se deberá añadir autorización específica al escritor o retirarlo. No se ha hecho público.
 
 ## 5. Actualización desatendida y GitHub
 
@@ -93,3 +95,7 @@ Validación final confirmada en GitHub Actions: ejecución https://github.com/da
 ## 10. Corrección de visualización (18/10/2026)
 
 Un reintegro sin coincidencias devolvía -1 al buscar su color. El cliente intentaba desestructurar un color inexistente y detenía el dibujo de los cinco sorteos. Se usa un índice válido también para los reintegros únicos. Se añade una prueba del script real de la interfaz con el histórico completo y ventanas con reintegros todos distintos y repetidos; se verifica el listado, la ausencia de avisos y el cambio a histórico.
+
+## 11. Corrección de sincronización (18/10/2026)
+
+La prueba real de la web devolvía un aviso de fallo de consulta a SELAE, mientras la importación mensual desde el entorno de trabajo sí obtenía los 125 resultados oficiales. Se elimina esa dependencia de red del lector web. La nueva ruta privada recibe el archivo validado desde el importador y lo conserva en R2; no requiere redespliegues rutinarios. Se añaden seis pruebas de escritura, rechazo de archivos inválidos, prevención de pérdidas y retrocesos, reconstrucción de enlaces oficiales y tratamiento de fallos de almacenamiento. Total: 21 pruebas automatizadas. La prueba de producción se realiza con la carga autenticada y dos lecturas posteriores.
