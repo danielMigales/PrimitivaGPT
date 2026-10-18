@@ -1,5 +1,5 @@
 // Aprendizaje secuencial: ninguna predicción recibe el resultado que evalúa.
-export const MODEL_VERSION='1.3.0';
+export const MODEL_VERSION='1.2.0';
 const EXPERTS=['Azar uniforme','Frecuencia acumulada','Frecuencia reciente','Recencia ponderada','Parejas y estructura','Bayes regularizado','Markov regularizado'];
 const range=n=>Array.from({length:n},(_,i)=>i);
 const normalize=v=>{const total=v.reduce((a,b)=>a+b,0);return v.map(x=>x/total);};
@@ -19,11 +19,7 @@ function distributions(history,window,count){
  const recent=history.slice(-window),nums=Array.from({length:7},()=>Array(49).fill(1)),refs=Array.from({length:7},()=>Array(10).fill(1));
  nums[0].fill(1);refs[0].fill(1);
  history.forEach((d,i)=>{for(const n of d.numbers){nums[1][n-1]++;nums[3][n-1]+=Math.pow(.5,(history.length-1-i)/12);}refs[1][d.refund]++;refs[3][d.refund]+=Math.pow(.5,(history.length-1-i)/12);});
- // Frecuencia reciente compuesta: 30 sorteos (50 %), 15 (30 %) y 5 (20 %).
- // Cada ventana se normaliza por separado antes de mezclar para evitar favorecer a las largas.
- const mixWindows=(size,kind)=>{const counts=kind==='numbers'?Array(49).fill(1):Array(10).fill(1);for(const d of history.slice(-Math.min(size,history.length))){if(kind==='numbers')for(const n of d.numbers)counts[n-1]++;else counts[d.refund]++;}const total=counts.reduce((a,b)=>a+b,0);return counts.map(v=>v/total);};
- const weighted=(kind,length)=>{const out=Array(length).fill(0);for(const [size,weight] of [[30,.5],[15,.3],[5,.2]]){const values=mixWindows(size,kind);for(let i=0;i<length;i++)out[i]+=weight*values[i];}return out;};
- nums[2]=weighted('numbers',49);refs[2]=weighted('refund',10);
+ for(const d of recent){for(const n of d.numbers)nums[2][n-1]++;refs[2][d.refund]++;}
  const anchors=best(normalize(nums[2])).slice(0,3);
  for(const d of recent){for(const n of d.numbers)nums[4][n-1]+=1+d.numbers.filter(x=>x!==n&&anchors.includes(x)).length/3;refs[4][d.refund]++;}
  // Bayes: prior simétrico fuerte. En números es una puntuación regularizada;
@@ -69,7 +65,7 @@ export function brierScore(probabilities,actual){return probabilities.reduce((su
 export function analyze(draws,{window=30,variant='extended'}={}){
  if(!['extended','legacy'].includes(variant))throw Error('Variante no válida');
  const countExperts=variant==='extended'?EXPERTS.length:5;
- if(![5,15,30].includes(window))throw Error('Ventana permitida: 5, 15 o 30 sorteos');
+ if(![20,30,50].includes(window))throw Error('Ventana permitida: 20, 30 o 50');
  const ordered=draws.map(d=>({...d,numbers:d.numbers.slice().sort((a,b)=>a-b)})).sort((a,b)=>a.date.localeCompare(b.date));
  if(new Set(ordered.map(d=>d.date)).size!==ordered.length)throw Error('Fechas duplicadas');
  for(const d of ordered)if(d.numbers.length!==6||new Set(d.numbers).size!==6||d.numbers.some(n=>!Number.isInteger(n)||n<1||n>49)||!Number.isInteger(d.refund)||d.refund<0||d.refund>9)throw Error('Sorteo inválido');

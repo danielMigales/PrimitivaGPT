@@ -24,7 +24,7 @@ test('Frecuencias, parejas, paridad y distancias se calculan de las combinacione
  const p=patterns([{numbers:[1,2,3,4,5,6],refund:0},{numbers:[1,2,10,20,30,40],refund:0}]);assert.equal(p.frequency[0].count,2);assert.equal(p.refunds[0].count,2);assert.equal(p.pairs.find(x=>x.numbers.join('-')==='1-2').count,2);assert.equal(p.parity.find(x=>x.even===3).count,1);assert.equal(p.parity.find(x=>x.even===5).count,1);assert.equal(p.gaps[0].count,6);
 });
 test('Rechaza ventanas inválidas, duplicados y señala datos insuficientes',()=>{
- assert.throws(()=>analyze(archive.draws,{window:0}));assert.throws(()=>analyze([...archive.draws,archive.draws[0]]));assert.equal(analyze(chronological.slice(0,30)).status,'insufficient');assert.throws(()=>analyze(archive.draws,{window:50}),/Ventana permitida: 5, 15 o 30 sorteos/);
+ assert.throws(()=>analyze(archive.draws,{window:0}));assert.throws(()=>analyze([...archive.draws,archive.draws[0]]));assert.equal(analyze(chronological.slice(0,30)).status,'insufficient');assert.equal(analyze(archive.draws,{window:50}).rows.length,archive.draws.length-50);
 });
 test('El análisis se guarda, se reutiliza y cambia al corregir resultados oficiales',async()=>{
  let doc=structuredClone(archive);const map=new Map();const BUCKET={async get(key){if(key==='history/draws.json')return {json:async()=>doc};return map.has(key)?{json:async()=>JSON.parse(map.get(key))}:null;},async put(key,val){map.set(key,val);}};

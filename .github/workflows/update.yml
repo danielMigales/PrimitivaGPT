@@ -19,10 +19,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Generar aplicación y Worker desde las fuentes actuales
-        run: npm run build
-      - name: Ejecutar pruebas JavaScript y Python
-        run: npm test
+      - name: Probar y generar aplicación
+        run: |
+          npm test
+          npm run build
       - uses: actions/upload-artifact@v4
         with:
           name: primitiva-web-estatica

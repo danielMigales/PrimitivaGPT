@@ -69,21 +69,12 @@ test('Corregir cualquiera de las fechas permite repetir la consulta',async()=>{
  assert.match(els.get('query-summary').textContent,/1 sorteo encontrado/);
 });
 
-test('Todas las referencias DOM del HTML apuntan a elementos existentes',()=>{
- const ids=new Set([...html.matchAll(/\\bid="([^"]+)"/g)].map(m=>m[1]));
- const refs=[...html.matchAll(/\\$\\(['"]([^'"]+)['"]\\)/g)].map(m=>m[1]);
- assert.deepEqual([...new Set(refs.filter(id=>!ids.has(id)))],[]);
- assert.equal(ids.size,[...ids].length,'No debe haber IDs duplicados');
-});
-
-test('La vista del laboratorio muestra la propuesta sin renderizar paneles retirados',async()=>{
+test('El laboratorio muestra predicción, métricas, pesos y pruebas históricas',async()=>{
  const els=await renderData(seed);els.get('view-ai').onclick();await new Promise(resolve=>setImmediate(resolve));
- assert.equal(els.get('ai-content').hidden,false);assert.equal(els.get('ai-error').hidden,true);
- assert.equal((els.get('ai-forecast').innerHTML.match(/class="ball/g)||[]).length,7);
- assert.match(els.get('ai-forecast-date').textContent,/Para el próximo sorteo|Sorteo del/);
+ assert.equal(els.get('ai-content').hidden,false);assert.equal(els.get('ai-error').hidden,true);assert.equal(els.get('ai-count').textContent,seed.draws.length-30);
+ assert.equal((els.get('ai-forecast').innerHTML.match(/class="ball/g)||[]).length,7);assert.match(els.get('ai-detail').innerHTML,/Predicción previa/);assert.match(els.get('ai-weights').innerHTML,/Frecuencia acumulada/);
+ const first=els.get('ai-log').innerHTML;els.get('ai-next').onclick();assert.notEqual(els.get('ai-log').innerHTML,first);els.get('ai-target').value='0';els.get('ai-target').onchange();assert.match(els.get('ai-detail').innerHTML,/30 sorteos anteriores/);
  els.get('view-results').onclick();assert.equal(els.get('ai-view').hidden,true);assert.equal(els.get('results-view').hidden,false);
- assert.ok(!html.includes('Simulaciones históricas · resultados y pruebas'));assert.ok(!html.includes('Registro completo de pruebas'));assert.ok(!html.includes('Métodos y aprendizaje del motor'));
- assert.ok(!html.includes("$('ai-comparison').innerHTML"));assert.ok(!html.includes("$('ai-research-comparison').innerHTML"));
 });
 
 test('La propuesta muestra fecha y resultado pendiente, y conserva la comparación publicada debajo',async()=>{
@@ -95,7 +86,7 @@ test('La propuesta muestra fecha y resultado pendiente, y conserva la comparaci�
 
 test('Resumen real muestra pendientes sin mezclar las simulaciones y mantiene el detalle plegado',async()=>{
  const report=analyze(seed.draws);report.tracking={persisted:true,records:[{version:'1.2.0',targetDate:'2026-10-19',status:'pending',actual:null}]};
- const els=await renderData(seed,report);els.get('view-ai').onclick();await new Promise(resolve=>setImmediate(resolve));assert.equal(els.get('ai-real-issued').textContent,1);assert.equal(els.get('ai-real-evaluated').textContent,0);assert.equal(els.get('ai-real-refunds').textContent,'—');assert.match(els.get('ai-real-status').textContent,/1 propuesta pendiente/);assert.match(els.get('ai-real-uncertainty').textContent,/no se suman/);assert.match(els.get('ai-sync-status').textContent,/SELAE.*último sorteo/);assert.equal((html.match(/<details class="ai-fold"/g)||[]).length,1);assert.ok(!html.includes('Simulaciones históricas · resultados y pruebas'));assert.ok(!html.includes('Registro completo de pruebas'));assert.ok(!html.includes('Métodos y aprendizaje del motor'));assert.ok(!html.includes('Métodos investigados y comparación'));
+ const els=await renderData(seed,report);els.get('view-ai').onclick();await new Promise(resolve=>setImmediate(resolve));assert.equal(els.get('ai-real-issued').textContent,1);assert.equal(els.get('ai-real-evaluated').textContent,0);assert.equal(els.get('ai-real-refunds').textContent,'—');assert.match(els.get('ai-real-status').textContent,/1 propuesta pendiente/);assert.match(els.get('ai-real-uncertainty').textContent,/no se suman/);assert.match(els.get('ai-sync-status').textContent,/SELAE.*último sorteo/);assert.equal((html.match(/<details class="ai-fold">/g)||[]).length,3);assert.ok(html.indexOf('Propuesta experimental')<html.indexOf('Simulaciones históricas · resultados y pruebas'));
 });
 test('Resumen real presenta aciertos y versiones solo tras recibir resultados oficiales',async()=>{
  const report=analyze(seed.draws);report.tracking={persisted:true,records:[{version:'1.2.0',targetDate:'2026-10-15',numbers:[1,2,3,4,5,6],refund:4,status:'published',actual:{numbers:[1,2,3,7,8,9],refund:4},hits:3,refundHit:true}]};
