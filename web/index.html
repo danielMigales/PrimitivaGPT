@@ -85,7 +85,7 @@ function renderRealSummary(report){
  $('ai-real-refunds').textContent=summary.evaluated?summary.refunds+' / '+summary.evaluated:'—';
  $('ai-real-three').textContent=summary.evaluated?summary.three+' / '+summary.evaluated:'—';
  const pending=records.filter(r=>r.status!=='published'||!r.actual).length;
- $('ai-real-status').textContent=summary.evaluated?(summary.refunds+' / '+summary.evaluated+' reintegros acertados; '+summary.three+' / '+summary.evaluated+' propuestas con 3 o más aciertos.'):pending?pending+' propuesta pendiente de resultado oficial.':'Aún no hay propuestas evaluadas con resultados oficiales.';
+ $('ai-real-status').textContent=summary.evaluated?(summary.joint+' / '+summary.evaluated+' propuestas con ambos objetivos: reintegro y 3 o más aciertos.'):pending?pending+' propuesta pendiente de resultado oficial.':'Aún no hay propuestas evaluadas con resultados oficiales.';
  $('ai-real-uncertainty').textContent=summary.evaluated?'La tasa de reintegro se muestra con intervalo de confianza de Wilson; muestras pequeñas tienen mucha incertidumbre. Los datos no permiten garantizar resultados futuros.':'Las simulaciones no se suman al seguimiento real. Sin resultados oficiales evaluables no hay una tasa estimable ni intervalo de Wilson.';
  $('ai-real-versions').innerHTML=summary.versions.map(v=>'<tr><td>'+v.version+'</td><td>'+v.evaluated+'</td><td>'+v.refunds+' / '+v.evaluated+'</td><td>'+v.three+' / '+v.evaluated+'</td></tr>').join('');
 }
