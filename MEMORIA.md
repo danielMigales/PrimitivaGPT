@@ -99,3 +99,7 @@ Un reintegro sin coincidencias devolvía -1 al buscar su color. El cliente inten
 ## 11. Corrección de sincronización (18/10/2026)
 
 La prueba real de la web devolvía un aviso de fallo de consulta a SELAE, mientras la importación mensual desde el entorno de trabajo sí obtenía los 125 resultados oficiales. Se elimina esa dependencia de red del lector web. La nueva ruta privada recibe el archivo validado desde el importador y lo conserva en R2; no requiere redespliegues rutinarios. Se añaden seis pruebas de escritura, rechazo de archivos inválidos, prevención de pérdidas y retrocesos, reconstrucción de enlaces oficiales y tratamiento de fallos de almacenamiento. Total: 21 pruebas automatizadas. La prueba de producción se realiza con la carga autenticada y dos lecturas posteriores.
+
+## 12. Consulta histórica con confirmación visible (18/10/2026)
+
+En un intervalo amplio que incluye el último sorteo, el filtro conservaba correctamente los mismos cinco resultados iniciales, pero no mostraba confirmación y la paginación quedaba al final del listado. Se añade un resumen visible con intervalo, número de resultados y orden. Los controles de página pasan a estar encima de los sorteos y se puede elegir orden ascendente o descendente. Los filtros se aplican al pulsar Consultar y no al paginar con fechas aún sin confirmar. Se limpia la validación al corregir cualquiera de las fechas. Se prueban el intervalo de la captura, el orden antiguo, los extremos inclusivos, la consulta vacía y la recuperación de fechas inválidas.
