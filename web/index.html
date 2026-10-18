@@ -51,8 +51,8 @@ function scoreBars(items,label){const max=Math.max(...items.map(x=>x.count),1);r
 const TRACKING_KEY='primitivagpt.local-tracking.v1';
 async function attachLocalTracking(report){
  const window=Number(report.window),key=TRACKING_KEY+':'+window;
- let records=[];
- try{const saved=JSON.parse(localStorage.getItem(key)||'{"records":[]}');if(Array.isArray(saved.records))records=saved.records;}catch{}
+ let records=Array.isArray(report.tracking?.records)?report.tracking.records.slice():[];
+ try{const saved=JSON.parse(localStorage.getItem(key)||'{"records":[]}');if(Array.isArray(saved.records)){const byDate=new Map(records.map(r=>[r.targetDate,r]));for(const r of saved.records)byDate.set(r.targetDate,r);records=[...byDate.values()];}}catch{}
  let draws=[];
  try{const res=await fetch('./data/draws.json',{cache:'no-store'});if(res.ok){const archive=await res.json();draws=Array.isArray(archive.draws)?archive.draws:[];}}catch{}
  const byDate=new Map(draws.map(d=>[d.date,d]));
