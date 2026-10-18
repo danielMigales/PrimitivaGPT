@@ -67,16 +67,17 @@ async function attachLocalTracking(report){
  report.trackingNote='Seguimiento guardado solo en este navegador; no se sincroniza entre dispositivos.';
  return report;
 }
-function showRealSummary(report){
- const tracked=report.tracking?.persisted===true,summary=summarizeIssued(tracked?report.tracking.records:[]),n=summary.evaluated;
- $('ai-real-context').textContent=`Experimento de ${report.window} sorteos iniciales. Cada propuesta se guarda antes de su sorteo.`;
- $('ai-real-issued').textContent=tracked?summary.issued:'—';$('ai-real-evaluated').textContent=tracked?n:'—';
- $('ai-real-refunds').textContent=n?`${summary.refunds} / ${n}`:'—';$('ai-real-three').textContent=n?`${summary.three} / ${n}`:'—';
- $('ai-real-status').textContent=!tracked?'Seguimiento persistente no disponible en esta vista.':!n?`${summary.pending} ${summary.pending===1?'propuesta pendiente':'propuestas pendientes'} de resultado oficial. Aún no hay propuestas evaluadas.`:`Reintegro: ${percent(summary.refundRate)} · Media: ${decimal(summary.meanHits)} de 6 · Ambos objetivos: ${summary.joint} / ${n}. Pendientes: ${summary.pending}.`;
- $('ai-real-uncertainty').textContent=n?`Reintegro · intervalo orientativo del 95 %: ${percent(summary.refundInterval[0])}–${percent(summary.refundInterval[1])} (Wilson). Referencia aleatoria: 10 %. Una muestra pequeña tiene mucha incertidumbre y no demuestra una ventaja predictiva.`:'Los porcentajes aparecerán cuando se publiquen resultados. Las simulaciones históricas se consultan aparte y las ventanas se solapan: no se suman como sorteos independientes.';
- $('ai-real-versions').innerHTML=summary.versions.length?summary.versions.map(v=>`<tr><td>${v.version}</td><td>${v.evaluated}</td><td>${v.refunds} / ${v.evaluated}</td><td>${v.three} / ${v.evaluated}</td></tr>`).join(''):'<tr><td colspan="4">Sin resultados oficiales evaluados todavía.</td></tr>';
+function renderPatterns(patterns){
+ if(!patterns)return;
+ const freq=[...patterns.frequency].sort((a,b)=>b.count-a.count).slice(0,12);
+ $('ai-frequency').innerHTML=freq.map(x=>'<div class="frequency-row"><span>'+x.number+'</span><strong>'+x.count+'</strong></div>').join('');
+ $('ai-pairs').innerHTML=patterns.pairs.slice(0,10).map(x=>'<div class="pair-item"><span>'+x.numbers.join(' + ')+'</span><strong>'+x.count+'</strong></div>').join('');
+ $('ai-gaps').textContent='Distancia media: '+decimal(patterns.meanGap)+'. Suma media de los seis números: '+decimal(patterns.meanSum)+'. Distancias más habituales: '+patterns.gaps.slice().sort((a,b)=>b.count-a.count).slice(0,5).map(x=>x.gap+' ('+x.count+')').join(', ')+'.';
+ $('ai-parity').innerHTML=patterns.parity.map(x=>'<div class="parity-row"><span>'+x.even+' pares / '+x.odd+' impares</span><strong>'+x.count+'</strong></div>').join('');
+ $('ai-refunds').innerHTML=patterns.refunds.map(x=>'<div class="refund-row"><span>'+x.number+'</span><strong>'+x.count+'</strong></div>').join('');
+ const fold=document.querySelector('.ai-fold');if(fold)fold.open=true;
 }
-function renderAi(report){showRealSummary(report);aiReport=report;$('ai-content').hidden=false;const proposal=report.tracking?.active||report.forecast,targetDate=report.tracking?.targetDate||report.forecast.targetDate;
+function renderAi(report){aiReport=report;renderPatterns(report.patterns);$('ai-content').hidden=false;const proposal=report.tracking?.active||report.forecast,targetDate=report.tracking?.targetDate||report.forecast.targetDate;
 $('ai-forecast-date').textContent=targetDate?`Sorteo del ${format(targetDate,{day:'numeric',month:'long',year:'numeric'})}`:'Para el próximo sorteo';
 $('ai-forecast').innerHTML=forecastBalls(proposal);
 $('ai-forecast-info').textContent=`${proposal.trainingCount||report.drawCount} sorteos · hasta el ${format(proposal.trainedThrough||report.sourceLastDate,{day:'2-digit',month:'2-digit',year:'numeric'})}.`;
