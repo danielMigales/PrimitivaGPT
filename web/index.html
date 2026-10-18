@@ -49,6 +49,27 @@
 /* Ocultar el seguimiento real si el usuario no quiere ese panel. */
 .ai-grid.ai-focus{grid-template-columns:minmax(0,1fr)}
 .ai-grid.ai-focus .real-summary{display:none!important}
+/* Correcciones finales del laboratorio: limitar la propuesta y mantener contraste en patrones. */
+.ai-grid.ai-focus{grid-template-columns:minmax(0,1fr);margin:12px 0 18px}
+.ai-grid.ai-focus .forecast-card{width:100%;max-width:760px;padding:16px 20px;border-radius:12px;background:#173d35;color:#fff}
+.ai-grid.ai-focus .forecast-card h3{font-size:17px;margin:0 0 10px}
+.ai-grid.ai-focus .forecast-card .forecast-line{max-width:520px}
+.ai-grid.ai-focus .forecast-card .forecast-result,.ai-grid.ai-focus .forecast-card .forecast-issued{margin-top:8px;padding-top:8px}
+.ai-fold .fold-body>.ai-grid{grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;gap:14px;margin:0}
+.ai-fold .fold-body .ai-card{display:flex;flex-direction:column;min-width:0;padding:20px;border:1px solid var(--line);border-radius:12px;background:#fff}
+.ai-fold .fold-body .ai-card h3{min-height:0;margin:0 0 10px;font-size:16px;line-height:1.35;letter-spacing:-.25px}
+.ai-fold .fold-body .ai-card>p{margin:0 0 12px;font-size:11px;line-height:1.55}
+#ai-frequency,#ai-parity,#ai-refunds{display:grid;gap:0;margin-top:0}
+.frequency-row,.parity-row,.refund-row,.ai-fold .pair-item{display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0;padding:9px 0;border:0;border-bottom:1px solid var(--line);border-radius:0;background:transparent;font-size:12px}
+.frequency-row:last-child,.parity-row:last-child,.refund-row:last-child,.ai-fold .pair-item:last-child{border-bottom:0}
+.frequency-row span,.refund-row span{display:inline-flex;align-items:center;justify-content:center;flex:0 0 28px;width:28px;height:28px;border-radius:50%;background:#e8eee4;color:#285b42;font-weight:700;font-variant-numeric:tabular-nums}
+.frequency-row strong,.parity-row strong,.refund-row strong,.ai-fold .pair-item strong{flex-shrink:0;font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--ink)}
+.parity-row span,.ai-fold .pair-item span{min-width:0;color:var(--ink);line-height:1.4}
+.ai-fold .pair-grid{grid-template-columns:minmax(0,1fr);gap:0;margin-top:0}
+.ai-fold .ai-small-heading{margin:18px 0 8px;padding-top:14px;border-top:1px solid var(--line)}
+.ai-fold #ai-gaps{margin:0;padding:10px 12px;border-radius:8px;background:#f0f3eb;color:#53645a;font-size:11px;line-height:1.65}
+.ai-pattern-empty{padding:12px!important;border-radius:8px;background:#f0f3eb;color:#53645a!important}
+@media(max-width:700px){.ai-grid.ai-focus .forecast-card{max-width:none;padding:14px}.ai-grid.ai-focus .forecast-card .forecast-line{max-width:none}.ai-fold .fold-body>.ai-grid{grid-template-columns:minmax(0,1fr);gap:12px}.ai-fold .fold-body .ai-card{padding:17px}}
 </style></head><body>
 <header><div><div class="brand"><span class="brand-icon" aria-hidden="true">✳</span> primitiva<span style="font-weight:400;color:#7f8b80">/ archivo</span></div><span class="smallcaps edition">Observa los números. Encuentra las coincidencias.</span></div></header>
 <main><nav class="main-nav" aria-label="Secciones"><button id="view-results" aria-pressed="true">Resultados</button><button id="view-ai" aria-pressed="false">Laboratorio IA</button></nav><div id="results-view"><div class="intro"><div><div class="eyebrow smallcaps">Resultados · La Primitiva</div><h1>Cada sorteo,<br><span>una nueva combinación.</span></h1><p class="subtitle">Los últimos resultados en un vistazo. Descubre qué números se repiten y recorre el archivo de sorteos.</p></div><div class="source-chip">Datos oficiales de SELAE</div></div>
