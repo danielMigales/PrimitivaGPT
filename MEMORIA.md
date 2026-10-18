@@ -89,3 +89,7 @@ La primera subida quedó registrada en el commit `f00df297842b0c20c3fd09d9b6017a
 La programación horaria se ha actualizado para sincronizar el histórico tanto en el sitio como en GitHub. El cambio de curl no resolvió la descarga desde Actions; por ello el workflow final solo valida y genera el proyecto.
 
 Validación final confirmada en GitHub Actions: ejecución https://github.com/danielMigales/PrimitivaGPT/actions/runs/39110984165 completada con éxito para el commit `a8cc5200ec14014500a4e918835dc066791b69fc`. Ejecutó las once pruebas, generó la aplicación y subió el artefacto estático. La nueva descarga completa de SELAE realizada desde el entorno de trabajo también validó los 125 sorteos y se guardó en ese commit. La tarea horaria está configurada para repetir el procedimiento; aún no se ha observado una ocurrencia programada.
+
+## 10. Corrección de visualización (18/10/2026)
+
+Un reintegro sin coincidencias devolvía -1 al buscar su color. El cliente intentaba desestructurar un color inexistente y detenía el dibujo de los cinco sorteos. Se usa un índice válido también para los reintegros únicos. Se añade una prueba del script real de la interfaz con el histórico completo y ventanas con reintegros todos distintos y repetidos; se verifica el listado, la ausencia de avisos y el cambio a histórico.
