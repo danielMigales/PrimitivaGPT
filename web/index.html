@@ -56,7 +56,7 @@ async function attachLocalTracking(report){
  let draws=[];
  try{const res=await fetch('./data/draws.json',{cache:'no-store'});if(res.ok){const archive=await res.json();draws=Array.isArray(archive.draws)?archive.draws:[];}}catch{}
  const byDate=new Map(draws.map(d=>[d.date,d]));
- records=records.map(r=>{const actual=byDate.get(r.targetDate);if(!actual)return r;return {...r,status:'published',actual:{date:actual.date,numbers:actual.numbers,refund:actual.refund},hits:r.numbers.filter(n=>actual.numbers.includes(n)).length,refundHit:r.refund===actual.refund};});
+ records=records.map(r=>{if(r.status==='published'&&r.actual)return r;const actual=byDate.get(r.targetDate);if(!actual)return r;return {...r,status:'published',actual:{date:actual.date,numbers:actual.numbers,refund:actual.refund},hits:r.numbers.filter(n=>actual.numbers.includes(n)).length,refundHit:r.refund===actual.refund};});
  const latest=draws.slice().sort((a,b)=>b.date.localeCompare(a.date))[0],targetDate=report.forecast?.targetDate;
  if(targetDate&&(!latest||targetDate>latest.date)&&!records.some(r=>r.targetDate===targetDate)){
   records.push({targetDate,createdAt:new Date().toISOString(),window,version:report.version,trainedThrough:report.sourceLastDate,trainingCount:report.drawCount,numbers:report.forecast.numbers.slice(),refund:report.forecast.refund,status:'pending',actual:null,hits:null,refundHit:null});
