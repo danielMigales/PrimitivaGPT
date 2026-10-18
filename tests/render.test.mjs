@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import vm from 'node:vm';
+import {analyze} from '../engine/model.js';
 const html=await readFile(new URL('../web/index.html',import.meta.url),'utf8');
 const logic=await readFile(new URL('../web/logic.js',import.meta.url),'utf8');
 const script=html.match(/<script type="module">([\s\S]*?)<\/script>/)[1].replace('/*LOGIC*/',logic.replaceAll('export ',''));
@@ -10,7 +11,7 @@ async function renderData(data){
  const elements=new Map();
  const document={hidden:false,getElementById(id){if(!elements.has(id))elements.set(id,{value:id==='from'?'2026-01-01':'',innerHTML:'',textContent:'',hidden:true,setAttribute(){},setCustomValidity(){},reportValidity(){}});return elements.get(id);}};
  for(const match of html.matchAll(/id="([^"]+)"/g))document.getElementById(match[1]);
- vm.runInNewContext(script,{document,fetch:async()=>({ok:true,json:async()=>data}),setInterval(){},Date,Map,Error,console});
+ vm.runInNewContext(script,{document,fetch:async url=>({ok:true,json:async()=>String(url).includes('/api/ai')?analyze(data.draws,{window:Number(String(url).split('window=')[1])||30}):data}),setInterval(){},Date,Map,Error,console});
  await new Promise(resolve=>setImmediate(resolve));
  return elements;
 }
@@ -66,4 +67,12 @@ test('Corregir cualquiera de las fechas permite repetir la consulta',async()=>{
  els.get('from').value='2026-10-18';els.get('until').value='2026-01-01';els.get('filters').onsubmit({preventDefault(){}});assert.ok(validity);
  els.get('from').value='2026-01-01';els.get('from').oninput();assert.equal(validity,'');els.get('filters').onsubmit({preventDefault(){}});
  assert.match(els.get('query-summary').textContent,/1 sorteo encontrado/);
+});
+
+test('El laboratorio muestra predicción, métricas, pesos y pruebas históricas',async()=>{
+ const els=await renderData(seed);els.get('view-ai').onclick();await new Promise(resolve=>setImmediate(resolve));
+ assert.equal(els.get('ai-content').hidden,false);assert.equal(els.get('ai-error').hidden,true);assert.equal(els.get('ai-count').textContent,seed.draws.length-30);
+ assert.equal((els.get('ai-forecast').innerHTML.match(/class="ball/g)||[]).length,7);assert.match(els.get('ai-detail').innerHTML,/Predicción previa/);assert.match(els.get('ai-weights').innerHTML,/Frecuencia acumulada/);
+ const first=els.get('ai-log').innerHTML;els.get('ai-next').onclick();assert.notEqual(els.get('ai-log').innerHTML,first);els.get('ai-target').value='0';els.get('ai-replay').onclick();assert.match(els.get('ai-detail').innerHTML,/30 sorteos anteriores/);
+ els.get('view-results').onclick();assert.equal(els.get('ai-view').hidden,true);assert.equal(els.get('results-view').hidden,false);
 });

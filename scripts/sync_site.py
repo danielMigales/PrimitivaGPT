@@ -30,6 +30,11 @@ def main():
         if previous is not None and result!=previous:
             raise ValueError('Las lecturas consecutivas difieren')
         previous=result
-    print(json.dumps({'ok':True,'count':len(result['draws']),'latestDate':result['latestDate'],'checkedAt':result['checkedAt'],'warning':None}),flush=True)
+    request=urllib.request.Request(url+'/api/ai?window=30',headers={'OAI-Sites-Authorization':headers['OAI-Sites-Authorization']})
+    with urllib.request.urlopen(request,timeout=90) as response:
+        analysis=json.load(response)
+    if analysis.get('status')!='ready' or analysis.get('sourceLastDate')!=result['latestDate'] or analysis.get('warning'):
+        raise ValueError('No se pudo confirmar el aprendizaje con el último histórico')
+    print(json.dumps({'ok':True,'count':len(result['draws']),'latestDate':result['latestDate'],'checkedAt':result['checkedAt'],'warning':None,'modelVersion':analysis['version'],'simulations':analysis['metrics']['simulations']}),flush=True)
 if __name__=='__main__':
     main()

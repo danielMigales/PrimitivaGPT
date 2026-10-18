@@ -103,3 +103,35 @@ La prueba real de la web devolvía un aviso de fallo de consulta a SELAE, mientr
 ## 12. Consulta histórica con confirmación visible (18/10/2026)
 
 En un intervalo amplio que incluye el último sorteo, el filtro conservaba correctamente los mismos cinco resultados iniciales, pero no mostraba confirmación y la paginación quedaba al final del listado. Se añade un resumen visible con intervalo, número de resultados y orden. Los controles de página pasan a estar encima de los sorteos y se puede elegir orden ascendente o descendente. Los filtros se aplican al pulsar Consultar y no al paginar con fechas aún sin confirmar. Se limpia la validación al corregir cualquiera de las fechas. Se prueban el intervalo de la captura, el orden antiguo, los extremos inclusivos, la consulta vacía y la recuperación de fechas inválidas.
+
+## 13. Motor de aprendizaje adaptativo — versión 1.0
+
+### Propósito y límites
+
+Analizar patrones descriptivos del histórico oficial y evaluar una predicción de seis números y reintegro con el objetivo experimental de alcanzar cuatro aciertos. No se garantiza ese objetivo ni una mejora sobre el azar. No se utiliza un modelo de lenguaje: es un conjunto de métodos estadísticos con aprendizaje secuencial de pesos, sin servicios de pago ni modificación autónoma del código.
+
+### Características y modelos
+
+Se calculan frecuencias de los 49 números y diez reintegros, distribución del número de pares/impares, parejas dentro de una misma combinación, diferencias entre números vecinos de la combinación ordenada y suma media. Cinco expertos aportan propuestas: azar uniforme reproducible, frecuencia acumulada, frecuencia reciente, recencia exponencial con semivida de doce sorteos y un método de parejas/estructura. Este último y la propuesta conjunta consideran coapariciones, paridad y distancias, con suavizado para observaciones escasas. Cada combinación contiene seis números distintos y un reintegro separado. El complementario no se predice.
+
+Los pesos parten de 20 % por experto y se actualizan después de comprobar cada resultado. Los pesos para números y reintegro son independientes. La propuesta final combina las puntuaciones de los expertos y evalúa un conjunto acotado de candidatos; esos candidatos son un mecanismo interno de búsqueda, no varios boletos en la evaluación. Solo se evalúa una combinación final por sorteo. Las puntuaciones y pesos no son probabilidades calibradas de ganar.
+
+### Prueba temporal sin anticipar resultados
+
+Con ventana inicial de 30 sorteos, la primera predicción se hace para el 31 usando únicamente los 30 anteriores. Una vez evaluada se ajustan los pesos y se pasa al siguiente. Los expertos globales usan todo el pasado disponible; los recientes usan la ventana configurada (20, 30 o 50). El estado de pesos recoge solo resultados ya evaluados. Cada registro informa del intervalo de entrenamiento, combinación previa, resultado oficial, aciertos, reintegro y pesos anteriores. La simulación es determinista. Cambiar la ventana es otro experimento sobre los mismos datos, no una validación independiente. No se afina retrospectivamente el motor para aparentar acertar el resultado conocido.
+
+Se compara con una sola combinación aleatoria reproducible por fecha y con la referencia combinatoria exacta: media de aciertos 36/49 y probabilidad de cuatro o más igual a la suma, para k de 4 a 6, de C(6,k) C(43,6-k) / C(49,6). El reintegro aleatorio tiene probabilidad 1/10. Una muestra pequeña y una media algo mayor no demuestran ventaja predictiva.
+
+### Resultado inicial reproducible
+
+Con los 125 sorteos oficiales hasta 17/10/2026 y ventana inicial 30: 95 predicciones evaluadas, media 0,8316 aciertos, máximo 3, cero sorteos con cuatro o más y 8 reintegros acertados (8,42 %). El azar simulado obtuvo media 0,7895 y 8 reintegros. **El objetivo de cuatro aciertos no se alcanzó**. La interfaz muestra este resultado, incluidos los fallos.
+
+### Persistencia y actualización
+
+`engine/model.js` contiene el cálculo puro. La construcción genera `data/ai-analysis.json`, `data/ai-model.json` y los tres informes estáticos en `public/data/`. El Worker incluye el motor y expone `/api/ai?window=20|30|50`. Guarda informes y estados en `ai/reports/` y `ai/models/` de R2. Conserva además la primera propuesta emitida por versión, ventana y fecha de entrenamiento en `ai/forecasts/`, sin reemplazar esa propuesta al recalcular. Esto permite distinguir una propuesta ya emitida de una simulación reconstruida. Su firma incluye versión y resultados oficiales; cualquier incorporación o corrección invalida el informe anterior. Una consulta con la misma firma reutiliza lo guardado. Las advertencias de antigüedad proceden del archivo oficial y se mantienen en el análisis.
+
+La tarea existente descarga SELAE, valida, genera y sincroniza el histórico. `scripts/sync_site.py` confirma además que el análisis alojado corresponde al último sorteo, haciendo que el modelo por defecto se reconstruya y conserve sin redesplegar. Los modelos de otras ventanas se guardan al consultarlos. Si no cambian resultados ni respuestas originales no se crea un commit por una nueva marca temporal.
+
+### Pruebas
+
+Se añaden pruebas de combinaciones válidas, métricas, reproducibilidad, suma de pesos, comparación combinatoria, características, datos insuficientes, invalidación de caché y visualización del laboratorio. La prueba de no anticipación modifica el sorteo objetivo y todos los posteriores y verifica que la predicción previa no cambia; también comprueba que ejecutar solo un prefijo produce exactamente las mismas primeras pruebas. Total: 33 pruebas automatizadas antes de publicar. La comprobación alojada exige guardar el modelo y recibir un análisis coherente con el último resultado oficial.

@@ -10,6 +10,20 @@ Aplicación web en español para consultar los cinco últimos sorteos de La Prim
 - Worker de Cloudflare con almacenamiento R2, lectura del archivo persistente y carga privada del histórico validado.
 - Alternativa estática para GitHub Pages con generación de una versión estática y validación mediante GitHub Actions.
 
+## Laboratorio IA
+
+Abrir **Laboratorio IA** en la aplicación y pulsar **Analizar y simular**. Se pueden elegir 20, 30 o 50 sorteos iniciales. El motor combina cinco métodos (azar uniforme, frecuencia acumulada, frecuencia reciente, recencia ponderada y parejas/estructura) y aprende sus pesos en orden temporal. El reintegro usa pesos independientes.
+
+Cada prueba propone exactamente seis números y un reintegro antes de ver el resultado. Después se registran los aciertos y se actualizan los pesos. La interfaz permite repetir cualquier prueba, inspeccionar patrones, comparar con una referencia aleatoria y descargar el análisis. No garantiza cuatro aciertos ni demuestra una ventaja frente al azar.
+
+- `engine/model.js`: motor puro y reproducible.
+- `data/ai-analysis.json`: pruebas, patrones y propuesta, con ventana inicial 30.
+- `data/ai-model.json`: estado aprendido por defecto.
+- `public/data/ai-analysis-{20,30,50}.json`: análisis para la versión estática.
+- `/api/ai?window=30`: análisis de la copia oficial alojada; R2 conserva modelos e informes por ventana.
+
+El archivo oficial completo sigue siendo `data/draws.json` con originales mensuales en `data/raw/`. El proceso de sincronización carga ese archivo, reconstruye el análisis con los nuevos resultados y confirma su fecha de entrenamiento. No requiere API de pago ni credenciales de inteligencia artificial.
+
 ## Ejecutar
 
 Requiere Node.js 22+ y Python 3.12+. No hay dependencias de terceros.

@@ -1,3 +1,4 @@
+/*AI_ENGINE*/
 const SEED = /*SEED*/;
 const HTML = /*HTML*/;
 const MAX_AGE=3*60*60*1000;
@@ -47,6 +48,22 @@ export async function getData(env){
  if(Date.now()-Date.parse(current.checkedAt)>MAX_AGE)return {...current,warning:'La última consulta a SELAE tiene más de tres horas. Se conservan los resultados guardados mientras se reintenta la sincronización.'};
  return current;
 }
+const AI_CACHE_VERSION='ai:'+MODEL_VERSION;
+export async function getAnalysis(env,window=30){
+ if(![20,30,50].includes(window))throw Error('Ventana permitida: 20, 30 o 50');
+ const archive=await getData(env);
+ const signature=AI_CACHE_VERSION+':'+JSON.stringify(archive.draws.map(d=>[d.date,d.numbers,d.refund]));
+ const key='ai/reports/'+window+'.json';
+ if(env.BUCKET){try{const saved=await env.BUCKET.get(key);if(saved){const cache=await saved.json();if(cache.signature===signature)return {...cache.report,warning:archive.warning};}}catch{/* Recalcular desde el histórico conservado. */}}
+ const report=analyze(archive.draws,{window});
+ if(env.BUCKET&&report.status==='ready'){
+  await env.BUCKET.put('ai/models/'+window+'.json',JSON.stringify(report.modelState),{httpMetadata:{contentType:'application/json'}});
+  const forecastKey='ai/forecasts/'+MODEL_VERSION+'/'+window+'/after-'+report.sourceLastDate+'.json';
+  if(!await env.BUCKET.get(forecastKey))await env.BUCKET.put(forecastKey,JSON.stringify({version:MODEL_VERSION,window,trainedThrough:report.sourceLastDate,trainingCount:report.drawCount,numbers:report.forecast.numbers,refund:report.forecast.refund}),{httpMetadata:{contentType:'application/json'}});
+  await env.BUCKET.put(key,JSON.stringify({signature,report}),{httpMetadata:{contentType:'application/json'}});
+ }
+ return {...report,warning:archive.warning};
+}
 export default {async fetch(request,env){
  const url=new URL(request.url);
  if(url.pathname==='/api/sync'){
@@ -62,6 +79,7 @@ export default {async fetch(request,env){
  }
  if(request.method!=='GET')return new Response('Método no permitido',{status:405,headers:{Allow:'GET'}});
  const headers={'X-Content-Type-Options':'nosniff','Referrer-Policy':'strict-origin-when-cross-origin'};
+ if(url.pathname==='/api/ai'){const window=Number(url.searchParams.get('window')||30);if(![20,30,50].includes(window))return Response.json({error:'Ventana permitida: 20, 30 o 50'},{status:400});try{return Response.json(await getAnalysis(env,window),{headers:{...headers,'Cache-Control':'no-store',...(url.searchParams.has('download')?{'Content-Disposition':'attachment; filename=\"primitiva-analisis.json\"'}:{})}});}catch{return Response.json({error:'No se pudo calcular el análisis. El histórico sigue disponible.'},{status:503});}}
  if(url.pathname==='/api/draws'){const data=await getData(env);return Response.json(data,{headers:{...headers,'Cache-Control':'no-store',...(url.searchParams.has('download')?{'Content-Disposition':'attachment; filename="primitiva-historico.json"'}:{})}});}
  if(url.pathname==='/')return new Response(HTML,{headers:{...headers,'Content-Type':'text/html;charset=utf-8','Cache-Control':'no-cache','Content-Security-Policy':"default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; base-uri 'none'; frame-ancestors 'self'; form-action 'self'"}});
  return new Response('No encontrado',{status:404,headers});
