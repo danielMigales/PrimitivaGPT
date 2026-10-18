@@ -1,5 +1,5 @@
 """Descarga mensual, valida y conserva el histórico oficial de SELAE."""
-import calendar, datetime as dt, json, pathlib, re, time, urllib.request
+import calendar, datetime as dt, json, pathlib, re, time, subprocess
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 START = dt.date(2026, 1, 1)
 BASE = 'https://www.loteriasyapuestas.es/servicios/buscadorSorteos'
@@ -48,9 +48,8 @@ def main():
         url = BASE+f'?game_id=LAPR&celebrados=true&fechaInicioInclusiva={begin:%Y%m%d}&fechaFinInclusiva={end:%Y%m%d}'
         for attempt in range(3):
             try:
-                req = urllib.request.Request(url)
-                with urllib.request.urlopen(req, timeout=45) as res:
-                    rows = json.load(res)
+                response = subprocess.run(['curl', '--fail', '--silent', '--show-error', '--location', '--max-time', '45', url], check=True, capture_output=True, text=True)
+                rows = json.loads(response.stdout)
                 if not isinstance(rows, list):
                     raise ValueError('SELAE no ha devuelto una lista')
                 for row in rows:
