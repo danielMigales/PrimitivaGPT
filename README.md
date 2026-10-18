@@ -56,9 +56,9 @@ Ver [MEMORIA.md](MEMORIA.md) para decisiones, estructura, limitaciones y validac
 
 ## Estado de esta entrega
 
-La aplicación privada está publicada en https://primitiva-archivo-2026.wittyeel5.chatgpt.site y tiene una tarea vinculada cada hora, en el minuto 35 (Europe/Madrid), para mantener el archivo alojado. El procedimiento de actualización está en `SYNC.md`: el importador consulta SELAE y `scripts/sync_site.py` carga y verifica el archivo en la web privada.
+La publicación anterior en ChatGPT Sites dejó de estar disponible al eliminarse la cuenta que la creó; su URL antigua ya no debe considerarse activa. El código y los datos del proyecto se conservan en este repositorio.
 
-El proyecto se conserva también en el repositorio público `danielMigales/PrimitivaGPT`. La versión de Sites tiene una tarea independiente para actualizar sus propios datos; los cambios de código en GitHub no redespliegan Sites automáticamente.
+Se ha añadido un flujo de publicación estática con GitHub Pages en `.github/workflows/deploy-pages.yml`. Para activarlo, en Settings → Pages del repositorio hay que seleccionar **GitHub Actions** como fuente de publicación. Esta copia estática conserva el archivo histórico y el Laboratorio IA, pero no ofrece las funciones de persistencia del Worker/Sites ni recupera la publicación anterior. Los cambios de código no vuelven a publicar el Site eliminado automáticamente.
 
 El laboratorio muestra la fecha del sorteo de su propuesta y «Resultado sin publicar» mientras no exista el resultado oficial. Cada propuesta emitida se guarda por experimento; al sincronizar el resultado se muestran debajo su combinación real y los aciertos de números y reintegro, y se prepara la siguiente. Las propuestas anteriores siguen consultables. El seguimiento real está separado de las simulaciones históricas y no garantiza premios. La copia estática no dispone de este registro persistente.
 
