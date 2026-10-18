@@ -65,7 +65,7 @@ function brierScore(probabilities,actual){return probabilities.reduce((sum,p,i)=
 function analyze(draws,{window=30,variant='extended'}={}){
  if(!['extended','legacy'].includes(variant))throw Error('Variante no válida');
  const countExperts=variant==='extended'?EXPERTS.length:5;
- if(![5,10,15].includes(window))throw Error('Ventana permitida: 5, 10 o 15');
+ if(![5,10,15,20,30,50].includes(window))throw Error('Ventana permitida: 5, 10 o 15');
  const ordered=draws.map(d=>({...d,numbers:d.numbers.slice().sort((a,b)=>a-b)})).sort((a,b)=>a.date.localeCompare(b.date));
  if(new Set(ordered.map(d=>d.date)).size!==ordered.length)throw Error('Fechas duplicadas');
  for(const d of ordered)if(d.numbers.length!==6||new Set(d.numbers).size!==6||d.numbers.some(n=>!Number.isInteger(n)||n<1||n>49)||!Number.isInteger(d.refund)||d.refund<0||d.refund>9)throw Error('Sorteo inválido');
@@ -182,7 +182,7 @@ export async function trackAnalysis(env,archive,report){
 }
 const AI_CACHE_VERSION='ai:'+MODEL_VERSION;
 export async function getAnalysis(env,window=30){
- if(![5,10,15].includes(window))throw Error('Ventana permitida: 5, 10 o 15');
+ if(![5,10,15,20,30,50].includes(window))throw Error('Ventana permitida: 5, 10 o 15');
  const archive=await getData(env);
  const signature=AI_CACHE_VERSION+':'+JSON.stringify(archive.draws.map(d=>[d.date,d.numbers,d.refund]));
  const key='ai/reports/'+window+'.json';

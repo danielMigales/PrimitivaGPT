@@ -65,7 +65,7 @@ export function brierScore(probabilities,actual){return probabilities.reduce((su
 export function analyze(draws,{window=30,variant='extended'}={}){
  if(!['extended','legacy'].includes(variant))throw Error('Variante no válida');
  const countExperts=variant==='extended'?EXPERTS.length:5;
- if(![5,10,15].includes(window))throw Error('Ventana permitida: 20, 30 o 50');
+ if(![5,10,15,20,30,50].includes(window))throw Error('Ventana no válida: usa 5, 10, 15, 20, 30 o 50');
  const ordered=draws.map(d=>({...d,numbers:d.numbers.slice().sort((a,b)=>a-b)})).sort((a,b)=>a.date.localeCompare(b.date));
  if(new Set(ordered.map(d=>d.date)).size!==ordered.length)throw Error('Fechas duplicadas');
  for(const d of ordered)if(d.numbers.length!==6||new Set(d.numbers).size!==6||d.numbers.some(n=>!Number.isInteger(n)||n<1||n>49)||!Number.isInteger(d.refund)||d.refund<0||d.refund>9)throw Error('Sorteo inválido');
