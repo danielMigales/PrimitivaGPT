@@ -153,3 +153,7 @@ La versión 1.1 se reproduce como referencia con igual ventana, fechas y número
 En la ventana por defecto: 8 reintegros de 95 en ambas versiones, media de aciertos 0,8632 frente a 0,8316; Brier 0,9024 frente a 0,9078, todavía peor que el uniforme 0,9. No hubo tres o más más reintegro en esa ventana. En la de 50 iniciales apareció un caso conjunto, igual que en su control aleatorio. Son resultados exploratorios sobre datos ya examinados durante el desarrollo, no una validación independiente. No se cambia la ventana por defecto para elegir retrospectivamente el resultado favorable.
 
 La interfaz presenta las fuentes y la comparación con 1.1 y uniforme. Los pesos iniciales se calculan como 1/7, y se muestran aciertos de reintegro y Brier por experto. Se amplían las pruebas de distribución de probabilidades, cálculo de Brier y reproducción de la referencia temporal. Total: 36 pruebas automatizadas.
+
+## 16. Propuesta compacta y reintegro dorado (18/10/2026)
+
+La propuesta muestra primero los seis números bajo Combinación y después el reintegro, con etiqueta propia y bola dorada separada por una línea. Se reduce el tamaño y espacio entre bolas, el relleno de tarjeta y estadísticas y la longitud de los textos secundarios. La fila no se parte en móvil; para pantallas de 320 px se usan bolas de al menos 26 px con separación de 4 px. No cambia el modelo ni la prioridad del reintegro en el aprendizaje.
