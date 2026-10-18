@@ -8,8 +8,8 @@ Fecha de revisión: 2026-10-18
 - [x] Existe motor estadístico en `engine/model.js` con siete métodos: azar uniforme, frecuencia acumulada, frecuencia reciente, recencia ponderada, parejas/estructura, Bayes regularizado y Markov regularizado.
 - [x] El proceso de compilación genera una página estática y análisis para ventanas de 20, 30 y 50 sorteos.
 - [x] GitHub Pages ya ha completado una ejecución de publicación con estado `success`.
-- [ ] La página estática no tiene un backend persistente; la propia documentación indica que el seguimiento real de propuestas no se conserva en GitHub Pages.
-- [ ] La sincronización automática de resultados oficiales y el almacenamiento persistente que existían en el flujo de Sites/Worker no están demostrados como operativos en la publicación estática.
+- [x] La página estática ahora guarda propuestas y evaluaciones en el almacenamiento local del navegador, separadas por ventana de 20/30/50 sorteos. Esta persistencia es solo de ese navegador/dispositivo, no un backend compartido.
+- [ ] La sincronización automática oficial y el almacenamiento compartido del Worker/Sites siguen sin estar demostrados como operativos; el almacenamiento local no sustituye estas funciones.
 - [ ] Hay que comprobar que la web publicada refleja la versión actual del código y que todos los controles principales funcionan en móvil.
 
 ## Pendientes priorizados
@@ -20,10 +20,13 @@ Fecha de revisión: 2026-10-18
 - [ ] Abrir Laboratorio IA y ejecutar una simulación para cada ventana (20, 30, 50); comprobar que no hay errores de consola visibles ni pantallas vacías.
 - [ ] Verificar que el pie y los textos de la interfaz no prometan funciones del Worker que no están disponibles en la versión estática.
 
-### P1 — Recuperar el seguimiento de propuestas reales
-- [ ] Diseñar almacenamiento persistente para las propuestas reales, separado de las simulaciones retrospectivas.
-- [ ] Guardar cada propuesta con fecha de creación, fecha del sorteo objetivo, combinación de seis números, reintegro, método/versión y estado pendiente/evaluada.
-- [ ] Al llegar el resultado oficial, evaluar aciertos de números y reintegro, conservar el historial y preparar la siguiente propuesta.
+### P1 — Seguimiento de propuestas
+- [x] Añadir un registro local de propuestas en la versión estática, separado por ventana y persistido en localStorage del navegador.
+- [x] Reconciliar propuestas guardadas contra los resultados incluidos en el histórico estático y calcular aciertos de números/reintegro.
+- [ ] Diseñar almacenamiento compartido de propuestas reales, separado de las simulaciones retrospectivas.
+- [x] En el registro local, guardar fecha de creación, sorteo objetivo, combinación, reintegro, versión y estado pendiente/evaluada.
+- [x] En el registro local, evaluar aciertos cuando el resultado aparece en el histórico cargado y conservar propuestas anteriores.
+- [ ] Verificar en navegador real que el ciclo completo se ejecuta correctamente tras una actualización de datos.
 - [ ] Evitar que reconstruir los análisis de 20/30/50 ventanas borre o duplique el seguimiento real.
 - [ ] Elegir y documentar un backend persistente compatible con la web pública. GitHub Pages por sí solo no puede escribir de forma segura en el repositorio ni ofrece una base de datos.
 
@@ -59,6 +62,11 @@ Fecha de revisión: 2026-10-18
 - Conservar los siete métodos del motor y los análisis para ventanas de 20, 30 y 50 sorteos.
 - Mantener separadas las evaluaciones retrospectivas y las propuestas reales.
 
+## Cambios recientes
+
+- Commit `87f01bf`: añadido seguimiento local a `public/index.html`. Las propuestas se guardan por ventana en localStorage y se evalúan al encontrar la fecha en `public/data/draws.json`.
+- Límite importante: limpiar los datos del navegador o cambiar de dispositivo puede perder/no mostrar ese registro; no hay sincronización entre usuarios ni dispositivos. No debe describirse como persistencia de servidor.
+
 ## Siguiente paso recomendado
 
-Completar primero P0 con pruebas en la URL publicada. Después diseñar P1, ya que la persistencia del seguimiento y la sincronización oficial no se pueden resolver solo con HTML estático. Registrar cada cambio en este archivo y actualizar las casillas únicamente tras verificarlo.
+Ejecutar el workflow de validación tras el cambio y verificar el sitio publicado. Para recuperar seguimiento compartido y sincronización SELAE se necesita restaurar/provisionar el Worker privado y su bucket, con credenciales efímeras gestionadas de forma segura; no es seguro inventar ni publicar esos accesos.
