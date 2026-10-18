@@ -83,5 +83,30 @@ export function analyze(draws,{window=30,variant='extended'}={}){
  }
  const nw=softmax(numberLog),rw=softmax(refundLog),next=predict(ordered,window,nw,rw,ordered.length),n=rows.length,baseline=randomBaseline();
  const reference=variant==='extended'?analyze(ordered,{window,variant:'legacy'}):null;
- return {version:variant==='extended'?MODEL_VERSION:'1.1.0',variant,reference:reference?{version:reference.version,metrics:reference.metrics}:null,status:'ready',window,sourceLastDate:ordered.at(-1).date,drawCount:ordered.length,objective:{primary:'refund',secondary:'atLeastThree',joint:'atLeastThreeAndRefund'},method:'Aprendizaje secuencial sin acceso al resultado futuro; una combinación y un reintegro por sorteo.',forecast:{afterDate:ordered.at(-1).date,numbers:next.numbers,refund:next.refund,numberScores:next.numberScores,refundScores:next.refundScores},metrics:{refundBrier:round(rows.reduce((s,r)=>s+r.refundBrier,0)/n),refundLogLoss:round(rows.reduce((s,r)=>s+r.refundLogLoss,0)/n),uniformBrier:.9,uniformLogLoss:Math.log(10),simulations:n,meanHits:round(totalHits/n),atLeastThree:histogram.slice(3).reduce((a,b)=>a+b,0),atLeastThreeAndRefund:rows.filter(r=>r.hits>=3&&r.refundHit).length,atLeastFour:histogram.slice(4).reduce((a,b)=>a+b,0),maxHits:Math.max(...rows.map(r=>r.hits)),refundHits:totalRefunds,refundRate:round(totalRefunds/n),histogram,randomMeanHits:round(totalRandom/n),randomAtLeastThree:randomHistogram.slice(3).reduce((a,b)=>a+b,0),randomAtLeastThreeAndRefund:rows.filter(r=>r.randomHits>=3&&r.randomRefundHit).length,randomAtLeastFour:randomHistogram.slice(4).reduce((a,b)=>a+b,0),randomRefundHits:randomRefunds,randomHistogram},baseline,experts:EXPERTS.slice(0,countExperts).map((name,i)=>({name,initialWeight:1/countExperts,refundHits:expertStats[i].refundHits,meanHits:round(expertStats[i].numberHits/n),atLeastThree:expertStats[i].atLeastThree,refundBrier:round(expertStats[i].brier/n),refundLogLoss:round(expertStats[i].logLoss/n),numberWeight:round(nw[i]),refundWeight:round(rw[i])})),patterns:patterns(ordered),rows,modelState:{version:variant==='extended'?MODEL_VERSION:'1.1.0',variant,window,trainedThrough:ordered.at(-1).date,numberLogWeights:numberLog,refundLogWeights:refundLog,numberWeights:nw,refundWeights:rw}};
+ return {version:variant==='extended'?MODEL_VERSION:'1.1.0',variant,reference:reference?{version:reference.version,metrics:reference.metrics}:null,status:'ready',window,sourceLastDate:ordered.at(-1).date,drawCount:ordered.length,objective:{primary:'refund',secondary:'atLeastThree',joint:'atLeastThreeAndRefund'},method:'Aprendizaje secuencial sin acceso al resultado futuro; una combinación y un reintegro por sorteo.',forecast:{targetDate:nextDrawDate(ordered.at(-1).date),afterDate:ordered.at(-1).date,numbers:next.numbers,refund:next.refund,numberScores:next.numberScores,refundScores:next.refundScores},metrics:{refundBrier:round(rows.reduce((s,r)=>s+r.refundBrier,0)/n),refundLogLoss:round(rows.reduce((s,r)=>s+r.refundLogLoss,0)/n),uniformBrier:.9,uniformLogLoss:Math.log(10),simulations:n,meanHits:round(totalHits/n),atLeastThree:histogram.slice(3).reduce((a,b)=>a+b,0),atLeastThreeAndRefund:rows.filter(r=>r.hits>=3&&r.refundHit).length,atLeastFour:histogram.slice(4).reduce((a,b)=>a+b,0),maxHits:Math.max(...rows.map(r=>r.hits)),refundHits:totalRefunds,refundRate:round(totalRefunds/n),histogram,randomMeanHits:round(totalRandom/n),randomAtLeastThree:randomHistogram.slice(3).reduce((a,b)=>a+b,0),randomAtLeastThreeAndRefund:rows.filter(r=>r.randomHits>=3&&r.randomRefundHit).length,randomAtLeastFour:randomHistogram.slice(4).reduce((a,b)=>a+b,0),randomRefundHits:randomRefunds,randomHistogram},baseline,experts:EXPERTS.slice(0,countExperts).map((name,i)=>({name,initialWeight:1/countExperts,refundHits:expertStats[i].refundHits,meanHits:round(expertStats[i].numberHits/n),atLeastThree:expertStats[i].atLeastThree,refundBrier:round(expertStats[i].brier/n),refundLogLoss:round(expertStats[i].logLoss/n),numberWeight:round(nw[i]),refundWeight:round(rw[i])})),patterns:patterns(ordered),rows,modelState:{version:variant==='extended'?MODEL_VERSION:'1.1.0',variant,window,trainedThrough:ordered.at(-1).date,numberLogWeights:numberLog,refundLogWeights:refundLog,numberWeights:nw,refundWeights:rw}};
+}
+
+// Calendario habitual de SELAE: lunes, jueves y sábado.
+export function nextDrawDate(afterDate){
+ const day=new Date(afterDate+'T12:00:00Z');
+ if(!Number.isFinite(day.getTime()))throw Error('Fecha inválida');
+ do{day.setUTCDate(day.getUTCDate()+1);}while(![1,4,6].includes(day.getUTCDay()));
+ return day.toISOString().slice(0,10);
+}
+// Solo se registran propuestas antes de la fecha objetivo. Corte propio conservador: 20:30 Madrid.
+export function reconcileForecasts(records,report,draws,now=new Date()){
+ const official=new Map(draws.map(d=>[d.date,d]));
+ const targetDate=nextDrawDate(report.sourceLastDate);
+ const parts=new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Madrid',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(now);
+ const part=type=>parts.find(p=>p.type===type).value;
+ const today=part('year')+'-'+part('month')+'-'+part('day'),time=part('hour')+':'+part('minute');
+ const next=records.map(r=>({...r,numbers:[...r.numbers]}));
+ if(!next.some(r=>r.targetDate===targetDate)&&!report.warning&&(targetDate>today||(targetDate===today&&time<'20:30'))){
+  next.push({targetDate,createdAt:now.toISOString(),version:report.version,window:report.window,trainedThrough:report.sourceLastDate,trainingCount:report.drawCount,numbers:[...report.forecast.numbers],refund:report.forecast.refund});
+ }
+ const reconciled=next.map(r=>{
+  const actual=official.get(r.targetDate);
+  return {...r,status:actual?'published':'pending',actual:actual?{date:actual.date,numbers:[...actual.numbers],refund:actual.refund,complementary:actual.complementary,source:actual.source}:null,hits:actual?r.numbers.filter(n=>actual.numbers.includes(n)).length:null,refundHit:actual?r.refund===actual.refund:null};
+ }).sort((a,b)=>b.targetDate.localeCompare(a.targetDate));
+ return {targetDate,active:reconciled.find(r=>r.targetDate===targetDate)||null,records:reconciled};
 }

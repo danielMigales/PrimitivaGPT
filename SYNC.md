@@ -11,3 +11,5 @@ La tarea vinculada al sitio consulta SELAE y sincroniza `danielMigales/Primitiva
 7. No llamar a SELAE desde el Worker: la descarga validada la realiza el importador. GET `/api/draws` lee el archivo persistente y avisa si lleva más de tres horas sin confirmar una consulta. Ante fallos mantener el archivo anterior y reportarlos.
 
 GitHub Actions valida el proyecto cuando se actualiza main y genera una versión estática descargable. La descarga oficial se ejecuta en la tarea vinculada porque las pruebas iniciales desde GitHub Actions fallaron tanto con urllib (403) como con curl (código 22). No se realizan cambios de código ni despliegues durante una actualización rutinaria.
+
+Las lecturas de `/api/ai?window=20|30|50` también reconcilian `ai/tracking/{window}.json`: evalúan las propuestas guardadas para las fechas publicadas y registran la siguiente antes de su sorteo. El registro es independiente de la caché y conserva los números originales. No borrar ni reemplazar este historial durante la sincronización; no atribuir propuestas a sorteos ya celebrados. El panel muestra el resultado oficial y los aciertos separados de las simulaciones.

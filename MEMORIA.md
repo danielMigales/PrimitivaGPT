@@ -157,3 +157,15 @@ La interfaz presenta las fuentes y la comparación con 1.1 y uniforme. Los pesos
 ## 16. Propuesta compacta y reintegro dorado (18/10/2026)
 
 La propuesta muestra primero los seis números bajo Combinación y después el reintegro, con etiqueta propia y bola dorada separada por una línea. Se reduce el tamaño y espacio entre bolas, el relleno de tarjeta y estadísticas y la longitud de los textos secundarios. La fila no se parte en móvil; para pantallas de 320 px se usan bolas de al menos 26 px con separación de 4 px. No cambia el modelo ni la prioridad del reintegro en el aprendizaje.
+
+## 17. Propuestas fechadas y seguimiento real
+
+La propuesta experimental identifica su sorteo objetivo según el calendario habitual de SELAE (lunes, jueves y sábado). A partir del último resultado oficial, 17/10/2026, corresponde al 19/10/2026. Los seis números aparecen antes del reintegro dorado y se mantiene la presentación compacta.
+
+Cada experimento (20, 30 y 50 sorteos iniciales) conserva un registro independiente en `ai/tracking/{window}.json`. Se guardan fecha objetivo, fecha de emisión, versión, entrenamiento, seis números y reintegro. Una propuesta ya registrada no se sustituye al recalcular ni al cambiar de versión. Las escrituras condicionales de R2 evitan perder propuestas por consultas simultáneas. Los antiguos archivos por versión se conservan; no se les atribuyen retrospectivamente fechas de emisión desconocidas.
+
+Hasta recibir el resultado oficial, el registro muestra «Resultado sin publicar», sin inventar ceros de aciertos ni un reintegro. Al sincronizar SELAE y consultar el análisis, se empareja por fecha con la propuesta guardada: se conservan la combinación real, los aciertos sobre seis y el acierto de reintegro por separado. Una corrección oficial actualiza la evaluación, nunca los números propuestos. La siguiente propuesta se calcula con el histórico ampliado; las anteriores permanecen visibles con su resultado justo debajo de su combinación. El panel consulta de nuevo mientras está visible cada 15 minutos; la actualización oficial sigue la sincronización existente.
+
+El seguimiento solo registra propuestas antes de su sorteo, con un corte propio conservador a las 20:30 de Europe/Madrid. No es una declaración de la hora oficial. Un histórico atrasado o con aviso no permite fabricar predicciones retrospectivas. La versión estática informa de que carece de registro persistente. Las simulaciones temporales siguen separadas del seguimiento de propuestas emitidas realmente; ningún acierto futuro queda garantizado.
+
+Validación: 39 pruebas Node y 3 Python, compilación y validación del Worker. Nuevas pruebas cubren calendario y cambio de año, estado pendiente, inmutabilidad, publicación con tres aciertos y reintegro, rotación al siguiente sorteo, correcciones oficiales, consultas concurrentes, caché y presentación de la comparación. Los ejemplos sintéticos se usan exclusivamente en pruebas locales.

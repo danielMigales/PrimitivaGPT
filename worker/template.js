@@ -48,13 +48,33 @@ export async function getData(env){
  if(Date.now()-Date.parse(current.checkedAt)>MAX_AGE)return {...current,warning:'La última consulta a SELAE tiene más de tres horas. Se conservan los resultados guardados mientras se reintenta la sincronización.'};
  return current;
 }
+// Registro separado de la caché: nunca sustituir una propuesta ya emitida.
+export async function trackAnalysis(env,archive,report){
+ if(report.status!=='ready')return {...report,warning:archive.warning};
+ const base={...report,forecast:{...report.forecast,targetDate:nextDrawDate(report.sourceLastDate)},warning:archive.warning};
+ if(!env.BUCKET)return {...base,tracking:{targetDate:base.forecast.targetDate,active:null,records:[],persisted:false}};
+ const key='ai/tracking/'+report.window+'.json';
+ for(let attempt=0;attempt<4;attempt++){
+  const object=await env.BUCKET.get(key),previous=object?await object.json():{records:[]};
+  const tracking=reconcileForecasts(previous.records,base,archive.draws);
+  if(JSON.stringify(previous.records)!==JSON.stringify(tracking.records)){
+   const options={httpMetadata:{contentType:'application/json'}};
+   // R2 devuelve null si otra petición ha actualizado el objeto entre lectura y escritura.
+   if(!object)options.onlyIf={etagDoesNotMatch:'*'};else if(object.etag)options.onlyIf={etagMatches:object.etag};
+   const saved=await env.BUCKET.put(key,JSON.stringify({schemaVersion:1,records:tracking.records}),options);
+   if(saved===null)continue;
+  }
+  return {...base,tracking:{...tracking,persisted:true}};
+ }
+ throw Error('Otra consulta está actualizando las propuestas; reintentar.');
+}
 const AI_CACHE_VERSION='ai:'+MODEL_VERSION;
 export async function getAnalysis(env,window=30){
  if(![20,30,50].includes(window))throw Error('Ventana permitida: 20, 30 o 50');
  const archive=await getData(env);
  const signature=AI_CACHE_VERSION+':'+JSON.stringify(archive.draws.map(d=>[d.date,d.numbers,d.refund]));
  const key='ai/reports/'+window+'.json';
- if(env.BUCKET){try{const saved=await env.BUCKET.get(key);if(saved){const cache=await saved.json();if(cache.signature===signature)return {...cache.report,warning:archive.warning};}}catch{/* Recalcular desde el histórico conservado. */}}
+ if(env.BUCKET){try{const saved=await env.BUCKET.get(key);if(saved){const cache=await saved.json();if(cache.signature===signature)return trackAnalysis(env,archive,cache.report);}}catch{/* Recalcular desde el histórico conservado. */}}
  const report=analyze(archive.draws,{window});
  if(env.BUCKET&&report.status==='ready'){
   await env.BUCKET.put('ai/models/'+window+'.json',JSON.stringify(report.modelState),{httpMetadata:{contentType:'application/json'}});
@@ -62,7 +82,7 @@ export async function getAnalysis(env,window=30){
   if(!await env.BUCKET.get(forecastKey))await env.BUCKET.put(forecastKey,JSON.stringify({version:MODEL_VERSION,window,trainedThrough:report.sourceLastDate,trainingCount:report.drawCount,numbers:report.forecast.numbers,refund:report.forecast.refund}),{httpMetadata:{contentType:'application/json'}});
   await env.BUCKET.put(key,JSON.stringify({signature,report}),{httpMetadata:{contentType:'application/json'}});
  }
- return {...report,warning:archive.warning};
+ return trackAnalysis(env,archive,report);
 }
 export default {async fetch(request,env){
  const url=new URL(request.url);

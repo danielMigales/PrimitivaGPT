@@ -52,6 +52,7 @@
   },
   "method": "Aprendizaje secuencial sin acceso al resultado futuro; una combinación y un reintegro por sorteo.",
   "forecast": {
+    "targetDate": "2026-10-19",
     "afterDate": "2026-10-17",
     "numbers": [
       10,
