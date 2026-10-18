@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';import {readFile} from 'node:fs/promises';
-import {analyze,patterns,randomBaseline} from '../engine/model.js';
+import {analyze,patterns,randomBaseline,MODEL_VERSION} from '../engine/model.js';
 import worker,{getAnalysis} from '../worker/index.js';
 const archive=JSON.parse(await readFile(new URL('../data/draws.json',import.meta.url),'utf8'));
 const chronological=archive.draws.slice().reverse();
@@ -28,8 +28,10 @@ test('Rechaza ventanas inválidas, duplicados y señala datos insuficientes',()=
 });
 test('El análisis se guarda, se reutiliza y cambia al corregir resultados oficiales',async()=>{
  let doc=structuredClone(archive);const map=new Map();const BUCKET={async get(key){if(key==='history/draws.json')return {json:async()=>doc};return map.has(key)?{json:async()=>JSON.parse(map.get(key))}:null;},async put(key,val){map.set(key,val);}};
- const first=await getAnalysis({BUCKET},30);assert.ok(map.has('ai/models/30.json'));assert.ok(map.has('ai/forecasts/1.0.0/30/after-'+archive.latestDate+'.json'));assert.deepEqual(await getAnalysis({BUCKET},30),first);
+ const first=await getAnalysis({BUCKET},30);assert.ok(map.has('ai/models/30.json'));assert.ok(map.has('ai/forecasts/'+MODEL_VERSION+'/30/after-'+archive.latestDate+'.json'));assert.deepEqual(await getAnalysis({BUCKET},30),first);
  doc=structuredClone(doc);doc.draws[0].refund=(doc.draws[0].refund+1)%10;
  const next=await getAnalysis({BUCKET},30);assert.notEqual(next.rows.at(-1).actualRefund,first.rows.at(-1).actualRefund);
  const res=await worker.fetch(new Request('https://test/api/ai?window=0'),{BUCKET});assert.equal(res.status,400);
 });
+
+test('La prioridad es reintegro y mide tres aciertos y ambos sin mezclarlos',()=>{assert.equal(report.objective.primary,'refund');assert.equal(report.metrics.atLeastThree,report.rows.filter(r=>r.hits>=3).length);assert.equal(report.metrics.atLeastThreeAndRefund,report.rows.filter(r=>r.hits>=3&&r.refundHit).length);assert.equal(report.metrics.randomAtLeastThreeAndRefund,report.rows.filter(r=>r.randomHits>=3&&r.randomRefundHit).length);assert.ok(Math.abs(report.baseline.threeAndRefundProbability-report.baseline.atLeastThreeProbability*.1)<1e-12);});

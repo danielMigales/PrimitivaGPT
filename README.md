@@ -14,7 +14,7 @@ Aplicación web en español para consultar los cinco últimos sorteos de La Prim
 
 Abrir **Laboratorio IA** en la aplicación y pulsar **Analizar y simular**. Se pueden elegir 20, 30 o 50 sorteos iniciales. El motor combina cinco métodos (azar uniforme, frecuencia acumulada, frecuencia reciente, recencia ponderada y parejas/estructura) y aprende sus pesos en orden temporal. El reintegro usa pesos independientes.
 
-Cada prueba propone exactamente seis números y un reintegro antes de ver el resultado. Después se registran los aciertos y se actualizan los pesos. La interfaz permite repetir cualquier prueba, inspeccionar patrones, comparar con una referencia aleatoria y descargar el análisis. No garantiza cuatro aciertos ni demuestra una ventaja frente al azar.
+Cada prueba propone exactamente seis números y un reintegro antes de ver el resultado. Después se registran los aciertos y se actualizan los pesos. La interfaz permite repetir cualquier prueba, inspeccionar patrones, comparar con una referencia aleatoria y descargar el análisis. La prioridad es acertar el reintegro; el segundo objetivo es lograr tres o más aciertos. Se registra también cuándo coinciden ambos. No se garantizan esos resultados ni se demuestra una ventaja frente al azar.
 
 - `engine/model.js`: motor puro y reproducible.
 - `data/ai-analysis.json`: pruebas, patrones y propuesta, con ventana inicial 30.

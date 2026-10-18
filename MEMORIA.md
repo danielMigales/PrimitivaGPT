@@ -135,3 +135,11 @@ La tarea existente descarga SELAE, valida, genera y sincroniza el histórico. `s
 ### Pruebas
 
 Se añaden pruebas de combinaciones válidas, métricas, reproducibilidad, suma de pesos, comparación combinatoria, características, datos insuficientes, invalidación de caché y visualización del laboratorio. La prueba de no anticipación modifica el sorteo objetivo y todos los posteriores y verifica que la predicción previa no cambia; también comprueba que ejecutar solo un prefijo produce exactamente las mismas primeras pruebas. Total: 33 pruebas automatizadas antes de publicar. La comprobación alojada exige guardar el modelo y recibir un análisis coherente con el último resultado oficial.
+
+## 14. Prioridad de reintegro — versión 1.1.0
+
+El objetivo se actualiza por petición del propietario: primero el reintegro; después tres o más números. Se conservan los modelos de reintegro y combinación independientes, sin sacrificar uno para puntuar el otro. La recompensa adicional de los expertos numéricos se activa desde tres aciertos, manteniendo el aprendizaje posterior a cada resultado. La regla de reintegro no cambia: se selecciona el valor con mayor puntuación de su conjunto de expertos, aprendido por separado. La prioridad no se presenta como una mejora de precisión.
+
+Se añaden métricas de tres o más aciertos y de tres o más más reintegro, y sus equivalentes de azar. La interfaz coloca primero el reintegro, luego el objetivo numérico y la coincidencia de ambos. La referencia conjunta de azar usa P(tres o más) × 1/10. Los informes de cuatro aciertos se conservan en el JSON para comparar, pero ya no son el objetivo principal de la pantalla.
+
+La versión 1.1.0 conserva en el histórico de 30 sorteos iniciales el mismo resultado observado: 8 reintegros de 95 pruebas, una prueba con tres aciertos y ninguna con tres o más junto al reintegro. La propuesta permanece sin cambios. El azar simulado logró dos pruebas con tres o más y una junto al reintegro: el nuevo objetivo no convierte la prueba en una mejora demostrada. Se invalida la caché por versión y se conserva por separado la primera propuesta de cada versión. Total: 34 pruebas automatizadas superadas.
