@@ -7,6 +7,10 @@
 /* Ocultar el panel de seguimiento real solicitado; conservar sus nodos para compatibilidad con el script. */
 .ai-grid.ai-focus{grid-template-columns:minmax(0,1fr)}
 .ai-grid.ai-focus .real-summary{display:none!important}
+
+/* Ocultar el seguimiento real si el usuario no quiere ese panel. */
+.ai-grid.ai-focus{grid-template-columns:minmax(0,1fr)}
+.ai-grid.ai-focus .real-summary{display:none!important}
 </style></head><body>
 <header><div><div class="brand"><span class="brand-icon" aria-hidden="true">✳</span> primitiva<span style="font-weight:400;color:#7f8b80">/ archivo</span></div><span class="smallcaps edition">Observa los números. Encuentra las coincidencias.</span></div></header>
 <main><nav class="main-nav" aria-label="Secciones"><button id="view-results" aria-pressed="true">Resultados</button><button id="view-ai" aria-pressed="false">Laboratorio IA</button></nav><div id="results-view"><div class="intro"><div><div class="eyebrow smallcaps">Resultados · La Primitiva</div><h1>Cada sorteo,<br><span>una nueva combinación.</span></h1><p class="subtitle">Los últimos resultados en un vistazo. Descubre qué números se repiten y recorre el archivo de sorteos.</p></div><div class="source-chip">Datos oficiales de SELAE</div></div>
