@@ -75,9 +75,21 @@ function renderPatterns(patterns){
  $('ai-gaps').textContent='Distancia media: '+decimal(patterns.meanGap)+'. Suma media de los seis números: '+decimal(patterns.meanSum)+'. Distancias más habituales: '+patterns.gaps.slice().sort((a,b)=>b.count-a.count).slice(0,5).map(x=>x.gap+' ('+x.count+')').join(', ')+'.';
  $('ai-parity').innerHTML=patterns.parity.map(x=>'<div class="parity-row"><span>'+x.even+' pares / '+x.odd+' impares</span><strong>'+x.count+'</strong></div>').join('');
  $('ai-refunds').innerHTML=patterns.refunds.map(x=>'<div class="refund-row"><span>'+x.number+'</span><strong>'+x.count+'</strong></div>').join('');
- const fold=document.querySelector('.ai-fold');if(fold)fold.open=true;
+ const fold=typeof document.querySelector==='function'?document.querySelector('.ai-fold'):null;if(fold)fold.open=true;
 }
-function renderAi(report){aiReport=report;renderPatterns(report.patterns);$('ai-content').hidden=false;const proposal=report.tracking?.active||report.forecast,targetDate=report.tracking?.targetDate||report.forecast.targetDate;
+function renderRealSummary(report){
+ const tracking=report.tracking||{},records=Array.isArray(tracking.records)?tracking.records:[],summary=summarizeIssued(records);
+ $('ai-real-context').textContent=tracking.trackingNote||'Solo se contabilizan propuestas registradas y contrastadas con resultados oficiales; no se mezclan simulaciones.';
+ $('ai-real-issued').textContent=summary.issued;
+ $('ai-real-evaluated').textContent=summary.evaluated;
+ $('ai-real-refunds').textContent=summary.evaluated?summary.refunds+' / '+summary.evaluated:'—';
+ $('ai-real-three').textContent=summary.evaluated?summary.three+' / '+summary.evaluated:'—';
+ const pending=records.filter(r=>r.status!=='published'||!r.actual).length;
+ $('ai-real-status').textContent=summary.evaluated?(summary.refunds+' / '+summary.evaluated+' reintegros acertados; '+summary.three+' / '+summary.evaluated+' propuestas con 3 o más aciertos.'):pending?pending+' propuesta pendiente de resultado oficial.':'Aún no hay propuestas evaluadas con resultados oficiales.';
+ $('ai-real-uncertainty').textContent=summary.evaluated?'La tasa de reintegro se muestra con intervalo de confianza de Wilson; muestras pequeñas tienen mucha incertidumbre. Los datos no permiten garantizar resultados futuros.':'Las simulaciones no se suman al seguimiento real. Sin resultados oficiales evaluables no hay una tasa estimable ni intervalo de Wilson.';
+ $('ai-real-versions').innerHTML=summary.versions.map(v=>'<tr><td>'+v.version+'</td><td>'+v.evaluated+'</td><td>'+v.refunds+' / '+v.evaluated+'</td><td>'+v.three+' / '+v.evaluated+'</td></tr>').join('');
+}
+function renderAi(report){aiReport=report;renderPatterns(report.patterns);renderRealSummary(report);$('ai-content').hidden=false;const proposal=report.tracking?.active||report.forecast,targetDate=report.tracking?.targetDate||report.forecast.targetDate;
 $('ai-forecast-date').textContent=targetDate?`Sorteo del ${format(targetDate,{day:'numeric',month:'long',year:'numeric'})}`:'Para el próximo sorteo';
 $('ai-forecast').innerHTML=forecastBalls(proposal);
 $('ai-forecast-info').textContent=`${proposal.trainingCount||report.drawCount} sorteos · hasta el ${format(proposal.trainedThrough||report.sourceLastDate,{day:'2-digit',month:'2-digit',year:'numeric'})}.`;
