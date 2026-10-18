@@ -21,13 +21,8 @@ function distributions(history,window,count){
  history.forEach((d,i)=>{for(const n of d.numbers){nums[1][n-1]++;nums[3][n-1]+=Math.pow(.5,(history.length-1-i)/12);}refs[1][d.refund]++;refs[3][d.refund]+=Math.pow(.5,(history.length-1-i)/12);});
  // Frecuencia reciente compuesta: 30 sorteos (50 %), 15 (30 %) y 5 (20 %).
  // Cada ventana se normaliza por separado antes de mezclar para evitar favorecer a las largas.
- const mixWindows=(size,weight,kind)=>{const counts=kind==='numbers'?Array(49).fill(1):Array(10).fill(1);for(const d of history.slice(-Math.min(size,history.length))){if(kind==='numbers')for(const n of d.numbers)counts[n-1]++;else counts[d.refund]++;}const total=counts.reduce((a,b)=>a+b,0);return counts.map((v,i)=>({value:v/total,index:i,weight}));};
- for(const [size,weight] of [[30,.5],[15,.3],[5,.2]]){
-  for(const x of mixWindows(size,weight,'numbers'))nums[2][x.index]+=weight*x.value- weight/(49);
-  for(const x of mixWindows(size,weight,'refund'))refs[2][x.index]+=weight*x.value-weight/10;
- }
- // Sustituir las frecuencias iniciales por la mezcla ponderada exacta.
- const weighted=(kind,length)=>{const out=Array(length).fill(0);for(const [size,weight] of [[30,.5],[15,.3],[5,.2]]){const values=mixWindows(size,weight,kind);for(const x of values)out[x.index]+=weight*x.value;}return out;};
+ const mixWindows=(size,kind)=>{const counts=kind==='numbers'?Array(49).fill(1):Array(10).fill(1);for(const d of history.slice(-Math.min(size,history.length))){if(kind==='numbers')for(const n of d.numbers)counts[n-1]++;else counts[d.refund]++;}const total=counts.reduce((a,b)=>a+b,0);return counts.map(v=>v/total);};
+ const weighted=(kind,length)=>{const out=Array(length).fill(0);for(const [size,weight] of [[30,.5],[15,.3],[5,.2]]){const values=mixWindows(size,kind);for(let i=0;i<length;i++)out[i]+=weight*values[i];}return out;};
  nums[2]=weighted('numbers',49);refs[2]=weighted('refund',10);
  const anchors=best(normalize(nums[2])).slice(0,3);
  for(const d of recent){for(const n of d.numbers)nums[4][n-1]+=1+d.numbers.filter(x=>x!==n&&anchors.includes(x)).length/3;refs[4][d.refund]++;}
