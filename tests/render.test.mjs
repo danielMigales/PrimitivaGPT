@@ -73,7 +73,7 @@ test('El laboratorio muestra predicción, métricas, pesos y pruebas históricas
  const els=await renderData(seed);els.get('view-ai').onclick();await new Promise(resolve=>setImmediate(resolve));
  assert.equal(els.get('ai-content').hidden,false);assert.equal(els.get('ai-error').hidden,true);assert.equal(els.get('ai-count').textContent,seed.draws.length-30);
  assert.equal((els.get('ai-forecast').innerHTML.match(/class="ball/g)||[]).length,7);assert.match(els.get('ai-detail').innerHTML,/Predicción previa/);assert.match(els.get('ai-weights').innerHTML,/Frecuencia acumulada/);
- const first=els.get('ai-log').innerHTML;els.get('ai-next').onclick();assert.notEqual(els.get('ai-log').innerHTML,first);els.get('ai-target').value='0';els.get('ai-replay').onclick();assert.match(els.get('ai-detail').innerHTML,/30 sorteos anteriores/);
+ const first=els.get('ai-log').innerHTML;els.get('ai-next').onclick();assert.notEqual(els.get('ai-log').innerHTML,first);els.get('ai-target').value='0';els.get('ai-target').onchange();assert.match(els.get('ai-detail').innerHTML,/30 sorteos anteriores/);
  els.get('view-results').onclick();assert.equal(els.get('ai-view').hidden,true);assert.equal(els.get('results-view').hidden,false);
 });
 
