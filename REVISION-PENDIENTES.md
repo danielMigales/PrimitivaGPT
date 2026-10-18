@@ -6,9 +6,9 @@ Fecha de revisión: 2026-10-18
 
 - [x] El repositorio conserva el histórico normalizado en `data/draws.json` y los originales mensuales en `data/raw/`.
 - [x] Existe motor estadístico en `engine/model.js` con siete métodos: azar uniforme, frecuencia acumulada, frecuencia reciente, recencia ponderada, parejas/estructura, Bayes regularizado y Markov regularizado.
-- [x] El proceso de compilación genera una página estática y análisis para ventanas de 20, 30 y 50 sorteos.
+- [x] El proceso de compilación genera una página estática y análisis para ventanas de 10, 20, 30…100 sorteos.
 - [x] GitHub Pages ya ha completado una ejecución de publicación con estado `success`.
-- [x] La página estática ahora guarda propuestas y evaluaciones en el almacenamiento local del navegador, separadas por ventana de 20/30/50 sorteos. Esta persistencia es solo de ese navegador/dispositivo, no un backend compartido.
+- [x] La página estática ahora guarda propuestas y evaluaciones en el almacenamiento local del navegador, separadas por ventana de 10–100, en incrementos de 10 sorteos. Esta persistencia es solo de ese navegador/dispositivo, no un backend compartido.
 - [ ] La sincronización automática oficial y el almacenamiento compartido del Worker/Sites siguen sin estar demostrados como operativos; el almacenamiento local no sustituye estas funciones.
 - [ ] Hay que comprobar que la web publicada refleja la versión actual del código y que todos los controles principales funcionan en móvil.
 
@@ -59,7 +59,7 @@ Fecha de revisión: 2026-10-18
 - No borrar ni sobrescribir el histórico oficial ni los archivos mensuales originales para implementar el seguimiento.
 - No añadir secretos al repositorio.
 - No marcar una tarea como completada hasta verificarla en la web publicada o con una prueba automatizada.
-- Conservar los siete métodos del motor y los análisis para ventanas de 20, 30 y 50 sorteos.
+- Conservar los siete métodos del motor y los análisis para ventanas de 10 a 100, en incrementos de 10 sorteos.
 - Mantener separadas las evaluaciones retrospectivas y las propuestas reales.
 
 ## Cambios recientes
