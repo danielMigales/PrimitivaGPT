@@ -65,7 +65,7 @@ function brierScore(probabilities,actual){return probabilities.reduce((sum,p,i)=
 function analyze(draws,{window=30,variant='extended'}={}){
  if(!['extended','legacy'].includes(variant))throw Error('Variante no válida');
  const countExperts=variant==='extended'?EXPERTS.length:5;
- if(![20,30,50].includes(window))throw Error('Ventana permitida: 20, 30 o 50');
+ if(![5,15,30].includes(window))throw Error('Ventana permitida: 5, 15 o 30');
  const ordered=draws.map(d=>({...d,numbers:d.numbers.slice().sort((a,b)=>a-b)})).sort((a,b)=>a.date.localeCompare(b.date));
  if(new Set(ordered.map(d=>d.date)).size!==ordered.length)throw Error('Fechas duplicadas');
  for(const d of ordered)if(d.numbers.length!==6||new Set(d.numbers).size!==6||d.numbers.some(n=>!Number.isInteger(n)||n<1||n>49)||!Number.isInteger(d.refund)||d.refund<0||d.refund>9)throw Error('Sorteo inválido');
@@ -211,7 +211,7 @@ export default {async fetch(request,env){
  }
  if(request.method!=='GET')return new Response('Método no permitido',{status:405,headers:{Allow:'GET'}});
  const headers={'X-Content-Type-Options':'nosniff','Referrer-Policy':'strict-origin-when-cross-origin'};
- if(url.pathname==='/api/ai'){const window=Number(url.searchParams.get('window')||30);if(![20,30,50].includes(window))return Response.json({error:'Ventana permitida: 20, 30 o 50'},{status:400});try{return Response.json(await getAnalysis(env,window),{headers:{...headers,'Cache-Control':'no-store',...(url.searchParams.has('download')?{'Content-Disposition':'attachment; filename=\"primitiva-analisis.json\"'}:{})}});}catch{return Response.json({error:'No se pudo calcular el análisis. El histórico sigue disponible.'},{status:503});}}
+ if(url.pathname==='/api/ai'){const window=Number(url.searchParams.get('window')||30);if(![5,15,30].includes(window))return Response.json({error:'Ventana permitida: 5, 15 o 30'},{status:400});try{return Response.json(await getAnalysis(env,window),{headers:{...headers,'Cache-Control':'no-store',...(url.searchParams.has('download')?{'Content-Disposition':'attachment; filename=\"primitiva-analisis.json\"'}:{})}});}catch{return Response.json({error:'No se pudo calcular el análisis. El histórico sigue disponible.'},{status:503});}}
  if(url.pathname==='/api/draws'){const data=await getData(env);return Response.json(data,{headers:{...headers,'Cache-Control':'no-store',...(url.searchParams.has('download')?{'Content-Disposition':'attachment; filename="primitiva-historico.json"'}:{})}});}
  if(url.pathname==='/')return new Response(HTML,{headers:{...headers,'Content-Type':'text/html;charset=utf-8','Cache-Control':'no-cache','Content-Security-Policy':"default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; base-uri 'none'; frame-ancestors 'self'; form-action 'self'"}});
  return new Response('No encontrado',{status:404,headers});
