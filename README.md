@@ -8,7 +8,7 @@ Aplicación web en español para consultar los cinco últimos sorteos de La Prim
 - Histórico por fechas, paginación de cinco sorteos y exportación JSON.
 - Resultados de SELAE, conservados como JSON normalizado y respuestas mensuales originales.
 - Worker de Cloudflare con almacenamiento R2, comprobaciones cada 15 minutos al consultar y conservación ante errores.
-- Alternativa estática para GitHub Pages con generación de una versión estática y actualización del histórico cada hora mediante GitHub Actions.
+- Alternativa estática para GitHub Pages con generación de una versión estática y validación mediante GitHub Actions.
 
 ## Ejecutar
 
@@ -28,9 +28,9 @@ Abrir http://localhost:8000. El servidor Python usa el JSON versionado; el Worke
 
 Repositorio público: https://github.com/danielMigales/PrimitivaGPT
 
-El workflow **Actualizar SELAE y validar** se activa al subir cambios a `main`, cada hora y manualmente desde Actions. Descarga los resultados oficiales, ejecuta las pruebas, guarda los cambios del histórico en el repositorio y ofrece `public/` como artefacto descargable para alojarlo en cualquier servidor estático. No requiere activar GitHub Pages.
+El workflow **Validar PrimitivaGPT** se activa con cada cambio en `main` y manualmente desde Actions. Ejecuta las pruebas y ofrece `public/` como artefacto descargable. No requiere activar GitHub Pages.
 
-El cron `17 * * * *` se ejecuta cada hora en UTC. GitHub puede retrasarlo; no equivale a una actualización instantánea ni a un SLA. En repositorios públicos, GitHub puede desactivar cron tras periodos prolongados de inactividad; revisar el estado de Actions. No usa secretos personales.
+La tarea horaria vinculada a la aplicación consulta SELAE, valida el histórico y guarda las novedades en este repositorio usando la conexión autorizada de GitHub. Se ejecuta en el minuto 35 de cada hora (Europe/Madrid). `SYNC.md` describe el proceso. Se usa esta tarea porque las dos primeras descargas directas desde runners de GitHub fallaron; no se oculta el fallo ni se reemplazan resultados por datos de ejemplo. El script también puede ejecutarse manualmente con Python y curl.
 
 ## Documentación
 

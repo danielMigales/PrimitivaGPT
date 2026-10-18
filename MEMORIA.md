@@ -42,13 +42,11 @@ La interfaz consulta al abrirse y cada quince minutos mientras está visible. El
 
 ## 5. Actualización desatendida y GitHub
 
-`.github/workflows/update.yml` está preparado para ejecución cada hora, ejecución manual y cambios en main. Descarga todos los meses desde enero de 2026, valida, ejecuta pruebas, genera el proyecto, guarda los datos por commit y ofrece la versión estática como artefacto de Actions. Recorre también años posteriores cuando corresponda. El calendario se interpreta en Europe/Madrid; el cron de GitHub usa UTC.
+La tarea vinculada a Sites está habilitada cada hora en el minuto 35 (Europe/Madrid). Descarga desde SELAE con `scripts/update_data.py`, valida el histórico y las pruebas y sincroniza `data/`, `worker/index.js` y `public/` en `danielMigales/PrimitivaGPT` usando la conexión autorizada de GitHub. Mantiene además el archivo alojado mediante el endpoint privado. El procedimiento completo está en `SYNC.md` y en la tarea.
 
-La versión estática usa `public/data/draws.json`; no depende de CORS ni de consultar SELAE desde el teléfono. Los errores de descarga detienen el workflow conservando la publicación anterior. Cada commit permite revisar cambios y recuperar el histórico del proyecto. La primera ejecución real de Actions se comprueba tras la subida al repositorio.
+`.github/workflows/update.yml` valida cada cambio en main y ofrece la versión estática como artefacto descargable. La consulta a SELAE se ejecuta en la tarea vinculada: los dos primeros intentos de descarga desde Actions fallaron (HTTP 403 con urllib y código 22 con curl). La importación desde el entorno de trabajo sí ha funcionado; se mantiene el error explícito y no se simula una actualización exitosa.
 
-La publicación de Sites y la versión estática son independientes: Actions actualiza el repositorio y genera el artefacto; Sites mantiene sus propios datos persistentes y los renueva al consultarse. Un cambio de código en GitHub no redespliega Sites automáticamente.
-
-La copia de Sites también admite una tarea vinculada que consulta el mismo endpoint de actualización con acceso de servicio efímero. El procedimiento está guardado en `SYNC.md`; una tarea creada solo se considera operativa tras verificar el escritor y la lectura persistida.
+La versión estática usa `public/data/draws.json`; no consulta SELAE desde el teléfono. Sites mantiene su copia persistente y la renueva con las visitas y la tarea. Los cambios de código en GitHub no redespliegan Sites automáticamente. Los commits conservan el historial y permiten revisar correcciones.
 
 ## 6. Estructura
 
@@ -82,8 +80,10 @@ El entorno no dispone del controlador de navegador exigido para QA de Sites; no 
 - 11 pruebas automatizadas superadas y módulo de despliegue validado.
 - Dos lecturas autenticadas del archivo alojado devolvieron el mismo histórico y fecha de consulta, sin avisos: persistencia inicial y lectura verificadas.
 - Tarea de Sites habilitada cada hora en el minuto 35, zona Europe/Madrid. Su creación está confirmada; aún no se ha observado una ejecución programada. El escritor inicial y la lectura ya se comprobaron de forma directa.
-- Repositorio autorizado: https://github.com/danielMigales/PrimitivaGPT. Se incorpora la aplicación completa, las respuestas oficiales de SELAE, las pruebas y esta memoria. La verificación del primer workflow se documentará tras la subida. GitHub Pages no es necesario: la aplicación ya está alojada en Sites.
+- Repositorio autorizado: https://github.com/danielMigales/PrimitivaGPT. Se incorpora la aplicación completa, las respuestas oficiales de SELAE, las pruebas y esta memoria. La validación final del workflow se documenta a continuación. GitHub Pages no es necesario: la aplicación ya está alojada en Sites.
 
 ## 9. Verificación en GitHub
 
 La primera subida quedó registrada en el commit `f00df297842b0c20c3fd09d9b6017aad5e4b3c9b`. Actions se activó automáticamente. Su primera ejecución devolvió HTTP 403 desde SELAE usando el cliente HTTP de Python. Se adapta el importador a curl, disponible en los runners de Ubuntu y usado con éxito para la descarga oficial durante la importación inicial. Ante un rechazo de SELAE se mantiene la copia histórica anterior y la tarea señala el error.
+
+La programación horaria se ha actualizado para sincronizar el histórico tanto en el sitio como en GitHub. El cambio de curl no resolvió la descarga desde Actions; por ello el workflow final solo valida y genera el proyecto.

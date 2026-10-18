@@ -1,11 +1,11 @@
-# Actualización desatendida del archivo alojado
+# Actualización de PrimitivaGPT
 
-Sitio: `appgprj_6ad47d5e88c88191ab3a55378b7ce93e`.
+La tarea vinculada al sitio consulta SELAE y sincroniza `danielMigales/PrimitivaGPT` en `main`, con permiso del propietario.
 
-1. Consultar `get_site` y confirmar que el sitio sigue siendo privado y propiedad del usuario. Usar la URL devuelta; no cambiar la audiencia.
-2. Obtener el acceso de servicio efímero que devuelva `get_site` o `generate_siwc_bypass_token`, sin imprimirlo ni guardarlo.
-3. Hacer GET a `/api/draws`, pasando el acceso únicamente a este sitio en la cabecera `OAI-Sites-Authorization: Bearer <valor>`. El manejador incorpora desde SELAE las novedades y conserva el histórico en R2.
-4. Leer el JSON: exigir HTTP 200, ausencia de `warning`, `source` igual a SELAE, fecha inicial 2026-01-01 y ausencia de huecos. Una segunda lectura comprueba que `checkedAt`, `latestDate` y los identificadores coinciden con lo guardado.
-5. Si hay error o aviso, conservar los datos y reportar el fallo; no inventar resultados, borrar registros ni publicar versiones de código. No enviar mensajes a terceros.
+1. Obtener un checkout de la rama main actual. Ejecutar `python scripts/update_data.py`, `npm test` y `npm run build`. Requiere Python 3.12+, Node 22+ y curl.
+2. Tras descarga y validación completas, guardar en GitHub solo los cambios de `data/`, `worker/index.js` y `public/`. Conservar el resto del árbol y comprobar el head actual. Usar el conector GitHub para escribir; no hacen falta claves personales en el proyecto. Ante un cambio concurrente, releer y mezclar sin force push.
+3. El importador conserva los resultados anteriores y añade/corrige los oficiales. No publicar resultados incompletos ni sustituirlos por ejemplos. Si los archivos no cambian no se necesita commit.
+4. Para el sitio privado `appgprj_6ad47d5e88c88191ab3a55378b7ce93e`, obtener `get_site`, conservar su audiencia y usar el acceso efímero devuelto únicamente en su URL, con la cabecera `OAI-Sites-Authorization: Bearer <valor>`; nunca imprimirlo ni guardarlo.
+5. GET `/api/draws` actualiza la copia R2 con SELAE cuando tiene más de quince minutos. Exigir HTTP 200 y ausencia de warning; volver a leer y comprobar iguales `checkedAt`, `latestDate` e identificadores. Ante error conservar la copia anterior y reportar el fallo.
 
-El lector de datos es también el escritor controlado de la copia oficial compartida. El límite de quince minutos evita consultas redundantes. No se necesitan secretos de SELAE ni sesiones de apps conectadas. Los resultados históricos iniciales permanecen además en el repositorio fuente del sitio.
+GitHub Actions valida el proyecto cuando se actualiza main y genera una versión estática descargable. La descarga oficial se ejecuta en la tarea vinculada porque las pruebas iniciales desde GitHub Actions fallaron tanto con urllib (403) como con curl (código 22). No se realizan cambios de código ni despliegues durante una actualización rutinaria.
