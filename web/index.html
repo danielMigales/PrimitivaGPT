@@ -76,7 +76,7 @@ function showRealSummary(report){
  $('ai-real-uncertainty').textContent=n?`Reintegro · intervalo orientativo del 95 %: ${percent(summary.refundInterval[0])}–${percent(summary.refundInterval[1])} (Wilson). Referencia aleatoria: 10 %. Una muestra pequeña tiene mucha incertidumbre y no demuestra una ventaja predictiva.`:'Los porcentajes aparecerán cuando se publiquen resultados. Las simulaciones históricas se consultan aparte y las ventanas se solapan: no se suman como sorteos independientes.';
  $('ai-real-versions').innerHTML=summary.versions.length?summary.versions.map(v=>`<tr><td>${v.version}</td><td>${v.evaluated}</td><td>${v.refunds} / ${v.evaluated}</td><td>${v.three} / ${v.evaluated}</td></tr>`).join(''):'<tr><td colspan="4">Sin resultados oficiales evaluados todavía.</td></tr>';
 }
-function renderAi(report){showRealSummary(report);aiReport=report;const proposal=report.tracking?.active||report.forecast,targetDate=report.tracking?.targetDate||report.forecast.targetDate;
+function renderAi(report){showRealSummary(report);aiReport=report;$('ai-content').hidden=false;const proposal=report.tracking?.active||report.forecast,targetDate=report.tracking?.targetDate||report.forecast.targetDate;
 $('ai-forecast-date').textContent=targetDate?`Sorteo del ${format(targetDate,{day:'numeric',month:'long',year:'numeric'})}`:'Para el próximo sorteo';
 $('ai-forecast').innerHTML=forecastBalls(proposal);
 $('ai-forecast-info').textContent=`${proposal.trainingCount||report.drawCount} sorteos · hasta el ${format(proposal.trainedThrough||report.sourceLastDate,{day:'2-digit',month:'2-digit',year:'numeric'})}.`;
