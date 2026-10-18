@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';import {readFile} from 'node:fs/promises';
-import {analyze,patterns,randomBaseline,MODEL_VERSION} from '../engine/model.js';
+import {analyze,patterns,randomBaseline,MODEL_VERSION,brierScore} from '../engine/model.js';
 import worker,{getAnalysis} from '../worker/index.js';
 const archive=JSON.parse(await readFile(new URL('../data/draws.json',import.meta.url),'utf8'));
 const chronological=archive.draws.slice().reverse();
@@ -35,3 +35,6 @@ test('El análisis se guarda, se reutiliza y cambia al corregir resultados ofici
 });
 
 test('La prioridad es reintegro y mide tres aciertos y ambos sin mezclarlos',()=>{assert.equal(report.objective.primary,'refund');assert.equal(report.metrics.atLeastThree,report.rows.filter(r=>r.hits>=3).length);assert.equal(report.metrics.atLeastThreeAndRefund,report.rows.filter(r=>r.hits>=3&&r.refundHit).length);assert.equal(report.metrics.randomAtLeastThreeAndRefund,report.rows.filter(r=>r.randomHits>=3&&r.randomRefundHit).length);assert.ok(Math.abs(report.baseline.threeAndRefundProbability-report.baseline.atLeastThreeProbability*.1)<1e-12);});
+
+test('Brier se calcula sobre las diez categorías y conserva probabilidades válidas',()=>{assert.ok(Math.abs(brierScore(Array(10).fill(.1),4)-.9)<1e-12);assert.equal(brierScore([1,0,0,0,0,0,0,0,0,0],0),0);assert.equal(brierScore([1,0,0,0,0,0,0,0,0,0],1),2);for(const r of report.rows){assert.equal(r.refundProbabilities.length,10);assert.ok(r.refundProbabilities.every(p=>p>0&&p<1));assert.ok(Math.abs(r.refundProbabilities.reduce((a,b)=>a+b,0)-1)<1e-10);assert.ok(Math.abs(brierScore(r.refundProbabilities,r.actualRefund)-r.refundBrier)<1e-12);assert.ok(Number.isFinite(r.refundLogLoss));}});
+test('Siete expertos y referencia reproducida sobre las mismas fechas y boletos',()=>{assert.equal(report.experts.length,7);assert.ok(report.experts.some(e=>e.name==='Bayes regularizado'));assert.ok(report.experts.some(e=>e.name==='Markov regularizado'));assert.ok(report.experts.every(e=>e.initialWeight===1/7));const old=analyze(archive.draws,{variant:'legacy'});assert.equal(old.version,'1.1.0');assert.equal(old.experts.length,5);assert.equal(old.rows.length,report.rows.length);assert.deepEqual(old.rows.map(r=>r.date),report.rows.map(r=>r.date));assert.deepEqual(report.reference.metrics,old.metrics);assert.equal(old.modelState.version,'1.1.0');});

@@ -12,7 +12,7 @@ Aplicación web en español para consultar los cinco últimos sorteos de La Prim
 
 ## Laboratorio IA
 
-Abrir **Laboratorio IA** en la aplicación y pulsar **Analizar y simular**. Se pueden elegir 20, 30 o 50 sorteos iniciales. El motor combina cinco métodos (azar uniforme, frecuencia acumulada, frecuencia reciente, recencia ponderada y parejas/estructura) y aprende sus pesos en orden temporal. El reintegro usa pesos independientes.
+Abrir **Laboratorio IA** en la aplicación y pulsar **Analizar y simular**. Se pueden elegir 20, 30 o 50 sorteos iniciales. El motor combina siete métodos (azar uniforme, frecuencia acumulada, frecuencia reciente, recencia ponderada, parejas/estructura, Bayes regularizado y Markov regularizado) y aprende sus pesos en orden temporal. El reintegro usa pesos independientes.
 
 Cada prueba propone exactamente seis números y un reintegro antes de ver el resultado. Después se registran los aciertos y se actualizan los pesos. La interfaz permite repetir cualquier prueba, inspeccionar patrones, comparar con una referencia aleatoria y descargar el análisis. La prioridad es acertar el reintegro; el segundo objetivo es lograr tres o más aciertos. Se registra también cuándo coinciden ambos. No se garantizan esos resultados ni se demuestra una ventaja frente al azar.
 
@@ -45,6 +45,10 @@ Repositorio público: https://github.com/danielMigales/PrimitivaGPT
 El workflow **Validar PrimitivaGPT** se activa con cada cambio en `main` y manualmente desde Actions. Ejecuta las pruebas y ofrece `public/` como artefacto descargable. No requiere activar GitHub Pages.
 
 La tarea horaria vinculada a la aplicación consulta SELAE, valida el histórico y guarda las novedades en este repositorio usando la conexión autorizada de GitHub. Se ejecuta en el minuto 35 de cada hora (Europe/Madrid). `SYNC.md` describe el proceso. Se usa esta tarea porque las dos primeras descargas directas desde runners de GitHub fallaron; no se oculta el fallo ni se reemplazan resultados por datos de ejemplo. El script también puede ejecutarse manualmente con Python y curl.
+
+## Investigación
+
+Ver [INVESTIGACION.md](INVESTIGACION.md) para fuentes primarias, métodos integrados, límites y comparación reproducible con la versión 1.1. El laboratorio muestra el error Brier y la pérdida logarítmica del reintegro; reducir esos errores no equivale a garantizar más premios.
 
 ## Documentación
 
