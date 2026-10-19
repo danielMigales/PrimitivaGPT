@@ -107,7 +107,8 @@ export function reconcileForecasts(records,report,draws,now=new Date()){
  }
  const reconciled=next.map(r=>{
   const actual=official.get(r.targetDate);
-  return {...r,status:actual?'published':'pending',actual:actual?{date:actual.date,numbers:[...actual.numbers],refund:actual.refund,complementary:actual.complementary,source:actual.source}:null,hits:actual?r.numbers.filter(n=>actual.numbers.includes(n)).length:null,refundHit:actual?r.refund===actual.refund:null};
+  const publishedAt=actual?(r.publishedAt||now.toISOString()):null;
+  return {...r,status:actual?'published':'pending',publishedAt,actual:actual?{date:actual.date,numbers:[...actual.numbers],refund:actual.refund,complementary:actual.complementary,source:actual.source}:null,hits:actual?r.numbers.filter(n=>actual.numbers.includes(n)).length:null,refundHit:actual?r.refund===actual.refund:null};
  }).sort((a,b)=>b.targetDate.localeCompare(a.targetDate));
  return {targetDate,active:reconciled.find(r=>r.targetDate===targetDate)||null,records:reconciled};
 }
