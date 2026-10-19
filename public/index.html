@@ -99,7 +99,11 @@ const proposal=report.tracking?.active||report.forecast,targetDate=report.tracki
 $('ai-forecast-date').textContent=targetDate?`Sorteo del ${format(targetDate,{day:'numeric',month:'long',year:'numeric'})}`:'Para el próximo sorteo';
 $('ai-forecast').innerHTML=forecastBalls(proposal);
 $('ai-forecast-info').textContent=`${proposal.trainingCount||report.drawCount} sorteos · hasta el ${format(proposal.trainedThrough||report.sourceLastDate,{day:'2-digit',month:'2-digit',year:'numeric'})}.`;
-const recentOutcome=(report.tracking?.records||[]).find(r=>r.status==='published'&&r.actual&&r.publishedAt&&Date.now()-Date.parse(r.publishedAt)>=0&&Date.now()-Date.parse(r.publishedAt)<24*60*60*1000);
+const trackedOutcome=(report.tracking?.records||[]).find(r=>r.status==='published'&&r.actual&&r.publishedAt&&Date.now()-Date.parse(r.publishedAt)>=0&&Date.now()-Date.parse(r.publishedAt)<24*60*60*1000);
+const latestBacktest=report.rows?.at(-1),archiveCheckedAt=doc?.checkedAt;
+const checkedAtMs=Date.parse(archiveCheckedAt);
+const staticOutcome=!trackedOutcome&&!report.tracking&&latestBacktest&&doc?.latestDate===latestBacktest.date&&Number.isFinite(checkedAtMs)&&Date.now()>=checkedAtMs&&Date.now()-checkedAtMs<24*60*60*1000?{targetDate:latestBacktest.date,publishedAt:archiveCheckedAt,numbers:latestBacktest.predicted,refund:latestBacktest.refund,actual:{date:latestBacktest.date,numbers:latestBacktest.actual,refund:latestBacktest.actualRefund},hits:latestBacktest.hits,refundHit:latestBacktest.refundHit}:null;
+const recentOutcome=trackedOutcome||staticOutcome;
 if(recentOutcome){
  const expiresAt=Date.parse(recentOutcome.publishedAt)+24*60*60*1000;
  $('ai-forecast-result').dataset.publishedAt=recentOutcome.publishedAt;
