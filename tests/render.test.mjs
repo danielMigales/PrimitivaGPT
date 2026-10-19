@@ -94,10 +94,10 @@ test('Resumen real presenta aciertos y versiones solo tras recibir resultados of
 });
 
 test('Todos los selectores del HTML apuntan a IDs existentes y únicos',()=>{
- const ids=[...html.matchAll(/\\bid="([^"]+)"/g)].map(match=>match[1]);
+ const ids=[...html.matchAll(/\bid="([^"]+)"/g)].map(match=>match[1]);
  const idSet=new Set(ids);
  assert.equal(idSet.size,ids.length,'El HTML no debe contener IDs duplicados');
- const refs=[...html.matchAll(/\\$\\(['"]([^'"]+)['"]\\)/g)].map(match=>match[1]);
+ const refs=[...html.matchAll(/\$\(['"]([^'"]+)['"]\)/g)].map(match=>match[1]);
  const missing=[...new Set(refs.filter(id=>!idSet.has(id)))];
  assert.deepEqual(missing,[],'Cada selector $() debe apuntar a un elemento existente');
 });
