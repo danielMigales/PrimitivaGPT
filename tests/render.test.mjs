@@ -86,9 +86,18 @@ test('La propuesta muestra fecha y resultado pendiente, y conserva la comparaci�
 
 test('Resumen real muestra pendientes sin mezclar las simulaciones y mantiene el detalle plegado',async()=>{
  const report=analyze(seed.draws);report.tracking={persisted:true,records:[{version:'1.2.0',targetDate:'2026-10-19',status:'pending',actual:null}]};
- const els=await renderData(seed,report);els.get('view-ai').onclick();await new Promise(resolve=>setImmediate(resolve));assert.equal(els.get('ai-real-issued').textContent,1);assert.equal(els.get('ai-real-evaluated').textContent,0);assert.equal(els.get('ai-real-refunds').textContent,'—');assert.match(els.get('ai-real-status').textContent,/1 propuesta pendiente/);assert.match(els.get('ai-real-uncertainty').textContent,/no se suman/);assert.match(els.get('ai-sync-status').textContent,/SELAE.*último sorteo/);assert.equal((html.match(/<details class="ai-fold">/g)||[]).length,2);assert.equal(html.includes('Simulaciones históricas · resultados y pruebas'),false);
+ const els=await renderData(seed,report);els.get('view-ai').onclick();await new Promise(resolve=>setImmediate(resolve));assert.equal(els.get('ai-real-issued').textContent,1);assert.equal(els.get('ai-real-evaluated').textContent,0);assert.equal(els.get('ai-real-refunds').textContent,'—');assert.match(els.get('ai-real-status').textContent,/1 propuesta pendiente/);assert.match(els.get('ai-real-uncertainty').textContent,/no se suman/);assert.match(els.get('ai-sync-status').textContent,/SELAE.*último sorteo/);assert.equal((html.match(/<details class="ai-fold">/g)||[]).length,1);assert.match(html,/<details class="ai-fold" hidden><summary>Métodos y aprendizaje del motor<\/summary>/);assert.equal(html.includes('Simulaciones históricas · resultados y pruebas'),false);
 });
 test('Resumen real presenta aciertos y versiones solo tras recibir resultados oficiales',async()=>{
  const report=analyze(seed.draws);report.tracking={persisted:true,records:[{version:'1.2.0',targetDate:'2026-10-15',numbers:[1,2,3,4,5,6],refund:4,status:'published',actual:{numbers:[1,2,3,7,8,9],refund:4},hits:3,refundHit:true}]};
  const els=await renderData(seed,report);els.get('view-ai').onclick();await new Promise(resolve=>setImmediate(resolve));assert.equal(els.get('ai-real-refunds').textContent,'1 / 1');assert.equal(els.get('ai-real-three').textContent,'1 / 1');assert.match(els.get('ai-real-status').textContent,/Ambos objetivos: 1 \/ 1/);assert.match(els.get('ai-real-uncertainty').textContent,/Wilson/);assert.match(els.get('ai-real-versions').innerHTML,/1.2.0/);
+});
+
+test('Todos los selectores del HTML apuntan a IDs existentes y únicos',()=>{
+ const ids=[...html.matchAll(/\bid="([^"]+)"/g)].map(match=>match[1]);
+ const idSet=new Set(ids);
+ assert.equal(idSet.size,ids.length,'El HTML no debe contener IDs duplicados');
+ const refs=[...html.matchAll(/\$\(['"]([^'"]+)['"]\)/g)].map(match=>match[1]);
+ const missing=[...new Set(refs.filter(id=>!idSet.has(id)))];
+ assert.deepEqual(missing,[],'Cada selector $() debe apuntar a un elemento existente');
 });

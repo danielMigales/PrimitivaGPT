@@ -12,14 +12,14 @@ Aplicación web en español para consultar los cinco últimos sorteos de La Prim
 
 ## Laboratorio IA
 
-Abrir **Laboratorio IA** en la aplicación y pulsar **Analizar y simular**. Se pueden elegir 20, 30 o 50 sorteos iniciales. El motor combina siete métodos (azar uniforme, frecuencia acumulada, frecuencia reciente, recencia ponderada, parejas/estructura, Bayes regularizado y Markov regularizado) y aprende sus pesos en orden temporal. El reintegro usa pesos independientes.
+Abrir **Laboratorio IA** en la aplicación y pulsar **Analizar y simular**. La versión estática ofrece ventanas de 5, 10 y 15 sorteos iniciales; el Worker admite también 20, 30 y 50 mediante su API. El motor combina siete métodos (azar uniforme, frecuencia acumulada, frecuencia reciente, recencia ponderada, parejas/estructura, Bayes regularizado y Markov regularizado) y aprende sus pesos en orden temporal. El reintegro usa pesos independientes.
 
 Cada prueba propone exactamente seis números y un reintegro antes de ver el resultado. Después se registran los aciertos y se actualizan los pesos. La interfaz permite repetir cualquier prueba, inspeccionar patrones, comparar con una referencia aleatoria y descargar el análisis. La prioridad es acertar el reintegro; el segundo objetivo es lograr tres o más aciertos. Se registra también cuándo coinciden ambos. No se garantizan esos resultados ni se demuestra una ventaja frente al azar.
 
 - `engine/model.js`: motor puro y reproducible.
 - `data/ai-analysis.json`: pruebas, patrones y propuesta, con ventana inicial 30.
-- `data/ai-model.json`: estado aprendido por defecto.
-- `public/data/ai-analysis-{20,30,50}.json`: análisis para la versión estática.
+- `data/ai-model.json`: estado aprendido por defecto, también con ventana 30.
+- `public/data/ai-analysis-{5,10,15}.json`: informes generados para las opciones de la versión estática.
 - `/api/ai?window=30`: análisis de la copia oficial alojada; R2 conserva modelos e informes por ventana.
 
 El archivo oficial completo sigue siendo `data/draws.json` con originales mensuales en `data/raw/`. El proceso de sincronización carga ese archivo, reconstruye el análisis con los nuevos resultados y confirma su fecha de entrenamiento. No requiere API de pago ni credenciales de inteligencia artificial.
@@ -44,7 +44,7 @@ Repositorio público: https://github.com/danielMigales/PrimitivaGPT
 
 El workflow **Validar PrimitivaGPT** se activa con cada cambio en `main` y manualmente desde Actions. Ejecuta las pruebas y ofrece `public/` como artefacto descargable. No requiere activar GitHub Pages.
 
-La tarea horaria vinculada a la aplicación consulta SELAE, valida el histórico y guarda las novedades en este repositorio usando la conexión autorizada de GitHub. Se ejecuta en el minuto 35 de cada hora (Europe/Madrid). `SYNC.md` describe el proceso. Se usa esta tarea porque las dos primeras descargas directas desde runners de GitHub fallaron; no se oculta el fallo ni se reemplazan resultados por datos de ejemplo. El script también puede ejecutarse manualmente con Python y curl.
+**Estado de la actualización de datos:** el workflow de GitHub Actions valida el código y construye la aplicación, pero no descarga SELAE ni tiene una programación horaria configurada en este repositorio. No he podido verificar una automatización externa activa; por tanto, no debe darse por hecho que los resultados se actualizan solos. `scripts/update_data.py` permite intentar una actualización manual con Python y curl. `SYNC.md` documenta el proceso y las comprobaciones necesarias. Nunca se deben inventar resultados ni sustituir el histórico oficial por datos de ejemplo.
 
 ## Investigación
 
