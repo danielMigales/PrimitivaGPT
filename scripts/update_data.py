@@ -77,6 +77,13 @@ def month_ranges(start, today):
         cursor = end + dt.timedelta(days=1)
 
 
+def sorted_draws(merged):
+    """Devuelve el histórico ordenado o falla de forma explícita si SELAE no dio datos."""
+    if not merged:
+        raise ValueError('SELAE no ha devuelto ningún sorteo válido; se conserva el histórico')
+    return sorted(merged.values(), key=lambda r: r['date'], reverse=True)
+
+
 def main():
     now = dt.datetime.now(MADRID)
     today = now.date()
@@ -131,7 +138,7 @@ def main():
         print('SELAE todavía no publica un sorteo nuevo. Histórico sin cambios.')
         return
 
-    draws = sorted(merged.values(), key=lambda r: r['date'], reverse=True)
+    draws = sorted_draws(merged)
     latest = dt.date.fromisoformat(draws[0]['date'])
     missing = sorted(set(expected_dates(latest)) - merged.keys())
     if missing:
