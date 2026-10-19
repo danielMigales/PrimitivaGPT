@@ -5,7 +5,8 @@ const engine=await readFile('engine/model.js','utf8');
 const logic=await readFile('web/logic.js','utf8');
 const html=(await readFile('web/index.html','utf8')).replace('/*LOGIC*/',logic.replaceAll('export ',''));
 const template=await readFile('worker/template.js','utf8');
-await writeFile('worker/index.js',template.replace('/*SEED*/',()=>JSON.stringify(seed)).replace('/*HTML*/',()=>JSON.stringify(html)).replace('/*AI_ENGINE*/',()=>engine.replaceAll('export ','')));
+const icon=await readFile('web/icon.svg','utf8');
+await writeFile('worker/index.js',template.replace('/*SEED*/',()=>JSON.stringify(seed)).replace('/*HTML*/',()=>JSON.stringify(html)).replace('/*ICON*/',()=>JSON.stringify(icon)).replace('/*AI_ENGINE*/',()=>engine.replaceAll('export ','')));
 await mkdir('public',{recursive:true});
 // GitHub Pages usa el mismo diseño con el JSON versionado; no depende del servidor Sites.
 const staticHtml=html.replaceAll("'/api/draws'","'./data/draws.json'").replace("'/api/ai?window='+window","'./data/ai-analysis-'+window+'.json'").replaceAll('/api/draws?download=1','./data/draws.json').replace('SELAE se consulta cada hora y los resultados se guardan en el servidor. Este listado se recarga al abrir la aplicación y mientras está abierta.','El archivo está versionado en GitHub. La tarea programada consulta SELAE cada hora.');
