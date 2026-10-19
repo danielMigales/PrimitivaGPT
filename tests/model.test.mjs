@@ -34,6 +34,14 @@ test('El análisis se guarda, se reutiliza y cambia al corregir resultados ofici
  const res=await worker.fetch(new Request('https://test/api/ai?window=0'),{BUCKET});assert.equal(res.status,400);
 });
 
+test('La API fija 15 sorteos y rechaza ventanas alternativas',async()=>{
+ const response=await worker.fetch(new Request('https://test/api/ai'),{});
+ assert.equal(response.status,200);
+ assert.equal((await response.json()).window,15);
+ const alternative=await worker.fetch(new Request('https://test/api/ai?window=30'),{});
+ assert.equal(alternative.status,400);
+ assert.match((await alternative.json()).error,/ventana fija de 15 sorteos/);
+});
 test('La prioridad es reintegro y mide tres aciertos y ambos sin mezclarlos',()=>{assert.equal(report.objective.primary,'refund');assert.equal(report.metrics.atLeastThree,report.rows.filter(r=>r.hits>=3).length);assert.equal(report.metrics.atLeastThreeAndRefund,report.rows.filter(r=>r.hits>=3&&r.refundHit).length);assert.equal(report.metrics.randomAtLeastThreeAndRefund,report.rows.filter(r=>r.randomHits>=3&&r.randomRefundHit).length);assert.ok(Math.abs(report.baseline.threeAndRefundProbability-report.baseline.atLeastThreeProbability*.1)<1e-12);});
 
 test('Brier se calcula sobre las diez categorías y conserva probabilidades válidas',()=>{assert.ok(Math.abs(brierScore(Array(10).fill(.1),4)-.9)<1e-12);assert.equal(brierScore([1,0,0,0,0,0,0,0,0,0],0),0);assert.equal(brierScore([1,0,0,0,0,0,0,0,0,0],1),2);for(const r of report.rows){assert.equal(r.refundProbabilities.length,10);assert.ok(r.refundProbabilities.every(p=>p>0&&p<1));assert.ok(Math.abs(r.refundProbabilities.reduce((a,b)=>a+b,0)-1)<1e-10);assert.ok(Math.abs(brierScore(r.refundProbabilities,r.actualRefund)-r.refundBrier)<1e-12);assert.ok(Number.isFinite(r.refundLogLoss));}});
