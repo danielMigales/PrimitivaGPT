@@ -1,6 +1,6 @@
 # Actualización de PrimitivaGPT
 
-La tarea vinculada al sitio consulta SELAE y sincroniza `danielMigales/PrimitivaGPT` en `main`, con permiso del propietario.
+Este documento describe un procedimiento de sincronización, no una automatización confirmada. En la revisión del 19 de octubre de 2026, los workflows de este repositorio solo validan/construyen la aplicación y no ejecutan una descarga programada de SELAE. Tampoco se ha confirmado una tarea externa activa. No afirmar que la actualización es automática hasta verificar esa tarea y sus registros.
 
 1. Obtener un checkout de la rama main actual. Ejecutar `python scripts/update_data.py`, `npm test` y `npm run build`. Requiere Python 3.12+, Node 22+ y curl.
 2. Tras descarga y validación completas, guardar en GitHub solo los cambios de `data/`, `worker/index.js` y `public/`. Conservar el resto del árbol y comprobar el head actual. Usar el conector GitHub para escribir; no hacen falta claves personales en el proyecto. Ante un cambio concurrente, releer y mezclar sin force push.
@@ -10,6 +10,6 @@ La tarea vinculada al sitio consulta SELAE y sincroniza `danielMigales/Primitiva
 6. Cargar en el sitio incluso cuando no haya sorteos nuevos: confirma una consulta real a SELAE. En GitHub, si solo cambió `checkedAt`, no crear un commit por la marca temporal. Si cambiaron resultados o respuestas originales, guardar solo `data/`, `worker/index.js` y `public/`, preservando el head actual.
 7. No llamar a SELAE desde el Worker: la descarga validada la realiza el importador. GET `/api/draws` lee el archivo persistente y avisa si lleva más de tres horas sin confirmar una consulta. Ante fallos mantener el archivo anterior y reportarlos.
 
-GitHub Actions valida el proyecto cuando se actualiza main y genera una versión estática descargable. La descarga oficial se ejecuta en la tarea vinculada porque las pruebas iniciales desde GitHub Actions fallaron tanto con urllib (403) como con curl (código 22). No se realizan cambios de código ni despliegues durante una actualización rutinaria.
+GitHub Actions valida el proyecto cuando se actualiza `main` y genera una versión estática descargable. Ese workflow no ejecuta `scripts/update_data.py`. La actualización de SELAE debe ejecutarse manualmente o mediante una tarea externa cuya existencia y registros se hayan comprobado. No publicar datos incompletos ni reemplazar resultados oficiales por ejemplos.
 
 Las lecturas de `/api/ai?window=20|30|50` también reconcilian `ai/tracking/{window}.json`: evalúan las propuestas guardadas para las fechas publicadas y registran la siguiente antes de su sorteo. El registro es independiente de la caché y conserva los números originales. No borrar ni reemplazar este historial durante la sincronización; no atribuir propuestas a sorteos ya celebrados. El panel muestra el resultado oficial y los aciertos separados de las simulaciones.
