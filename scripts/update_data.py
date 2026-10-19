@@ -13,7 +13,7 @@ START = dt.date(2026, 1, 1)
 BASE = 'https://www.loteriasyapuestas.es/servicios/buscadorSorteos'
 MADRID = ZoneInfo('Europe/Madrid')
 DRAW_WEEKDAYS = {0, 3, 5}  # lunes, jueves y sábado
-RESULTS_AVAILABLE_AFTER = dt.time(22, 30)
+RESULTS_AVAILABLE_AFTER = dt.time(23, 0)
 
 
 def normalize(row):
