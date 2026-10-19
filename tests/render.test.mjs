@@ -9,7 +9,7 @@ const script=html.match(/<script type="module">([\s\S]*?)<\/script>/)[1].replace
 const seed=JSON.parse(await readFile(new URL('../data/draws.json',import.meta.url),'utf8'));
 async function renderData(data,reportOverride=null){
  const elements=new Map();
- const document={hidden:false,getElementById(id){if(!elements.has(id))elements.set(id,{value:id==='from'?'2026-01-01':id==='ai-window'?'5':'',innerHTML:'',textContent:'',hidden:true,setAttribute(){},setCustomValidity(){},reportValidity(){}});return elements.get(id);}};
+ const document={hidden:false,getElementById(id){if(!elements.has(id))elements.set(id,{value:id==='from'?'2026-01-01':'',innerHTML:'',textContent:'',hidden:true,setAttribute(){},setCustomValidity(){},reportValidity(){}});return elements.get(id);}};
  for(const match of html.matchAll(/id="([^"]+)"/g))document.getElementById(match[1]);
  vm.runInNewContext(script,{document,fetch:async url=>({ok:true,json:async()=>String(url).includes('/api/ai')?(reportOverride||analyze(data.draws,{window:Number(String(url).split('window=')[1])||30})):data}),setInterval(){},Date,Map,Error,console});
  await new Promise(resolve=>setImmediate(resolve));
@@ -71,9 +71,9 @@ test('Corregir cualquiera de las fechas permite repetir la consulta',async()=>{
 
 test('El laboratorio muestra predicción, métricas, pesos y pruebas históricas',async()=>{
  const els=await renderData(seed);els.get('view-ai').onclick();await new Promise(resolve=>setImmediate(resolve));
- assert.equal(els.get('ai-content').hidden,false);assert.equal(els.get('ai-error').hidden,true);assert.equal(els.get('ai-count').textContent,seed.draws.length-5);
+ assert.equal(els.get('ai-content').hidden,false);assert.equal(els.get('ai-error').hidden,true);assert.equal(els.get('ai-count').textContent,seed.draws.length-15);
  assert.equal((els.get('ai-forecast').innerHTML.match(/class="ball/g)||[]).length,7);assert.match(els.get('ai-detail').innerHTML,/Predicción previa/);assert.match(els.get('ai-weights').innerHTML,/Frecuencia acumulada/);
- const first=els.get('ai-log').innerHTML;els.get('ai-next').onclick();assert.notEqual(els.get('ai-log').innerHTML,first);els.get('ai-target').value='0';els.get('ai-target').onchange();assert.match(els.get('ai-detail').innerHTML,/5 sorteos anteriores/);
+ const first=els.get('ai-log').innerHTML;els.get('ai-next').onclick();assert.notEqual(els.get('ai-log').innerHTML,first);els.get('ai-target').value='0';els.get('ai-target').onchange();assert.match(els.get('ai-detail').innerHTML,/15 sorteos anteriores/);
  els.get('view-results').onclick();assert.equal(els.get('ai-view').hidden,true);assert.equal(els.get('results-view').hidden,false);
 });
 
@@ -93,6 +93,12 @@ test('Resumen real presenta aciertos y versiones solo tras recibir resultados of
  const els=await renderData(seed,report);els.get('view-ai').onclick();await new Promise(resolve=>setImmediate(resolve));assert.equal(els.get('ai-real-refunds').textContent,'1 / 1');assert.equal(els.get('ai-real-three').textContent,'1 / 1');assert.match(els.get('ai-real-status').textContent,/Ambos objetivos: 1 \/ 1/);assert.match(els.get('ai-real-uncertainty').textContent,/Wilson/);assert.match(els.get('ai-real-versions').innerHTML,/1.2.0/);
 });
 
+test('El laboratorio fija 15 sorteos y elimina el desplegable',async()=>{
+ const els=await renderData(seed);els.get('view-ai').onclick();await new Promise(resolve=>setImmediate(resolve));
+ assert.equal(html.includes('id="ai-window"'),false);
+ assert.match(html,/Ventana de análisis[\s\S]*?15 sorteos/);
+ assert.equal(els.get('ai-count').textContent,seed.draws.length-15);
+});
 test('Todos los selectores del HTML apuntan a IDs existentes y únicos',()=>{
  const ids=[...html.matchAll(/\bid="([^"]+)"/g)].map(match=>match[1]);
  const idSet=new Set(ids);

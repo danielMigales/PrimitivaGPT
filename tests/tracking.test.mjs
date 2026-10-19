@@ -38,5 +38,5 @@ test('La caché conserva el registro y no pierde propuestas por una escritura co
  const BUCKET={async get(key){if(key==='history/draws.json')return {json:async()=>archive};return map.has(key)?{etag:'revision',json:async()=>JSON.parse(map.get(key))}:null;},async put(key,value,options){if(key==='ai/tracking/30.json'&&conflict){conflict=false;assert.equal(options.onlyIf.etagDoesNotMatch,'*');map.set(key,JSON.stringify({records:pending.records}));return null;}map.set(key,value);return {etag:'revision'};}};
  const first=await trackAnalysis({BUCKET},archive,report);assert.deepEqual(first.tracking.records,pending.records);assert.equal(first.tracking.persisted,true);
  map.set('ai/reports/30.json',JSON.stringify({signature:'ai:'+report.version+':'+JSON.stringify(archive.draws.map(d=>[d.date,d.numbers,d.refund])),report}));
- const second=await getAnalysis({BUCKET});assert.deepEqual(second.tracking.records,first.tracking.records);assert.equal(second.forecast.targetDate,'2026-10-19');
+ const second=await getAnalysis({BUCKET},30);assert.deepEqual(second.tracking.records,first.tracking.records);assert.equal(second.forecast.targetDate,'2026-10-19');
 });

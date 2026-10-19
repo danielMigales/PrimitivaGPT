@@ -70,7 +70,7 @@ export async function trackAnalysis(env,archive,report){
  throw Error('Otra consulta está actualizando las propuestas; reintentar.');
 }
 const AI_CACHE_VERSION='ai:'+MODEL_VERSION;
-export async function getAnalysis(env,window=30){
+export async function getAnalysis(env,window=15){
  if(![5,10,15,20,30,50].includes(window))throw Error('Ventana permitida: 5, 10, 15, 20, 30 o 50');
  const archive=await getData(env);
  const signature=AI_CACHE_VERSION+':'+JSON.stringify(archive.draws.map(d=>[d.date,d.numbers,d.refund]));
@@ -100,7 +100,7 @@ export default {async fetch(request,env){
  }
  if(request.method!=='GET')return new Response('Método no permitido',{status:405,headers:{Allow:'GET'}});
  const headers={'X-Content-Type-Options':'nosniff','Referrer-Policy':'strict-origin-when-cross-origin'};
- if(url.pathname==='/api/ai'){const window=Number(url.searchParams.get('window')||30);if(![5,10,15,20,30,50].includes(window))return Response.json({error:'Ventana permitida: 5, 10, 15, 20, 30 o 50'},{status:400});try{return Response.json(await getAnalysis(env,window),{headers:{...headers,'Cache-Control':'no-store',...(url.searchParams.has('download')?{'Content-Disposition':'attachment; filename=\"primitiva-analisis.json\"'}:{})}});}catch{return Response.json({error:'No se pudo calcular el análisis. El histórico sigue disponible.'},{status:503});}}
+ if(url.pathname==='/api/ai'){const requestedWindow=Number(url.searchParams.get('window')||15);if(requestedWindow!==15)return Response.json({error:'El laboratorio usa una ventana fija de 15 sorteos'},{status:400});const window=15;try{return Response.json(await getAnalysis(env,window),{headers:{...headers,'Cache-Control':'no-store',...(url.searchParams.has('download')?{'Content-Disposition':'attachment; filename=\"primitiva-analisis.json\"'}:{})}});}catch{return Response.json({error:'No se pudo calcular el análisis. El histórico sigue disponible.'},{status:503});}}
  if(url.pathname==='/api/draws'){const data=await getData(env);return Response.json(data,{headers:{...headers,'Cache-Control':'no-store',...(url.searchParams.has('download')?{'Content-Disposition':'attachment; filename="primitiva-historico.json"'}:{})}});}
  if(url.pathname==='/icon.svg')return new Response(ICON,{headers:{...headers,'Content-Type':'image/svg+xml;charset=utf-8','Cache-Control':'public, max-age=86400'}});
  if(url.pathname==='/')return new Response(HTML,{headers:{...headers,'Content-Type':'text/html;charset=utf-8','Cache-Control':'no-cache','Content-Security-Policy':"default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; base-uri 'none'; frame-ancestors 'self'; form-action 'self'"}});
