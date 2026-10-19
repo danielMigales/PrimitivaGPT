@@ -127,7 +127,7 @@ def main():
 
     # Una respuesta vacía o sin sorteos posteriores no cuenta como actualización:
     # no se toca ni draws.json ni los ficheros brutos.
-    if not latest_date or max(merged, default='') <= latest_date:
+    if latest_date and max(merged, default='') <= latest_date:
         print('SELAE todavía no publica un sorteo nuevo. Histórico sin cambios.')
         return
 
