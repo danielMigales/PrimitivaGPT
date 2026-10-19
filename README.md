@@ -44,7 +44,7 @@ Repositorio público: https://github.com/danielMigales/PrimitivaGPT
 
 El workflow **Validar PrimitivaGPT** se activa con cada cambio en `main` y manualmente desde Actions. Ejecuta las pruebas y ofrece `public/` como artefacto descargable. No requiere activar GitHub Pages.
 
-La tarea horaria vinculada a la aplicación consulta SELAE, valida el histórico y guarda las novedades en este repositorio usando la conexión autorizada de GitHub. Se ejecuta en el minuto 35 de cada hora (Europe/Madrid). `SYNC.md` describe el proceso. Se usa esta tarea porque las dos primeras descargas directas desde runners de GitHub fallaron; no se oculta el fallo ni se reemplazan resultados por datos de ejemplo. El script también puede ejecutarse manualmente con Python y curl.
+**Estado de la actualización de datos:** el workflow de GitHub Actions valida el código y construye la aplicación, pero no descarga SELAE ni tiene una programación horaria configurada en este repositorio. No he podido verificar una automatización externa activa; por tanto, no debe darse por hecho que los resultados se actualizan solos. `scripts/update_data.py` permite intentar una actualización manual con Python y curl. `SYNC.md` documenta el proceso y las comprobaciones necesarias. Nunca se deben inventar resultados ni sustituir el histórico oficial por datos de ejemplo.
 
 ## Investigación
 
