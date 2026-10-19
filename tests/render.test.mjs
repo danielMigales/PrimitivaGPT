@@ -96,7 +96,7 @@ test('Resumen real presenta aciertos y versiones solo tras recibir resultados of
 test('El laboratorio fija 15 sorteos y elimina el desplegable',async()=>{
  const els=await renderData(seed);els.get('view-ai').onclick();await new Promise(resolve=>setImmediate(resolve));
  assert.equal(html.includes('id="ai-window"'),false);
- assert.match(html,/Ventana de análisis[\\s\\S]*?15 sorteos/);
+ assert.match(html,/Ventana de análisis[\s\S]*?15 sorteos/);
  assert.equal(els.get('ai-count').textContent,seed.draws.length-15);
 });
 test('Todos los selectores del HTML apuntan a IDs existentes y únicos',()=>{
