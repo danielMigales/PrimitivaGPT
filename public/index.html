@@ -99,7 +99,15 @@ const proposal=report.tracking?.active||report.forecast,targetDate=report.tracki
 $('ai-forecast-date').textContent=targetDate?`Sorteo del ${format(targetDate,{day:'numeric',month:'long',year:'numeric'})}`:'Para el próximo sorteo';
 $('ai-forecast').innerHTML=forecastBalls(proposal);
 $('ai-forecast-info').textContent=`${proposal.trainingCount||report.drawCount} sorteos · hasta el ${format(proposal.trainedThrough||report.sourceLastDate,{day:'2-digit',month:'2-digit',year:'numeric'})}.`;
-$('ai-forecast-result').innerHTML='<span class="forecast-status">Resultado sin publicar</span><p>'+ (report.tracking?.active?'Propuesta guardada antes del sorteo.':report.tracking?'Sin propuesta registrada para esta fecha.':'Vista estática: propuesta sin registro de seguimiento.')+'</p>';
+const recentOutcome=(report.tracking?.records||[]).find(r=>r.status==='published'&&r.actual&&r.publishedAt&&Date.now()-Date.parse(r.publishedAt)>=0&&Date.now()-Date.parse(r.publishedAt)<24*60*60*1000);
+if(recentOutcome){
+ const expiresAt=Date.parse(recentOutcome.publishedAt)+24*60*60*1000;
+ $('ai-forecast-result').dataset.publishedAt=recentOutcome.publishedAt;
+ $('ai-forecast-result').innerHTML=`<div class="forecast-issued"><h4>Resultado oficial · sorteo del ${format(recentOutcome.targetDate,{day:'numeric',month:'long',year:'numeric'})}</h4><span class="forecast-label">Propuesta guardada antes del sorteo</span><div class="forecast-line">${forecastBalls(recentOutcome,recentOutcome.actual)}</div><span class="forecast-label">Resultado oficial de SELAE</span><div class="forecast-line">${forecastBalls(recentOutcome.actual,recentOutcome)}</div><p><strong>${recentOutcome.hits} de 6 aciertos · Reintegro ${recentOutcome.refundHit?'acertado':'no acertado'}</strong></p><p class="forecast-status">Visible durante 24 horas desde la primera confirmación del resultado en PrimitivaGPT. Hasta ${new Date(expiresAt).toLocaleString('es-ES',{timeZone:'Europe/Madrid',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})}.</p></div>`;
+ setTimeout(()=>{const node=$('ai-forecast-result');if(node?.dataset.publishedAt===recentOutcome.publishedAt&&Date.now()>=expiresAt){node.innerHTML='<span class="forecast-status">Ventana de seguimiento de 24 horas finalizada.</span><p>La propuesta y el resultado permanecen en el histórico.</p>';delete node.dataset.publishedAt;}},Math.max(0,expiresAt-Date.now())+50);
+}else{
+ $('ai-forecast-result').innerHTML='<span class="forecast-status">Resultado sin publicar</span><p>'+ (report.tracking?.active?'Propuesta guardada antes del sorteo.':report.tracking?'Sin propuesta registrada para esta fecha.':'Vista estática: propuesta sin registro de seguimiento.')+'</p>';
+}
 $('ai-forecast-explanation').innerHTML=explainForecast(proposal,report);
 const issued=(report.tracking?.records||[]).filter(r=>r.targetDate!==report.tracking?.active?.targetDate);
 $('ai-forecast-history').innerHTML=issued.length?`<div class="forecast-issued"><h4>Seguimiento de propuestas anteriores</h4>${issuedCard(issued[0])}${issued.length>1?`<details><summary>Ver otras ${issued.length-1} propuestas</summary>${issued.slice(1).map(issuedCard).join('')}</details>`:''}</div>`:'';
