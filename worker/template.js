@@ -1,6 +1,7 @@
 /*AI_ENGINE*/
 const SEED = /*SEED*/;
 const HTML = /*HTML*/;
+const ICON = /*ICON*/;
 const MAX_AGE=3*60*60*1000;
 const KEY='history/draws.json';
 export function parseDraw(row){
@@ -101,6 +102,7 @@ export default {async fetch(request,env){
  const headers={'X-Content-Type-Options':'nosniff','Referrer-Policy':'strict-origin-when-cross-origin'};
  if(url.pathname==='/api/ai'){const window=Number(url.searchParams.get('window')||30);if(![5,10,15,20,30,50].includes(window))return Response.json({error:'Ventana permitida: 5, 10, 15, 20, 30 o 50'},{status:400});try{return Response.json(await getAnalysis(env,window),{headers:{...headers,'Cache-Control':'no-store',...(url.searchParams.has('download')?{'Content-Disposition':'attachment; filename=\"primitiva-analisis.json\"'}:{})}});}catch{return Response.json({error:'No se pudo calcular el análisis. El histórico sigue disponible.'},{status:503});}}
  if(url.pathname==='/api/draws'){const data=await getData(env);return Response.json(data,{headers:{...headers,'Cache-Control':'no-store',...(url.searchParams.has('download')?{'Content-Disposition':'attachment; filename="primitiva-historico.json"'}:{})}});}
+ if(url.pathname==='/icon.svg')return new Response(ICON,{headers:{...headers,'Content-Type':'image/svg+xml;charset=utf-8','Cache-Control':'public, max-age=86400'}});
  if(url.pathname==='/')return new Response(HTML,{headers:{...headers,'Content-Type':'text/html;charset=utf-8','Cache-Control':'no-cache','Content-Security-Policy':"default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; base-uri 'none'; frame-ancestors 'self'; form-action 'self'"}});
  return new Response('No encontrado',{status:404,headers});
 }};
