@@ -29,6 +29,9 @@ assert.match(staticHtml, /rel="icon" type="image\/svg\+xml" href="\.\/icon\.svg"
 assert.match(staticHtml, /<img src="\.\/icon\.svg" alt="">/);
 assert.match(staticHtml, /La actualización depende de la sincronización del histórico/);
 assert.doesNotMatch(staticHtml, /SELAE se consulta cada hora|tarea programada consulta SELAE cada hora/);
+assert.ok(staticHtml.includes("fetch('./data/draws.json'"), 'La web estática debe cargar el histórico versionado');
+assert.ok(staticHtml.includes("fetch('./data/ai-analysis-'+window+'.json'"), 'La web estática debe cargar el informe de la ventana elegida');
+assert.doesNotMatch(staticHtml, /fetch\(['"]\/api\/(?:draws|ai)/, 'La web estática no debe depender de rutas API del Worker');
 assert.match(source, /url\.pathname===\x27\/icon\.svg\x27/);
 assert.match(staticIcon, /<svg[\s>]/);
 for (const window of [5, 10, 15]) {
