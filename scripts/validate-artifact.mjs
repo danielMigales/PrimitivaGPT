@@ -24,6 +24,9 @@ assert.equal(
 
 // Validate that the static UI's choices have matching, freshly generated reports.
 const staticHtml = await readFile(resolve(projectRoot, "public/index.html"), "utf8");
+const staticIcon = await readFile(resolve(projectRoot, "public/icon.svg"), "utf8");
+assert.match(staticHtml, /rel="icon" type="image\/svg\+xml" href="\.\/icon\.svg"/);
+assert.match(staticIcon, /<svg[\s>]/);
 for (const window of [5, 10, 15]) {
   assert.match(staticHtml, new RegExp(`<option value="${window}">${window} sorteos</option>`));
   const report = JSON.parse(await readFile(resolve(projectRoot, `public/data/ai-analysis-${window}.json`), "utf8"));
