@@ -10,6 +10,7 @@ await mkdir('public',{recursive:true});
 // GitHub Pages usa el mismo diseño con el JSON versionado; no depende del servidor Sites.
 const staticHtml=html.replaceAll("'/api/draws'","'./data/draws.json'").replace("'/api/ai?window='+window","'./data/ai-analysis-'+window+'.json'").replaceAll('/api/draws?download=1','./data/draws.json').replace('SELAE se consulta cada hora y los resultados se guardan en el servidor. Este listado se recarga al abrir la aplicación y mientras está abierta.','El archivo está versionado en GitHub. La tarea programada consulta SELAE cada hora.');
 await writeFile('public/index.html',staticHtml);
+await cp('web/icon.svg','public/icon.svg');
 await mkdir('public/data',{recursive:true});
 await cp('data/draws.json','public/data/draws.json');
 // Los informes estáticos deben coincidir con las tres opciones del selector HTML.
