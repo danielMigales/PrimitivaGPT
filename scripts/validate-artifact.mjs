@@ -27,6 +27,8 @@ const staticHtml = await readFile(resolve(projectRoot, "public/index.html"), "ut
 const staticIcon = await readFile(resolve(projectRoot, "public/icon.svg"), "utf8");
 assert.match(staticHtml, /rel="icon" type="image\/svg\+xml" href="\.\/icon\.svg"/);
 assert.match(staticHtml, /<img src="\.\/icon\.svg" alt="">/);
+assert.match(staticHtml, /La actualización depende de la sincronización del histórico/);
+assert.doesNotMatch(staticHtml, /SELAE se consulta cada hora|tarea programada consulta SELAE cada hora/);
 assert.match(source, /url\.pathname===\x27\/icon\.svg\x27/);
 assert.match(staticIcon, /<svg[\s>]/);
 for (const window of [5, 10, 15]) {
