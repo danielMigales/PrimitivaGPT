@@ -22,10 +22,10 @@ test('Publicación oficial evalúa la propuesta original y crea la siguiente; co
  const draws=[actual,...archive.draws],nextReport=analyze(draws),now=new Date('2026-10-19T21:00:00Z');
  const reconciled=reconcileForecasts(pending.records,nextReport,draws,now);
  assert.equal(reconciled.active.targetDate,'2026-10-22');assert.equal(reconciled.active.status,'pending');assert.equal(reconciled.records.length,2);
- const old=reconciled.records.find(r=>r.targetDate==='2026-10-19');assert.equal(old.status,'published');assert.equal(old.hits,3);assert.equal(old.refundHit,true);assert.deepEqual(old.numbers,ticket.numbers);assert.equal(old.createdAt,ticket.createdAt);assert.deepEqual(old.actual.numbers,actual.numbers);
+ const old=reconciled.records.find(r=>r.targetDate==='2026-10-19');assert.equal(old.status,'published');assert.equal(old.publishedAt,now.toISOString());assert.equal(old.hits,3);assert.equal(old.refundHit,true);assert.deepEqual(old.numbers,ticket.numbers);assert.equal(old.createdAt,ticket.createdAt);assert.deepEqual(old.actual.numbers,actual.numbers);
  const corrected=[{...actual,refund:(actual.refund+1)%10},...archive.draws];
  const updated=reconcileForecasts(reconciled.records,nextReport,corrected,now).records.find(r=>r.targetDate===actual.date);
- assert.equal(updated.refundHit,false);assert.deepEqual(updated.numbers,ticket.numbers);assert.equal(updated.refund,ticket.refund);
+ assert.equal(updated.refundHit,false);assert.equal(updated.publishedAt,now.toISOString());assert.deepEqual(updated.numbers,ticket.numbers);assert.equal(updated.refund,ticket.refund);
 });
 test('Histórico atrasado no permite registrar propuestas retrospectivas ni después del corte propio',()=>{
  assert.equal(reconcileForecasts([],report,archive.draws,new Date('2026-10-20T10:00:00Z')).active,null);
