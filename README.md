@@ -19,7 +19,7 @@ Cada prueba propone exactamente seis números y un reintegro antes de ver el res
 - `engine/model.js`: motor puro y reproducible.
 - `data/ai-analysis.json`: pruebas, patrones y propuesta, con ventana inicial 30.
 - `data/ai-model.json`: estado aprendido por defecto, también con ventana 30.
-- `public/data/ai-analysis-{5,10,15}.json`: informes generados para las opciones de la versión estática.
+- `public/data/ai-analysis-15.json`: informe generado para la ventana fija de la versión estática; las ventanas adicionales pertenecen al motor y a las pruebas históricas, no a los controles de la web estática.
 - `/api/ai?window=30`: análisis de la copia oficial alojada; R2 conserva modelos e informes por ventana.
 
 El archivo oficial completo sigue siendo `data/draws.json` con originales mensuales en `data/raw/`. El proceso de sincronización carga ese archivo, reconstruye el análisis con los nuevos resultados y confirma su fecha de entrenamiento. No requiere API de pago ni credenciales de inteligencia artificial.
