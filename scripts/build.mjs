@@ -1,4 +1,4 @@
-import {readFile,writeFile,mkdir,cp} from 'node:fs/promises';
+import {readFile,writeFile,mkdir,cp,rm} from 'node:fs/promises';
 import {analyze} from '../engine/model.js';
 const seed=JSON.parse(await readFile('data/draws.json','utf8'));
 const engine=await readFile('engine/model.js','utf8');
@@ -14,15 +14,15 @@ await writeFile('public/index.html',staticHtml);
 await cp('web/icon.svg','public/icon.svg');
 await mkdir('public/data',{recursive:true});
 await cp('data/draws.json','public/data/draws.json');
-// Los informes estáticos deben coincidir con las tres opciones del selector HTML.
-for(const window of [5,10,15]){
- const analysis=analyze(seed.draws,{window});
- if(analysis.status!=='ready')throw new Error(`No se pudo generar el análisis estático para la ventana ${window}`);
- await writeFile(`public/data/ai-analysis-${window}.json`,JSON.stringify(analysis));
+// La interfaz usa una única ventana fija: 15 sorteos.
+for(const obsoleteWindow of [5,10,20,30,50]){
+ await rm(`public/data/ai-analysis-${obsoleteWindow}.json`,{force:true});
 }
-// El modelo versionado por defecto y usado por la sincronización conserva su ventana 30.
-const defaultAnalysis=analyze(seed.draws,{window:30});
-if(defaultAnalysis.status!=='ready')throw new Error('No se pudo generar el análisis predeterminado de 30 sorteos');
+const fixedWindow=15;
+const defaultAnalysis=analyze(seed.draws,{window:fixedWindow});
+if(defaultAnalysis.status!=='ready')throw new Error('No se pudo generar el análisis de 15 sorteos');
+await writeFile(`public/data/ai-analysis-${fixedWindow}.json`,JSON.stringify(defaultAnalysis));
+// El informe principal y el estado guardado del modelo también quedan alineados a 15.
 await writeFile('data/ai-analysis.json',JSON.stringify(defaultAnalysis,null,2)+'\n');
 await writeFile('data/ai-model.json',JSON.stringify(defaultAnalysis.modelState,null,2)+'\n');
 console.log(`Generados Worker y página estática: ${seed.draws.length} sorteos`);
