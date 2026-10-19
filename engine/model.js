@@ -1,4 +1,5 @@
 // Aprendizaje secuencial: ninguna predicción recibe el resultado que evalúa.
+// Las puntuaciones son rangos internos para explicar la selección, no probabilidades de premio.
 export const MODEL_VERSION='1.2.0';
 const EXPERTS=['Azar uniforme','Frecuencia acumulada','Frecuencia reciente','Recencia ponderada','Parejas y estructura','Bayes regularizado','Markov regularizado'];
 const range=n=>Array.from({length:n},(_,i)=>i);
