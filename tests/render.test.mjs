@@ -84,6 +84,17 @@ test('La propuesta muestra fecha y resultado pendiente, y conserva la comparaci�
  const history=els.get('ai-forecast-history').innerHTML;assert.match(history,/15 de octubre de 2026/);assert.ok(history.indexOf('Propuesta guardada')<history.indexOf('Resultado oficial'));assert.match(history,/3 de 6 aciertos · Reintegro acertado/);assert.match(history,/refund-gold/);
 });
 
+test('La propuesta explica criterios reales y evita atribuir puntuaciones a una combinación distinta',async()=>{
+ const report=analyze(seed.draws);
+ const els=await renderData(seed,report);els.get('view-ai').onclick();await new Promise(resolve=>setImmediate(resolve));
+ assert.match(els.get('ai-forecast-explanation').innerHTML,/¿Por qué esta combinación\?/);
+ assert.match(els.get('ai-forecast-explanation').innerHTML,/puesto [0-9]+ de 49/);
+ assert.match(els.get('ai-forecast-explanation').innerHTML,/todas las combinaciones de seis números tienen la misma probabilidad/);
+ const stored=structuredClone(report);stored.tracking={persisted:true,targetDate:report.forecast.targetDate,active:{...report.forecast,numbers:[1,2,3,4,5,6],refund:9,trainingCount:report.drawCount,trainedThrough:report.sourceLastDate},records:[]};
+ const saved=await renderData(seed,stored);saved.get('view-ai').onclick();await new Promise(resolve=>setImmediate(resolve));
+ assert.match(saved.get('ai-forecast-explanation').innerHTML,/no coincide con la combinación recalculada/);
+ assert.doesNotMatch(saved.get('ai-forecast-explanation').innerHTML,/puesto [0-9]+ de 49/);
+});
 test('Resumen real muestra pendientes sin mezclar las simulaciones y mantiene el detalle plegado',async()=>{
  const report=analyze(seed.draws);report.tracking={persisted:true,records:[{version:'1.2.0',targetDate:'2026-10-19',status:'pending',actual:null}]};
  const els=await renderData(seed,report);els.get('view-ai').onclick();await new Promise(resolve=>setImmediate(resolve));assert.equal(els.get('ai-real-issued').textContent,1);assert.equal(els.get('ai-real-evaluated').textContent,0);assert.equal(els.get('ai-real-refunds').textContent,'—');assert.match(els.get('ai-real-status').textContent,/1 propuesta pendiente/);assert.match(els.get('ai-real-uncertainty').textContent,/no se suman/);assert.match(els.get('ai-sync-status').textContent,/SELAE.*último sorteo/);assert.equal((html.match(/<details class="ai-fold">/g)||[]).length,1);assert.match(html,/<details class="ai-fold" hidden><summary>Métodos y aprendizaje del motor<\/summary>/);assert.equal(html.includes('Simulaciones históricas · resultados y pruebas'),false);
