@@ -2,13 +2,17 @@ import datetime as dt
 import unittest
 from zoneinfo import ZoneInfo
 
-from scripts.update_data import latest_scheduled_date, should_wait_for_results
+from scripts.update_data import latest_scheduled_date, should_wait_for_results, sorted_draws
 
 
 MADRID = ZoneInfo('Europe/Madrid')
 
 
 class UpdateDataScheduleTests(unittest.TestCase):
+    def test_empty_archive_fails_clearly_instead_of_index_error(self):
+        with self.assertRaisesRegex(ValueError, 'ningún sorteo válido'):
+            sorted_draws({})
+
     def test_latest_scheduled_date_is_previous_saturday_on_sunday(self):
         self.assertEqual(
             latest_scheduled_date(dt.date(2026, 10, 18)),
