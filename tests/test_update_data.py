@@ -15,14 +15,14 @@ class UpdateDataScheduleTests(unittest.TestCase):
             dt.date(2026, 10, 17),
         )
 
-    def test_waits_before_results_window_on_draw_day(self):
-        now = dt.datetime(2026, 10, 19, 21, 0, tzinfo=MADRID)
+    def test_waits_until_2300_on_draw_day(self):
+        now = dt.datetime(2026, 10, 19, 22, 59, tzinfo=MADRID)
         wait, reason = should_wait_for_results(now, '2026-10-17')
         self.assertTrue(wait)
         self.assertIn('Esperando', reason)
 
-    def test_allows_check_after_results_window_on_draw_day(self):
-        now = dt.datetime(2026, 10, 19, 22, 31, tzinfo=MADRID)
+    def test_allows_check_after_2300_on_draw_day(self):
+        now = dt.datetime(2026, 10, 19, 23, 1, tzinfo=MADRID)
         wait, _ = should_wait_for_results(now, '2026-10-17')
         self.assertFalse(wait)
 
