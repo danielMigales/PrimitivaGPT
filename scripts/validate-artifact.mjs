@@ -22,4 +22,19 @@ assert.equal(
   `${pathToFileURL(workerPath)} must export default.fetch`,
 );
 
-console.log("Artifact is valid ESM and exports default.fetch");
+// Validate that the static UI's choices have matching, freshly generated reports.
+const staticHtml = await readFile(resolve(projectRoot, "public/index.html"), "utf8");
+for (const window of [5, 10, 15]) {
+  assert.match(staticHtml, new RegExp(`<option value="${window}">${window} sorteos</option>`));
+  const report = JSON.parse(await readFile(resolve(projectRoot, `public/data/ai-analysis-${window}.json`), "utf8"));
+  assert.equal(report.window, window);
+  assert.equal(report.status, "ready");
+}
+const defaultReport = JSON.parse(await readFile(resolve(projectRoot, "data/ai-analysis.json"), "utf8"));
+const defaultModel = JSON.parse(await readFile(resolve(projectRoot, "data/ai-model.json"), "utf8"));
+assert.equal(defaultReport.window, 30);
+assert.equal(defaultReport.status, "ready");
+assert.equal(defaultModel.window, 30);
+assert.equal(defaultModel.version, defaultReport.modelState.version);
+
+console.log("Artifact is valid ESM, exports default.fetch, and contains consistent AI reports");
