@@ -25,6 +25,7 @@ assert.equal(
 // Validate that the static UI's choices have matching, freshly generated reports.
 const staticHtml = await readFile(resolve(projectRoot, "public/index.html"), "utf8");
 const staticIcon = await readFile(resolve(projectRoot, "public/icon.svg"), "utf8");
+const archive = JSON.parse(await readFile(resolve(projectRoot, "data/draws.json"), "utf8"));
 assert.match(staticHtml, /rel="icon" type="image\/svg\+xml" href="\.\/icon\.svg"/);
 assert.match(staticHtml, /<img src="\.\/icon\.svg" alt="">/);
 assert.match(staticHtml, /La actualización depende de la sincronización del histórico/);
@@ -39,11 +40,15 @@ for (const window of [5, 10, 15]) {
   const report = JSON.parse(await readFile(resolve(projectRoot, `public/data/ai-analysis-${window}.json`), "utf8"));
   assert.equal(report.window, window);
   assert.equal(report.status, "ready");
+  assert.equal(report.drawCount, archive.draws.length);
+  assert.equal(report.sourceLastDate, archive.latestDate);
 }
 const defaultReport = JSON.parse(await readFile(resolve(projectRoot, "data/ai-analysis.json"), "utf8"));
 const defaultModel = JSON.parse(await readFile(resolve(projectRoot, "data/ai-model.json"), "utf8"));
 assert.equal(defaultReport.window, 30);
 assert.equal(defaultReport.status, "ready");
+assert.equal(defaultReport.drawCount, archive.draws.length);
+assert.equal(defaultReport.sourceLastDate, archive.latestDate);
 assert.equal(defaultModel.window, 30);
 assert.equal(defaultModel.version, defaultReport.modelState.version);
 
