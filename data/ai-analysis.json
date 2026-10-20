@@ -9,7 +9,7 @@
       "uniformBrier": 0.9,
       "uniformLogLoss": 2.302585092994046,
       "simulations": 111,
-      "meanHits": 0.7207,
+      "meanHits": 0.7477,
       "atLeastThree": 0,
       "atLeastThreeAndRefund": 0,
       "atLeastFour": 0,
@@ -17,9 +17,9 @@
       "refundHits": 10,
       "refundRate": 0.0901,
       "histogram": [
-        50,
-        42,
-        19,
+        48,
+        43,
+        20,
         0,
         0,
         0,
@@ -310,7 +310,7 @@
     "uniformBrier": 0.9,
     "uniformLogLoss": 2.302585092994046,
     "simulations": 111,
-    "meanHits": 0.7297,
+    "meanHits": 0.7387,
     "atLeastThree": 0,
     "atLeastThreeAndRefund": 0,
     "atLeastFour": 0,
@@ -319,8 +319,8 @@
     "refundRate": 0.0991,
     "histogram": [
       49,
-      43,
-      19,
+      42,
+      20,
       0,
       0,
       0,
@@ -1022,8 +1022,8 @@
       "predicted": [
         2,
         4,
-        9,
         14,
+        18,
         22,
         36
       ],
@@ -1101,7 +1101,7 @@
       "predicted": [
         2,
         4,
-        9,
+        5,
         20,
         22,
         36
@@ -1180,9 +1180,9 @@
       "predicted": [
         2,
         4,
-        5,
-        9,
         18,
+        20,
+        22,
         36
       ],
       "refund": 2,
@@ -1195,7 +1195,7 @@
         44
       ],
       "actualRefund": 6,
-      "hits": 0,
+      "hits": 1,
       "refundHit": false,
       "randomNumbers": [
         12,
@@ -1337,7 +1337,7 @@
       "windowStart": "2026-01-10",
       "predicted": [
         2,
-        4,
+        14,
         18,
         20,
         22,
@@ -1416,7 +1416,7 @@
       "windowStart": "2026-01-12",
       "predicted": [
         2,
-        5,
+        14,
         18,
         20,
         36,
@@ -1732,7 +1732,7 @@
       "windowStart": "2026-01-22",
       "predicted": [
         2,
-        4,
+        12,
         20,
         25,
         36,
@@ -1890,8 +1890,8 @@
       "windowStart": "2026-01-26",
       "predicted": [
         4,
-        5,
         12,
+        20,
         25,
         36,
         47
@@ -1906,7 +1906,7 @@
         46
       ],
       "actualRefund": 4,
-      "hits": 0,
+      "hits": 1,
       "refundHit": true,
       "randomNumbers": [
         3,
@@ -2048,11 +2048,11 @@
       "windowStart": "2026-01-31",
       "predicted": [
         5,
-        12,
         15,
         20,
         25,
-        36
+        36,
+        47
       ],
       "refund": 4,
       "actual": [
@@ -2127,10 +2127,10 @@
       "windowStart": "2026-02-02",
       "predicted": [
         4,
-        5,
-        12,
         15,
+        20,
         25,
+        36,
         47
       ],
       "refund": 5,
@@ -2205,7 +2205,7 @@
       "trainingEnd": "2026-03-09",
       "windowStart": "2026-02-05",
       "predicted": [
-        12,
+        4,
         15,
         20,
         25,
@@ -2222,7 +2222,7 @@
         36
       ],
       "actualRefund": 2,
-      "hits": 1,
+      "hits": 0,
       "refundHit": false,
       "randomNumbers": [
         1,
@@ -2285,11 +2285,11 @@
       "windowStart": "2026-02-07",
       "predicted": [
         4,
-        5,
         12,
         15,
+        25,
         36,
-        39
+        47
       ],
       "refund": 5,
       "actual": [
@@ -2363,10 +2363,10 @@
       "trainingEnd": "2026-03-14",
       "windowStart": "2026-02-09",
       "predicted": [
+        4,
         12,
         15,
         16,
-        24,
         25,
         47
       ],
@@ -2602,7 +2602,7 @@
       "predicted": [
         5,
         12,
-        18,
+        15,
         39,
         45,
         47
@@ -2682,7 +2682,7 @@
         5,
         12,
         15,
-        16,
+        17,
         39,
         45
       ],
@@ -2761,7 +2761,7 @@
         5,
         12,
         15,
-        16,
+        17,
         39,
         45
       ],
@@ -2840,8 +2840,8 @@
         5,
         12,
         15,
-        16,
         39,
+        44,
         45
       ],
       "refund": 5,
@@ -2854,7 +2854,7 @@
         36
       ],
       "actualRefund": 3,
-      "hits": 2,
+      "hits": 1,
       "refundHit": false,
       "randomNumbers": [
         7,
@@ -3155,9 +3155,9 @@
       "predicted": [
         5,
         12,
-        18,
         36,
         39,
+        42,
         44
       ],
       "refund": 5,
@@ -3312,8 +3312,8 @@
       "windowStart": "2026-03-09",
       "predicted": [
         12,
-        16,
         23,
+        36,
         38,
         39,
         44
@@ -3629,7 +3629,7 @@
       "predicted": [
         4,
         23,
-        33,
+        36,
         38,
         39,
         43
@@ -4101,7 +4101,7 @@
       "trainingEnd": "2026-05-04",
       "windowStart": "2026-04-02",
       "predicted": [
-        23,
+        16,
         28,
         30,
         34,
@@ -4180,12 +4180,12 @@
       "trainingEnd": "2026-05-07",
       "windowStart": "2026-04-04",
       "predicted": [
-        4,
         6,
-        7,
+        13,
         30,
         40,
-        43
+        43,
+        48
       ],
       "refund": 8,
       "actual": [
@@ -4419,8 +4419,8 @@
       "predicted": [
         6,
         16,
-        26,
         28,
+        30,
         34,
         43
       ],
@@ -4577,9 +4577,9 @@
       "predicted": [
         6,
         16,
+        22,
         28,
         34,
-        41,
         43
       ],
       "refund": 8,
@@ -4656,9 +4656,9 @@
       "predicted": [
         6,
         13,
+        16,
         28,
         34,
-        41,
         48
       ],
       "refund": 5,
@@ -4734,11 +4734,11 @@
       "windowStart": "2026-04-20",
       "predicted": [
         6,
-        7,
-        13,
+        16,
         22,
         30,
-        34
+        34,
+        48
       ],
       "refund": 3,
       "actual": [
@@ -4750,7 +4750,7 @@
         43
       ],
       "actualRefund": 3,
-      "hits": 2,
+      "hits": 1,
       "refundHit": true,
       "randomNumbers": [
         16,
@@ -4891,10 +4891,10 @@
       "trainingEnd": "2026-05-28",
       "windowStart": "2026-04-25",
       "predicted": [
-        18,
+        6,
+        16,
         22,
         30,
-        33,
         34,
         43
       ],
@@ -4973,9 +4973,9 @@
         12,
         18,
         22,
-        30,
         34,
-        43
+        43,
+        48
       ],
       "refund": 3,
       "actual": [
@@ -5131,8 +5131,8 @@
         12,
         16,
         22,
+        33,
         34,
-        40,
         43
       ],
       "refund": 3,
@@ -5370,7 +5370,7 @@
         30,
         32,
         34,
-        49
+        43
       ],
       "refund": 3,
       "actual": [
@@ -5526,8 +5526,8 @@
         12,
         18,
         22,
-        32,
         33,
+        43,
         49
       ],
       "refund": 3,
@@ -5604,10 +5604,10 @@
       "predicted": [
         12,
         18,
+        22,
+        25,
         33,
-        37,
-        43,
-        49
+        43
       ],
       "refund": 3,
       "actual": [
@@ -5681,12 +5681,12 @@
       "trainingEnd": "2026-06-20",
       "windowStart": "2026-05-18",
       "predicted": [
-        1,
-        10,
-        11,
         12,
         18,
-        33
+        25,
+        33,
+        38,
+        43
       ],
       "refund": 3,
       "actual": [
@@ -5760,11 +5760,11 @@
       "trainingEnd": "2026-06-22",
       "windowStart": "2026-05-21",
       "predicted": [
-        1,
-        10,
-        11,
         12,
+        25,
+        30,
         33,
+        38,
         43
       ],
       "refund": 3,
@@ -5777,7 +5777,7 @@
         40
       ],
       "actualRefund": 5,
-      "hits": 2,
+      "hits": 1,
       "refundHit": false,
       "randomNumbers": [
         12,
@@ -5841,7 +5841,7 @@
       "predicted": [
         10,
         12,
-        30,
+        25,
         33,
         40,
         43
@@ -5920,9 +5920,9 @@
       "predicted": [
         1,
         10,
-        11,
         12,
         33,
+        37,
         43
       ],
       "refund": 5,
@@ -5997,11 +5997,11 @@
       "trainingEnd": "2026-06-29",
       "windowStart": "2026-05-28",
       "predicted": [
+        1,
         10,
-        18,
+        12,
         25,
         33,
-        37,
         43
       ],
       "refund": 5,
@@ -6014,7 +6014,7 @@
         40
       ],
       "actualRefund": 5,
-      "hits": 1,
+      "hits": 2,
       "refundHit": true,
       "randomNumbers": [
         1,
@@ -6077,10 +6077,10 @@
       "windowStart": "2026-05-30",
       "predicted": [
         1,
-        11,
         12,
         25,
         33,
+        37,
         40
       ],
       "refund": 5,
@@ -6234,7 +6234,7 @@
       "trainingEnd": "2026-07-06",
       "windowStart": "2026-06-04",
       "predicted": [
-        13,
+        18,
         25,
         33,
         38,
@@ -6708,8 +6708,8 @@
       "trainingEnd": "2026-07-20",
       "windowStart": "2026-06-18",
       "predicted": [
-        7,
         11,
+        12,
         14,
         33,
         38,
@@ -7104,11 +7104,11 @@
       "windowStart": "2026-06-29",
       "predicted": [
         7,
-        12,
         28,
         31,
         38,
-        43
+        43,
+        47
       ],
       "refund": 5,
       "actual": [
@@ -7182,10 +7182,10 @@
       "trainingEnd": "2026-08-03",
       "windowStart": "2026-07-02",
       "predicted": [
-        6,
         7,
         28,
         31,
+        33,
         38,
         43
       ],
@@ -7577,12 +7577,12 @@
       "trainingEnd": "2026-08-15",
       "windowStart": "2026-07-13",
       "predicted": [
-        12,
-        17,
-        28,
+        7,
+        31,
         33,
         38,
-        43
+        43,
+        47
       ],
       "refund": 2,
       "actual": [
@@ -7594,7 +7594,7 @@
         48
       ],
       "actualRefund": 0,
-      "hits": 1,
+      "hits": 0,
       "refundHit": false,
       "randomNumbers": [
         21,
@@ -7657,11 +7657,11 @@
       "windowStart": "2026-07-16",
       "predicted": [
         7,
-        11,
-        12,
         28,
         31,
-        38
+        33,
+        38,
+        43
       ],
       "refund": 2,
       "actual": [
@@ -7735,12 +7735,12 @@
       "trainingEnd": "2026-08-20",
       "windowStart": "2026-07-18",
       "predicted": [
-        7,
-        23,
+        12,
         28,
         31,
-        34,
-        40
+        33,
+        40,
+        43
       ],
       "refund": 9,
       "actual": [
@@ -7752,7 +7752,7 @@
         49
       ],
       "actualRefund": 8,
-      "hits": 1,
+      "hits": 0,
       "refundHit": false,
       "randomNumbers": [
         2,
@@ -7814,11 +7814,11 @@
       "trainingEnd": "2026-08-22",
       "windowStart": "2026-07-20",
       "predicted": [
-        19,
         22,
         28,
+        33,
         34,
-        41,
+        43,
         49
       ],
       "refund": 9,
@@ -7893,9 +7893,9 @@
       "trainingEnd": "2026-08-24",
       "windowStart": "2026-07-23",
       "predicted": [
-        17,
         23,
         28,
+        33,
         34,
         38,
         49
@@ -7910,7 +7910,7 @@
         38
       ],
       "actualRefund": 3,
-      "hits": 1,
+      "hits": 2,
       "refundHit": false,
       "randomNumbers": [
         2,
@@ -7972,11 +7972,11 @@
       "trainingEnd": "2026-08-27",
       "windowStart": "2026-07-25",
       "predicted": [
+        12,
         22,
         23,
         28,
         33,
-        34,
         38
       ],
       "refund": 9,
@@ -8288,12 +8288,12 @@
       "trainingEnd": "2026-09-05",
       "windowStart": "2026-08-03",
       "predicted": [
-        20,
         22,
-        28,
-        31,
+        23,
         33,
-        38
+        34,
+        38,
+        45
       ],
       "refund": 3,
       "actual": [
@@ -8305,7 +8305,7 @@
         48
       ],
       "actualRefund": 4,
-      "hits": 2,
+      "hits": 1,
       "refundHit": false,
       "randomNumbers": [
         3,
@@ -8447,9 +8447,9 @@
       "windowStart": "2026-08-08",
       "predicted": [
         17,
+        23,
         28,
         33,
-        38,
         45,
         48
       ],
@@ -8525,10 +8525,10 @@
       "trainingEnd": "2026-09-12",
       "windowStart": "2026-08-10",
       "predicted": [
+        17,
         22,
-        28,
         33,
-        38,
+        40,
         45,
         48
       ],
@@ -8542,7 +8542,7 @@
         40
       ],
       "actualRefund": 8,
-      "hits": 0,
+      "hits": 1,
       "refundHit": true,
       "randomNumbers": [
         11,
@@ -8683,11 +8683,11 @@
       "trainingEnd": "2026-09-17",
       "windowStart": "2026-08-15",
       "predicted": [
-        17,
         20,
         22,
-        23,
-        38,
+        28,
+        33,
+        40,
         45
       ],
       "refund": 8,
@@ -8700,7 +8700,7 @@
         46
       ],
       "actualRefund": 4,
-      "hits": 1,
+      "hits": 2,
       "refundHit": false,
       "randomNumbers": [
         1,
@@ -8762,9 +8762,9 @@
       "trainingEnd": "2026-09-19",
       "windowStart": "2026-08-17",
       "predicted": [
-        3,
         20,
         22,
+        28,
         40,
         45,
         46
@@ -8841,10 +8841,10 @@
       "trainingEnd": "2026-09-21",
       "windowStart": "2026-08-20",
       "predicted": [
-        5,
         20,
         22,
         34,
+        38,
         40,
         45
       ],
@@ -8858,7 +8858,7 @@
         45
       ],
       "actualRefund": 9,
-      "hits": 1,
+      "hits": 2,
       "refundHit": false,
       "randomNumbers": [
         4,
@@ -9000,8 +9000,8 @@
       "windowStart": "2026-08-24",
       "predicted": [
         3,
-        9,
         20,
+        36,
         38,
         40,
         45
@@ -9315,8 +9315,8 @@
       "trainingEnd": "2026-10-05",
       "windowStart": "2026-09-03",
       "predicted": [
-        3,
         4,
+        10,
         20,
         40,
         44,
@@ -9394,8 +9394,8 @@
       "trainingEnd": "2026-10-08",
       "windowStart": "2026-09-05",
       "predicted": [
-        3,
         4,
+        10,
         20,
         40,
         44,
@@ -9411,7 +9411,7 @@
         29
       ],
       "actualRefund": 7,
-      "hits": 1,
+      "hits": 2,
       "refundHit": false,
       "randomNumbers": [
         10,
@@ -9476,8 +9476,8 @@
         4,
         10,
         20,
+        22,
         40,
-        44,
         45
       ],
       "refund": 4,
@@ -9555,8 +9555,8 @@
         4,
         10,
         20,
+        22,
         40,
-        44,
         45
       ],
       "refund": 8,
@@ -9631,10 +9631,10 @@
       "trainingEnd": "2026-10-15",
       "windowStart": "2026-09-12",
       "predicted": [
+        4,
         6,
         10,
         20,
-        22,
         40,
         45
       ],
