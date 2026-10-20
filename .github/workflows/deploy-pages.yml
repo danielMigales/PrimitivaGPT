@@ -31,8 +31,9 @@ jobs:
         uses: actions/setup-node@v7
         with:
           node-version: '22'
-      - name: Actualizar resultados oficiales en la ejecución programada
+      - name: Actualizar resultados oficiales (sin bloquear la publicación si SELAE falla)
         if: github.event_name == 'schedule' || github.event_name == 'push'
+        continue-on-error: true
         run: python scripts/update_data.py
       - name: Validar y construir la web estática
         run: |
