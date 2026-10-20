@@ -40,7 +40,7 @@ jobs:
           npm test
           npm run build
       - name: Guardar datos y artefactos generados
-        if: always() && (github.event_name == 'schedule' || github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        if: github.event_name == 'schedule' || github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         run: |
           git add data/ public/ worker/index.js
           if ! git diff --cached --quiet; then
