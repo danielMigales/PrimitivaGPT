@@ -71,7 +71,7 @@ export async function trackAnalysis(env,archive,report,now=new Date()){
 }
 const AI_CACHE_VERSION='ai:'+MODEL_VERSION;
 export async function getAnalysis(env,window=7){
- if(![5,10,15,20,30,50].includes(window))throw Error('Ventana permitida: 5, 10, 15, 20, 30 o 50');
+ if(window!==7)throw Error('La ventana fija es de 7 sorteos');
  const archive=await getData(env);
  const signature=AI_CACHE_VERSION+':'+JSON.stringify(archive.draws.map(d=>[d.date,d.numbers,d.refund]));
  const key='ai/reports/'+window+'.json';
