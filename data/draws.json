@@ -2,9 +2,24 @@
   "schemaVersion": 1,
   "startDate": "2026-01-01",
   "source": "SELAE",
-  "checkedAt": "2026-10-18T09:53:10.134612+00:00",
-  "latestDate": "2026-10-17",
+  "checkedAt": "2026-10-20T07:06:33.576Z",
+  "latestDate": "2026-10-19",
   "draws": [
+    {
+      "id": "1326004126",
+      "date": "2026-10-19",
+      "numbers": [
+        4,
+        29,
+        31,
+        43,
+        44,
+        49
+      ],
+      "complementary": 48,
+      "refund": 7,
+      "source": "https://www.loteriasyapuestas.es/f/loterias/resultados/primitiva.html?game_id=LAPR&fecha_sorteo=20261019"
+    },
     {
       "id": "1325804125",
       "date": "2026-10-17",
