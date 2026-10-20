@@ -110,7 +110,7 @@ test('El laboratorio fija 7 sorteos y elimina el desplegable',async()=>{
  const els=await renderData(seed);els.get('view-ai').onclick();await new Promise(resolve=>setImmediate(resolve));
  assert.equal(html.includes('id="ai-window"'),false);
  assert.match(html,/Ventana de análisis[\s\S]*?7 sorteos/);
- assert.equal(els.get('ai-count').textContent,seed.draws.length-15);
+ assert.equal(els.get('ai-count').textContent,seed.draws.length-7);
 });
 test('Todos los selectores del HTML apuntan a IDs existentes y únicos',()=>{
  const ids=[...html.matchAll(/\bid="([^"]+)"/g)].map(match=>match[1]);
