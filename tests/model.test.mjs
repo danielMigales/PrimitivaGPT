@@ -10,8 +10,8 @@ test('Ventana de 7 sorteos; cada predicción usa solo esos siete; cada predicci�
  assert.equal(report.metrics.atLeastFour,report.rows.filter(r=>r.hits>=4).length);assert.equal(report.metrics.refundHits,report.rows.filter(r=>r.refund===r.actualRefund).length);
 });
 test('Modificar el resultado objetivo y los futuros no altera la predicción previa',()=>{
- const data=structuredClone(chronological);data[30].numbers=[1,2,3,4,5,6];data[30].refund=9;
- for(let i=31;i<data.length;i++){data[i].numbers=[2,4,6,8,10,12];data[i].refund=8;}
+ const data=structuredClone(chronological);data[7].numbers=[1,2,3,4,5,6];data[7].refund=9;
+ for(let i=8;i<data.length;i++){data[i].numbers=[2,4,6,8,10,12];data[i].refund=8;}
  const changed=analyze(data);assert.deepEqual(changed.rows[0].predicted,report.rows[0].predicted);assert.equal(changed.rows[0].refund,report.rows[0].refund);assert.deepEqual(changed.rows[0].weightsBefore,report.rows[0].weightsBefore);
  const prefix=analyze(chronological.slice(0,13));assert.deepEqual(prefix.rows,report.rows.slice(0,6));
 });
