@@ -32,7 +32,7 @@ jobs:
         with:
           node-version: '22'
       - name: Actualizar resultados oficiales en la ejecución programada
-        if: github.event_name == 'schedule'
+        if: github.event_name == 'schedule' || github.event_name == 'push'
         run: python scripts/update_data.py
       - name: Validar y construir la web estática
         run: |
