@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
   schedule:
     # Hora peninsular española; GitHub ajusta automáticamente el horario de verano.
-    - cron: '3 23 * * *'
+    - cron: '0 23 * * *'
       timezone: Europe/Madrid
 permissions:
   contents: write
