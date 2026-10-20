@@ -11,7 +11,7 @@ const seed=JSON.parse(await readFile(new URL('../data/draws.json',import.meta.ur
 seed.draws=seed.draws.filter(d=>d.date<'2026-10-19');seed.latestDate=seed.draws[0]?.date;
 async function renderData(data,reportOverride=null){
  const elements=new Map();
- const document={hidden:false,getElementById(id){if(!elements.has(id))elements.set(id,{value:id==='from'?'2026-01-01':'',innerHTML:'',textContent:'',hidden:true,setAttribute(){},setCustomValidity(){},reportValidity(){}});return elements.get(id);}};
+ const document={hidden:false,getElementById(id){if(!elements.has(id))elements.set(id,{value:id==='from'?'2026-01-01':'',innerHTML:'',textContent:'',hidden:true,dataset:{},setAttribute(){},setCustomValidity(){},reportValidity(){}});return elements.get(id);}};
  for(const match of html.matchAll(/id="([^"]+)"/g))document.getElementById(match[1]);
  vm.runInNewContext(script,{document,fetch:async url=>({ok:true,json:async()=>String(url).includes('/api/ai')?(reportOverride||analyze(data.draws,{window:Number(String(url).split('window=')[1])||30})):data}),setInterval(){},setTimeout(){},Date,Map,Error,console});
  await new Promise(resolve=>setImmediate(resolve));
