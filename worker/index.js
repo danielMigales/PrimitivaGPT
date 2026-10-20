@@ -1,6 +1,6 @@
 // Aprendizaje secuencial: ninguna predicción recibe el resultado que evalúa.
 // Las puntuaciones son rangos internos para explicar la selección, no probabilidades de premio.
-const MODEL_VERSION='1.2.0';
+const MODEL_VERSION='1.3.0';
 const EXPERTS=['Azar uniforme','Frecuencia acumulada','Frecuencia reciente','Recencia ponderada','Parejas y estructura','Bayes regularizado','Markov regularizado'];
 const range=n=>Array.from({length:n},(_,i)=>i);
 const normalize=v=>{const total=v.reduce((a,b)=>a+b,0);return v.map(x=>x/total);};
@@ -19,17 +19,17 @@ function patterns(draws){
 function distributions(history,window,count){
  const recent=history.slice(-window),nums=Array.from({length:7},()=>Array(49).fill(1)),refs=Array.from({length:7},()=>Array(10).fill(1));
  nums[0].fill(1);refs[0].fill(1);
- history.forEach((d,i)=>{for(const n of d.numbers){nums[1][n-1]++;nums[3][n-1]+=Math.pow(.5,(history.length-1-i)/12);}refs[1][d.refund]++;refs[3][d.refund]+=Math.pow(.5,(history.length-1-i)/12);});
+ recent.forEach((d,i)=>{for(const n of d.numbers){nums[1][n-1]++;nums[3][n-1]+=Math.pow(.5,(recent.length-1-i)/Math.max(1,window/2));}refs[1][d.refund]++;refs[3][d.refund]+=Math.pow(.5,(recent.length-1-i)/Math.max(1,window/2));});
  for(const d of recent){for(const n of d.numbers)nums[2][n-1]++;refs[2][d.refund]++;}
  const anchors=best(normalize(nums[2])).slice(0,3);
  for(const d of recent){for(const n of d.numbers)nums[4][n-1]+=1+d.numbers.filter(x=>x!==n&&anchors.includes(x)).length/3;refs[4][d.refund]++;}
  // Bayes: prior simétrico fuerte. En números es una puntuación regularizada;
  // en reintegro es la predictiva categórica Dirichlet-multinomial.
  nums[5].fill(20);refs[5].fill(10);nums[6].fill(20);refs[6].fill(10);
- for(const d of history){for(const n of d.numbers)nums[5][n-1]++;refs[5][d.refund]++;}
- const last=history.at(-1);
- for(let i=1;i<history.length;i++){
-  const previous=history[i-1],current=history[i];
+ for(const d of recent){for(const n of d.numbers)nums[5][n-1]++;refs[5][d.refund]++;}
+ const last=recent.at(-1);
+ for(let i=1;i<recent.length;i++){
+  const previous=recent[i-1],current=recent[i];
   const overlap=previous.numbers.filter(n=>last.numbers.includes(n)).length;
   for(const n of current.numbers)nums[6][n-1]+=overlap/6;
   if(previous.refund===last.refund)refs[6][current.refund]++;
@@ -64,10 +64,10 @@ function predict(history,window,numberWeights,refundWeights,step){
 function choose(n,k){if(k<0||k>n)return 0;let v=1;for(let i=1;i<=k;i++)v=v*(n-i+1)/i;return v;}
 function randomBaseline(){return {expectedHits:36/49,refundProbability:.1,atLeastThreeProbability:[3,4,5,6].reduce((s,k)=>s+choose(6,k)*choose(43,6-k),0)/choose(49,6),threeAndRefundProbability:.1*[3,4,5,6].reduce((s,k)=>s+choose(6,k)*choose(43,6-k),0)/choose(49,6),atLeastFourProbability:[4,5,6].reduce((s,k)=>s+choose(6,k)*choose(43,6-k),0)/choose(49,6),hitProbabilities:range(7).map(k=>choose(6,k)*choose(43,6-k)/choose(49,6))};}
 function brierScore(probabilities,actual){return probabilities.reduce((sum,p,i)=>sum+(p-Number(i===actual))**2,0);}
-function analyze(draws,{window=30,variant='extended'}={}){
+function analyze(draws,{window=7,variant='extended'}={}){
  if(!['extended','legacy'].includes(variant))throw Error('Variante no válida');
  const countExperts=variant==='extended'?EXPERTS.length:5;
- if(![5,10,15,20,30,50].includes(window))throw Error('Ventana no válida: usa 5, 10, 15, 20, 30 o 50');
+ if(window!==7)throw Error('La ventana fija es de 7 sorteos');
  const ordered=draws.map(d=>({...d,numbers:d.numbers.slice().sort((a,b)=>a-b)})).sort((a,b)=>a.date.localeCompare(b.date));
  if(new Set(ordered.map(d=>d.date)).size!==ordered.length)throw Error('Fechas duplicadas');
  for(const d of ordered)if(d.numbers.length!==6||new Set(d.numbers).size!==6||d.numbers.some(n=>!Number.isInteger(n)||n<1||n>49)||!Number.isInteger(d.refund)||d.refund<0||d.refund>9)throw Error('Sorteo inválido');
@@ -185,11 +185,11 @@ export async function trackAnalysis(env,archive,report,now=new Date()){
  throw Error('Otra consulta está actualizando las propuestas; reintentar.');
 }
 const AI_CACHE_VERSION='ai:'+MODEL_VERSION;
-export async function getAnalysis(env,window=15){
- if(![5,10,15,20,30,50].includes(window))throw Error('Ventana permitida: 5, 10, 15, 20, 30 o 50');
+export async function getAnalysis(env,window=7){
+ if(window!==7)throw Error('La ventana fija es de 7 sorteos');
  const archive=await getData(env);
  const signature=AI_CACHE_VERSION+':'+JSON.stringify(archive.draws.map(d=>[d.date,d.numbers,d.refund]));
- const key='ai/reports/'+window+'.json';
+ const key='ai/reports/'+window+'-v1.3.0.json';
  if(env.BUCKET){try{const saved=await env.BUCKET.get(key);if(saved){const cache=await saved.json();if(cache.signature===signature)return trackAnalysis(env,archive,cache.report);}}catch{/* Recalcular desde el histórico conservado. */}}
  const report=analyze(archive.draws,{window});
  if(env.BUCKET&&report.status==='ready'){
@@ -215,7 +215,7 @@ export default {async fetch(request,env){
  }
  if(request.method!=='GET')return new Response('Método no permitido',{status:405,headers:{Allow:'GET'}});
  const headers={'X-Content-Type-Options':'nosniff','Referrer-Policy':'strict-origin-when-cross-origin'};
- if(url.pathname==='/api/ai'){const requestedWindow=Number(url.searchParams.get('window')||15);if(requestedWindow!==15)return Response.json({error:'El laboratorio usa una ventana fija de 15 sorteos'},{status:400});const window=15;try{return Response.json(await getAnalysis(env,window),{headers:{...headers,'Cache-Control':'no-store',...(url.searchParams.has('download')?{'Content-Disposition':'attachment; filename=\"primitiva-analisis.json\"'}:{})}});}catch{return Response.json({error:'No se pudo calcular el análisis. El histórico sigue disponible.'},{status:503});}}
+ if(url.pathname==='/api/ai'){const requestedWindow=Number(url.searchParams.get('window')||7);if(requestedWindow!==15)return Response.json({error:'El laboratorio usa una ventana fija de 15 sorteos'},{status:400});const window=15;try{return Response.json(await getAnalysis(env,window),{headers:{...headers,'Cache-Control':'no-store',...(url.searchParams.has('download')?{'Content-Disposition':'attachment; filename=\"primitiva-analisis.json\"'}:{})}});}catch{return Response.json({error:'No se pudo calcular el análisis. El histórico sigue disponible.'},{status:503});}}
  if(url.pathname==='/api/draws'){const data=await getData(env);return Response.json(data,{headers:{...headers,'Cache-Control':'no-store',...(url.searchParams.has('download')?{'Content-Disposition':'attachment; filename="primitiva-historico.json"'}:{})}});}
  if(url.pathname==='/icon.svg')return new Response(ICON,{headers:{...headers,'Content-Type':'image/svg+xml;charset=utf-8','Cache-Control':'public, max-age=86400'}});
  if(url.pathname==='/')return new Response(HTML,{headers:{...headers,'Content-Type':'text/html;charset=utf-8','Cache-Control':'no-cache','Content-Security-Policy':"default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; base-uri 'none'; frame-ancestors 'self'; form-action 'self'"}});
