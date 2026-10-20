@@ -3,7 +3,7 @@ import {analyze,patterns,randomBaseline,MODEL_VERSION,brierScore} from '../engin
 import worker,{getAnalysis} from '../worker/index.js';
 const archive=JSON.parse(await readFile(new URL('../data/draws.json',import.meta.url),'utf8'));
 const chronological=archive.draws.slice().reverse();
-const report=analyze(archive.draws);
+const report=analyze(archive.draws,{window:7});
 test('95 pruebas con 30 sorteos iniciales; cada predicción usa solo su pasado',()=>{
  assert.equal(report.rows.length,archive.draws.length-30);
  for(const row of report.rows){assert.ok(row.trainingEnd<row.date);assert.equal(row.predicted.length,6);assert.equal(new Set(row.predicted).size,6);assert.ok(row.predicted.every(n=>n>=1&&n<=49));assert.ok(row.refund>=0&&row.refund<=9);assert.equal(row.hits,row.predicted.filter(n=>row.actual.includes(n)).length);}
@@ -24,20 +24,20 @@ test('Frecuencias, parejas, paridad y distancias se calculan de las combinacione
  const p=patterns([{numbers:[1,2,3,4,5,6],refund:0},{numbers:[1,2,10,20,30,40],refund:0}]);assert.equal(p.frequency[0].count,2);assert.equal(p.refunds[0].count,2);assert.equal(p.pairs.find(x=>x.numbers.join('-')==='1-2').count,2);assert.equal(p.parity.find(x=>x.even===3).count,1);assert.equal(p.parity.find(x=>x.even===5).count,1);assert.equal(p.gaps[0].count,6);
 });
 test('Rechaza ventanas inválidas, duplicados y señala datos insuficientes',()=>{
- assert.throws(()=>analyze(archive.draws,{window:0}));assert.throws(()=>analyze(archive.draws,{window:18}));assert.throws(()=>analyze([...archive.draws,archive.draws[0]]));assert.equal(analyze(chronological.slice(0,30)).status,'insufficient');for(const window of [5,10,15,20,30,50])assert.equal(analyze(archive.draws,{window}).rows.length,archive.draws.length-window);
+ assert.throws(()=>analyze(archive.draws,{window:0}));assert.throws(()=>analyze(archive.draws,{window:18}));assert.throws(()=>analyze([...archive.draws,archive.draws[0]]));assert.equal(analyze(chronological.slice(0,30)).status,'insufficient');assert.equal(analyze(archive.draws,{window:7}).rows.length,archive.draws.length-7);
 });
 test('El análisis se guarda, se reutiliza y cambia al corregir resultados oficiales',async()=>{
  let doc=structuredClone(archive);const map=new Map();const BUCKET={async get(key){if(key==='history/draws.json')return {json:async()=>doc};return map.has(key)?{json:async()=>JSON.parse(map.get(key))}:null;},async put(key,val){map.set(key,val);}};
- const first=await getAnalysis({BUCKET},30);assert.ok(map.has('ai/models/30.json'));assert.ok(map.has('ai/forecasts/'+MODEL_VERSION+'/30/after-'+archive.latestDate+'.json'));assert.deepEqual(await getAnalysis({BUCKET},30),first);
+ const first=await getAnalysis({BUCKET},7);assert.ok(map.has('ai/models/7.json'));assert.ok(map.has('ai/forecasts/'+MODEL_VERSION+'/7/after-'+archive.latestDate+'.json'));assert.deepEqual(await getAnalysis({BUCKET},7),first);
  doc=structuredClone(doc);doc.draws[0].refund=(doc.draws[0].refund+1)%10;
- const next=await getAnalysis({BUCKET},30);assert.notEqual(next.rows.at(-1).actualRefund,first.rows.at(-1).actualRefund);
+ const next=await getAnalysis({BUCKET},7);assert.notEqual(next.rows.at(-1).actualRefund,first.rows.at(-1).actualRefund);
  const res=await worker.fetch(new Request('https://test/api/ai?window=0'),{BUCKET});assert.equal(res.status,400);
 });
 
-test('La API fija 15 sorteos y rechaza ventanas alternativas',async()=>{
+test('La API fija 7 sorteos y rechaza ventanas alternativas',async()=>{
  const response=await worker.fetch(new Request('https://test/api/ai'),{});
  assert.equal(response.status,200);
- assert.equal((await response.json()).window,15);
+ assert.equal((await response.json()).window,7);
  const alternative=await worker.fetch(new Request('https://test/api/ai?window=30'),{});
  assert.equal(alternative.status,400);
  assert.match((await alternative.json()).error,/ventana fija de 15 sorteos/);
