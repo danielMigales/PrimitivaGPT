@@ -42,9 +42,9 @@ Abrir http://localhost:8000. El servidor Python usa el JSON versionado; el Worke
 
 Repositorio público: https://github.com/danielMigales/PrimitivaGPT
 
-El workflow **Validar PrimitivaGPT** se activa con cada cambio en `main` y manualmente desde Actions. Ejecuta las pruebas y ofrece `public/` como artefacto descargable. No requiere activar GitHub Pages.
+El workflow **Publicar PrimitivaGPT en GitHub Pages** se ejecuta con cada cambio en `main`, manualmente desde Actions y cada día a las 23:03 (hora peninsular, `Europe/Madrid`). En la ejecución programada intenta sincronizar el histórico con SELAE mediante `scripts/update_data.py`, valida los datos, ejecuta `npm test` y `npm run build`, guarda los archivos generados si hay cambios y publica `public/` en GitHub Pages. La hora programada se ajusta automáticamente al horario de verano. Las ejecuciones programadas de GitHub pueden retrasarse o fallar; comprueba el estado de Actions si la publicación no aparece.
 
-**Estado de la actualización de datos:** el workflow de GitHub Actions valida el código y construye la aplicación, pero no descarga SELAE ni tiene una programación horaria configurada en este repositorio. No he podido verificar una automatización externa activa; por tanto, no debe darse por hecho que los resultados se actualizan solos. `scripts/update_data.py` permite intentar una actualización manual con Python y curl. `SYNC.md` documenta el proceso y las comprobaciones necesarias. Nunca se deben inventar resultados ni sustituir el histórico oficial por datos de ejemplo.
+La actualización automática depende de que SELAE responda con datos válidos y de que las pruebas y la publicación finalicen correctamente. Si falla la descarga o la validación, se conserva el histórico anterior y la ejecución falla en vez de inventar resultados. `SYNC.md` documenta el proceso y las comprobaciones necesarias.
 
 ## Investigación
 
