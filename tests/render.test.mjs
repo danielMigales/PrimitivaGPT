@@ -7,6 +7,8 @@ const html=await readFile(new URL('../web/index.html',import.meta.url),'utf8');
 const logic=await readFile(new URL('../web/logic.js',import.meta.url),'utf8');
 const script=html.match(/<script type="module">([\s\S]*?)<\/script>/)[1].replace('/*LOGIC*/',logic.replaceAll('export ',''));
 const seed=JSON.parse(await readFile(new URL('../data/draws.json',import.meta.url),'utf8'));
+// Estos tests verifican el estado previo al sorteo del 19/10/2026; el archivo vivo puede avanzar.
+seed.draws=seed.draws.filter(d=>d.date<'2026-10-19');seed.latestDate=seed.draws[0]?.date;
 async function renderData(data,reportOverride=null){
  const elements=new Map();
  const document={hidden:false,getElementById(id){if(!elements.has(id))elements.set(id,{value:id==='from'?'2026-01-01':'',innerHTML:'',textContent:'',hidden:true,setAttribute(){},setCustomValidity(){},reportValidity(){}});return elements.get(id);}};
