@@ -108,29 +108,55 @@ def main():
         return
 
     raw_files = []
-    for begin, end in month_ranges(start, today):
+
+    def fetch_interval(begin, end):
+        """Consulta un intervalo y valida cada registro recibido."""
         url = BASE + f'?game_id=LAPR&celebrados=true&fechaInicioInclusiva={begin:%Y%m%d}&fechaFinInclusiva={end:%Y%m%d}'
+        response = subprocess.run(
+            ['curl', '--fail', '--silent', '--show-error', '--location', '--max-time', '45', url],
+            check=True, capture_output=True, text=True,
+        )
+        rows = json.loads(response.stdout)
+        if not isinstance(rows, list):
+            raise ValueError('SELAE no ha devuelto una lista')
+        for row in rows:
+            record = normalize(row)
+            if not begin.isoformat() <= record['date'] <= end.isoformat():
+                raise ValueError('SELAE devuelve una fecha fuera del intervalo solicitado')
+            merged[record['date']] = record
+        raw_files.append((begin, end, rows))
+        print(f'{begin}–{end}: {len(rows)} registros recibidos', flush=True)
+
+    for begin, end in month_ranges(start, today):
+        # SELAE puede devolver HTTP 4xx para rangos aunque haya resultados.
+        # Reintentamos el rango y, si persiste el error, consultamos día por día.
+        range_ok = False
         for attempt in range(3):
             try:
-                response = subprocess.run(
-                    ['curl', '--fail', '--silent', '--show-error', '--location', '--max-time', '45', url],
-                    check=True, capture_output=True, text=True,
-                )
-                rows = json.loads(response.stdout)
-                if not isinstance(rows, list):
-                    raise ValueError('SELAE no ha devuelto una lista')
-                for row in rows:
-                    record = normalize(row)
-                    if not begin.isoformat() <= record['date'] <= end.isoformat():
-                        raise ValueError('SELAE devuelve una fecha fuera del intervalo solicitado')
-                    merged[record['date']] = record
-                raw_files.append((begin, end, rows))
-                print(f'{begin}–{end}: {len(rows)} registros recibidos', flush=True)
+                fetch_interval(begin, end)
+                range_ok = True
                 break
-            except Exception:
-                if attempt == 2:
-                    raise
-                time.sleep(2)
+            except Exception as exc:
+                print(f'Falló consulta SELAE {begin}–{end} (intento {attempt + 1}/3): {exc}', flush=True)
+                if attempt < 2:
+                    time.sleep(2)
+        if not range_ok:
+            print(f'Activando alternativa: consulta individual por fecha entre {begin} y {end}', flush=True)
+            day = begin
+            while day <= end:
+                last_error = None
+                for attempt in range(3):
+                    try:
+                        fetch_interval(day, day)
+                        last_error = None
+                        break
+                    except Exception as exc:
+                        last_error = exc
+                        if attempt < 2:
+                            time.sleep(2)
+                if last_error is not None:
+                    raise RuntimeError(f'No se pudo consultar SELAE para {day} ni siquiera con intervalo de un día: {last_error}') from last_error
+                day += dt.timedelta(days=1)
 
     # Una respuesta vacía o sin sorteos posteriores no cuenta como actualización:
     # no se toca ni draws.json ni los ficheros brutos.
