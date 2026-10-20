@@ -4,6 +4,8 @@ import {readFile} from 'node:fs/promises';
 import {analyze,nextDrawDate,reconcileForecasts} from '../engine/model.js';
 import {trackAnalysis,getAnalysis} from '../worker/index.js';
 const archive=JSON.parse(await readFile(new URL('../data/draws.json',import.meta.url),'utf8'));
+// Fixture temporal estable para probar el ciclo de propuesta del 19/10 sin depender del histórico vivo.
+archive.draws=archive.draws.filter(d=>d.date<'2026-10-19');archive.latestDate=archive.draws[0]?.date;
 const report=analyze(archive.draws);
 const before=new Date('2026-10-18T10:00:00Z');
 test('Fecha del próximo sorteo: lunes, jueves, sábado y cambio de año',()=>{
