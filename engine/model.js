@@ -58,7 +58,8 @@ function predict(history,window,numberWeights,refundWeights,step){
  const expertRefunds=data.refunds.map((p,i)=>i===0?Math.floor(random()*10):digit(p));
  const mixed=range(49).map(i=>data.numbers.reduce((s,p,j)=>s+numberWeights[j]*p[i],0));
  const refs=range(10).map(i=>data.refunds.reduce((s,p,j)=>s+refundWeights[j]*p[i],0));
- return {numbers:propose(mixed,shape,random,experts),refund:digit(refs),experts,expertRefunds,refundDistributions:data.refunds,refundDistribution:refs,numberScores:mixed.map((score,i)=>({number:i+1,score:round(score)})).sort((a,b)=>b.score-a.score),refundScores:refs.map((score,i)=>({number:i,score:round(score)}))};
+ // La combinación final sigue el ranking agregado; no añade bonificaciones de parejas/huecos que no son probabilidades calibradas.
+ return {numbers:best(mixed),refund:digit(refs),experts,expertRefunds,refundDistributions:data.refunds,refundDistribution:refs,numberScores:mixed.map((score,i)=>({number:i+1,score:round(score)})).sort((a,b)=>b.score-a.score),refundScores:refs.map((score,i)=>({number:i,score:round(score)}))};
 }
 function choose(n,k){if(k<0||k>n)return 0;let v=1;for(let i=1;i<=k;i++)v=v*(n-i+1)/i;return v;}
 export function randomBaseline(){return {expectedHits:36/49,refundProbability:.1,atLeastThreeProbability:[3,4,5,6].reduce((s,k)=>s+choose(6,k)*choose(43,6-k),0)/choose(49,6),threeAndRefundProbability:.1*[3,4,5,6].reduce((s,k)=>s+choose(6,k)*choose(43,6-k),0)/choose(49,6),atLeastFourProbability:[4,5,6].reduce((s,k)=>s+choose(6,k)*choose(43,6-k),0)/choose(49,6),hitProbabilities:range(7).map(k=>choose(6,k)*choose(43,6-k)/choose(49,6))};}
