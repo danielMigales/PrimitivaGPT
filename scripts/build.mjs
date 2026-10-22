@@ -1,5 +1,6 @@
 import {readFile,writeFile,mkdir,cp,rm} from 'node:fs/promises';
 import {analyze} from '../engine/model.js';
+import {reconcileProspectiveAudit} from './prospective-audit.mjs';
 const seed=JSON.parse(await readFile('data/draws.json','utf8'));
 const engine=await readFile('engine/model.js','utf8');
 const logic=await readFile('web/logic.js','utf8');
@@ -27,6 +28,15 @@ const fixedWindow=7;
 const defaultAnalysis=analyze(seed.draws,{window:fixedWindow});
 if(defaultAnalysis.status!=='ready')throw new Error('No se pudo generar el análisis de 7 sorteos');
 await writeFile(`public/data/ai-analysis-${fixedWindow}.json`,JSON.stringify(defaultAnalysis));
+// El registro prospectivo solo se inicia desde esta versión; nunca se rellenan sorteos pasados.
+const existingAudit=JSON.parse(await readFile('data/prospective-audit.json','utf8'));
+const prospectiveAudit=reconcileProspectiveAudit(existingAudit.records,defaultAnalysis,seed.draws);
+await writeFile('data/prospective-audit.json',JSON.stringify(prospectiveAudit,null,2)+'\n');
+await writeFile('public/data/prospective-audit.json',JSON.stringify(prospectiveAudit));
+const pct=value=>value===null?'—':(value*100).toFixed(2).replace('.',',')+'%';
+const s=prospectiveAudit.summary;
+const auditPanel=`<article class="ai-card prospective-audit-card"><h3>Evaluación prospectiva real</h3><p>Solo se incluyen combinaciones guardadas antes de su sorteo. Las predicciones y el control aleatorio se conservan; los aciertos se calculan al llegar el resultado oficial.</p><p><b>Sorteos evaluados:</b> ${s.settled} · <b>Pendientes:</b> ${s.pending}</p><p><b>4+ aciertos:</b> motor ${s.modelAtLeastFour} (${pct(s.modelAtLeastFourRate)}) · azar ${s.randomAtLeastFour} (${pct(s.randomAtLeastFourRate)}).</p><p><b>4+ esperados por azar:</b> ${s.expectedRandomAtLeastFour} en ${s.comparable} comparaciones.</p><p><b>Último resultado evaluado:</b> ${s.lastSettledDate||'—'}</p><a href="./data/prospective-audit.json" download="primitiva-auditoria-prospectiva.json">Descargar registro completo</a></article>`;
+await writeFile('public/index.html',staticHtml.replace('<!--PROSPECTIVE_AUDIT_PANEL-->',auditPanel));
 // El informe principal y el estado guardado del modelo quedan alineados a la ventana fija de 7 sorteos.
 await writeFile('data/ai-analysis.json',JSON.stringify(defaultAnalysis,null,2)+'\n');
 await writeFile('data/ai-model.json',JSON.stringify(defaultAnalysis.modelState,null,2)+'\n');

@@ -42,6 +42,13 @@ assert.equal(fixedReport.window, 7);
 assert.equal(fixedReport.status, "ready");
 assert.equal(fixedReport.drawCount, archive.draws.length);
 assert.equal(fixedReport.sourceLastDate, archive.latestDate);
+const prospective = JSON.parse(await readFile(resolve(projectRoot, "public/data/prospective-audit.json"), "utf8"));
+assert.equal(prospective.schemaVersion, 1);
+assert.equal(prospective.summary.window, 7);
+assert.ok(Array.isArray(prospective.records));
+assert.match(staticHtml, /Evaluación prospectiva real/);
+assert.ok(staticHtml.includes('primitiva-auditoria-prospectiva.json'));
+assert.ok(staticHtml.includes('href="./data/prospective-audit.json"'));
 for (const obsoleteWindow of [5, 10, 15, 20, 30, 50]) {
   await assert.rejects(readFile(resolve(projectRoot, `public/data/ai-analysis-${obsoleteWindow}.json`), "utf8"));
 }
