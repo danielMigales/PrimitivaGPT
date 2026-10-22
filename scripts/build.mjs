@@ -1,5 +1,6 @@
 import {readFile,writeFile,mkdir,cp,rm} from 'node:fs/promises';
 import {analyze} from '../engine/model.js';
+import {reconcileProspectiveAudit} from './prospective-audit.mjs';
 const seed=JSON.parse(await readFile('data/draws.json','utf8'));
 const engine=await readFile('engine/model.js','utf8');
 const logic=await readFile('web/logic.js','utf8');
@@ -27,6 +28,11 @@ const fixedWindow=7;
 const defaultAnalysis=analyze(seed.draws,{window:fixedWindow});
 if(defaultAnalysis.status!=='ready')throw new Error('No se pudo generar el análisis de 7 sorteos');
 await writeFile(`public/data/ai-analysis-${fixedWindow}.json`,JSON.stringify(defaultAnalysis));
+// El registro prospectivo solo se inicia desde esta versión; nunca se rellenan sorteos pasados.
+const existingAudit=JSON.parse(await readFile('data/prospective-audit.json','utf8'));
+const prospectiveAudit=reconcileProspectiveAudit(existingAudit.records,defaultAnalysis,seed.draws);
+await writeFile('data/prospective-audit.json',JSON.stringify(prospectiveAudit,null,2)+'\\n');
+await writeFile('public/data/prospective-audit.json',JSON.stringify(prospectiveAudit));
 // El informe principal y el estado guardado del modelo quedan alineados a la ventana fija de 7 sorteos.
 await writeFile('data/ai-analysis.json',JSON.stringify(defaultAnalysis,null,2)+'\n');
 await writeFile('data/ai-model.json',JSON.stringify(defaultAnalysis.modelState,null,2)+'\n');
