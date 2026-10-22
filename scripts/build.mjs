@@ -27,7 +27,7 @@ const fixedWindow=7;
 const defaultAnalysis=analyze(seed.draws,{window:fixedWindow});
 if(defaultAnalysis.status!=='ready')throw new Error('No se pudo generar el análisis de 7 sorteos');
 await writeFile(`public/data/ai-analysis-${fixedWindow}.json`,JSON.stringify(defaultAnalysis));
-// El informe principal y el estado guardado del modelo también quedan alineados a 15.
+// El informe principal y el estado guardado del modelo quedan alineados a la ventana fija de 7 sorteos.
 await writeFile('data/ai-analysis.json',JSON.stringify(defaultAnalysis,null,2)+'\n');
 await writeFile('data/ai-model.json',JSON.stringify(defaultAnalysis.modelState,null,2)+'\n');
 console.log(`Generados Worker y página estática: ${seed.draws.length} sorteos`);

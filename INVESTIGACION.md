@@ -1,6 +1,6 @@
 # Investigación de métodos para PrimitivaGPT
 
-Consulta de fuentes: 18/10/2026. Aplicación experimental: modelo 1.2.0.
+Consulta de fuentes: 22/10/2026. Aplicación experimental: modelo 1.4.0; ventana operativa fija de 7 sorteos.
 
 ## Conclusión
 
@@ -43,7 +43,7 @@ Se incorporan dos expertos conservadores —Bayes regularizado y Markov regulari
 
 ## Protocolo de combinación
 
-Los siete expertos comienzan con el mismo peso. Los modelos de números y reintegro siguen separados. Para reintegro, después del resultado se actualiza el peso exponencial según la pérdida Brier de las diez categorías; el conteo de aciertos continúa siendo el criterio principal visible. Para números se conserva la actualización por aciertos y objetivo de tres o más. Los parámetros de suavizado y aprendizaje son fijos en esta versión; no se buscaron hasta encontrar una combinación ganadora del pasado.
+Los siete expertos comienzan con el mismo peso. Los modelos de números y reintegro siguen separados. Para reintegro, después del resultado se actualiza el peso exponencial según la pérdida Brier de las diez categorías; el conteo de aciertos continúa siendo el criterio principal visible. Para números, la versión 1.4.0 añade un incentivo moderado por cuatro o más aciertos, conservando una señal menor para tres o más. La referencia legacy mantiene la regla anterior para que la comparación histórica siga siendo reproducible. Los parámetros de suavizado y aprendizaje son fijos en esta versión; no se buscaron hasta encontrar una combinación ganadora del pasado.
 
 La referencia 1.1.0 se reproduce con sus cinco expertos y su regla previa sobre las mismas fechas y el mismo número de boletos. Se conserva también el control aleatorio. Las ventanas 20, 30 y 50 son experimentos solapados: no se suman como observaciones independientes ni se elige la ventana de 50 como predicción ganadora porque produjo un caso favorable en el histórico.
 
@@ -56,3 +56,14 @@ La referencia 1.1.0 se reproduce con sus cinco expertos y su regla previa sobre 
 | 50 | 75 | 6 | 6 | 0,9086 | 0,9046 | 0,9 | 1 | 1 |
 
 El error Brier disminuye frente a la versión anterior, pero el uniforme sigue obteniendo menor pérdida. La ventana por defecto mantiene los mismos reintegros acertados. No se declara una ventaja predictiva. Las primeras propuestas emitidas quedan registradas por versión, ventana y fecha de entrenamiento para poder contrastarlas con sorteos futuros sin reescribirlas.
+
+
+## Auditoría del objetivo de cuatro o más aciertos (modelo 1.4.0)
+
+- La ventana de entrada y entrenamiento inmediato es de siete sorteos. La evaluación se hace cronológicamente: cada boleto se genera solo con los sorteos anteriores a su objetivo.
+- Se registran el número y la tasa de pruebas con 4+ aciertos, los casos en que coinciden 4+ y reintegro, y las mismas métricas de una combinación aleatoria reproducible sobre las mismas fechas.
+- La referencia teórica exacta para un boleto simple de seis números de 49 es P(X>=4)=suma para k=4..6 de C(6,k)*C(43,6-k)/C(49,6). La probabilidad es muy pequeña; unas pocas pruebas no permiten concluir que un modelo tenga ventaja. El informe muestra también el número esperado de casos 4+ bajo azar para el tamaño de muestra evaluado.
+- El aprendizaje de los expertos de la versión extendida incorpora un pequeño término adicional cuando un experto alcanza 4+; la variante legacy conserva su regla anterior. El cambio de ponderación es una hipótesis experimental, no una mejora acreditada.
+- Las tasas históricas se calculan sobre una muestra ya examinada durante el desarrollo, por lo que no son una estimación independiente del rendimiento futuro. La confirmación requiere acumular nuevos sorteos oficiales y comparar el modelo con azar con el protocolo fijado de antemano.
+
+No se afirma que el modelo pueda garantizar cuatro aciertos ni que haya superado estadísticamente al azar.

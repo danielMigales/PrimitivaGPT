@@ -35,10 +35,10 @@ jobs:
         if: github.event_name == 'schedule' || github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         continue-on-error: true
         run: python scripts/update_data.py
-      - name: Validar y construir la web estática
+      - name: Construir artefactos generados y ejecutar pruebas
         run: |
-          npm test
           npm run build
+          npm test
       - name: Guardar datos y artefactos generados
         if: github.event_name == 'schedule' || github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         run: |
