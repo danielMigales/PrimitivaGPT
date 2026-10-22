@@ -33,6 +33,10 @@ const existingAudit=JSON.parse(await readFile('data/prospective-audit.json','utf
 const prospectiveAudit=reconcileProspectiveAudit(existingAudit.records,defaultAnalysis,seed.draws);
 await writeFile('data/prospective-audit.json',JSON.stringify(prospectiveAudit,null,2)+'\n');
 await writeFile('public/data/prospective-audit.json',JSON.stringify(prospectiveAudit));
+const pct=value=>value===null?'—':(value*100).toFixed(2).replace('.',',')+'%';
+const s=prospectiveAudit.summary;
+const auditPanel=`<article class="ai-card prospective-audit-card"><h3>Evaluación prospectiva real</h3><p>Solo se incluyen combinaciones guardadas antes de su sorteo. Las predicciones y el control aleatorio se conservan; los aciertos se calculan al llegar el resultado oficial.</p><p><b>Sorteos evaluados:</b> ${s.settled} · <b>Pendientes:</b> ${s.pending}</p><p><b>4+ aciertos:</b> motor ${s.modelAtLeastFour} (${pct(s.modelAtLeastFourRate)}) · azar ${s.randomAtLeastFour} (${pct(s.randomAtLeastFourRate)}).</p><p><b>4+ esperados por azar:</b> ${s.expectedRandomAtLeastFour} en ${s.comparable} comparaciones.</p><p><b>Último resultado evaluado:</b> ${s.lastSettledDate||'—'}</p><a href="./data/prospective-audit.json" download="primitiva-auditoria-prospectiva.json">Descargar registro completo</a></article>`;
+await writeFile('public/index.html',staticHtml.replace('<!--PROSPECTIVE_AUDIT_PANEL-->',auditPanel));
 // El informe principal y el estado guardado del modelo quedan alineados a la ventana fija de 7 sorteos.
 await writeFile('data/ai-analysis.json',JSON.stringify(defaultAnalysis,null,2)+'\n');
 await writeFile('data/ai-model.json',JSON.stringify(defaultAnalysis.modelState,null,2)+'\n');
