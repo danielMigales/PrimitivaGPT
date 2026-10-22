@@ -56,7 +56,7 @@ export function reconcileProspectiveAudit(existingRecords, report, draws, now = 
     return {...withControl, randomHits, randomAtLeastFour: randomHits === null ? null : randomHits >= 4};
   });
 
-  const settled = records.filter(record => record.status === 'published' && Array.isArray(record.actual));
+  const settled = records.filter(record => record.status === 'published' && record.actual && Array.isArray(record.actual.numbers));
   const modelAtLeastFour = settled.filter(record => record.hits >= 4).length;
   const randomAtLeastFour = settled.filter(record => record.randomHits !== null && record.randomHits >= 4).length;
   const comparable = settled.filter(record => Array.isArray(record.randomNumbers));
