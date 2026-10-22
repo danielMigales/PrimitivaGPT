@@ -21,10 +21,10 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: '22'
-      - name: Probar y generar aplicación
+      - name: Generar artefactos y probar aplicación
         run: |
-          npm test
           npm run build
+          npm test
       - uses: actions/upload-artifact@v7
         with:
           name: primitiva-web-estatica
