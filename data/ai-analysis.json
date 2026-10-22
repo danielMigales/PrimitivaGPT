@@ -1,5 +1,5 @@
 {
-  "version": "1.3.0",
+  "version": "1.4.0",
   "variant": "extended",
   "reference": {
     "version": "1.1.0",
@@ -13,6 +13,9 @@
       "atLeastThree": 2,
       "atLeastThreeAndRefund": 0,
       "atLeastFour": 0,
+      "atLeastFourRate": 0,
+      "atLeastFourAndRefund": 0,
+      "expectedRandomAtLeastFour": 0.1175,
       "maxHits": 3,
       "refundHits": 14,
       "refundRate": 0.1176,
@@ -29,6 +32,8 @@
       "randomAtLeastThree": 3,
       "randomAtLeastThreeAndRefund": 1,
       "randomAtLeastFour": 0,
+      "randomAtLeastFourRate": 0,
+      "randomAtLeastFourAndRefund": 0,
       "randomRefundHits": 10,
       "randomHistogram": [
         51,
@@ -47,8 +52,8 @@
   "drawCount": 126,
   "objective": {
     "primary": "refund",
-    "secondary": "atLeastThree",
-    "joint": "atLeastThreeAndRefund"
+    "secondary": "atLeastFour",
+    "joint": "atLeastFourAndRefund"
   },
   "method": "Aprendizaje secuencial sin acceso al resultado futuro; una combinación y un reintegro por sorteo.",
   "forecast": {
@@ -314,6 +319,9 @@
     "atLeastThree": 3,
     "atLeastThreeAndRefund": 0,
     "atLeastFour": 0,
+    "atLeastFourRate": 0,
+    "atLeastFourAndRefund": 0,
+    "expectedRandomAtLeastFour": 0.1175,
     "maxHits": 3,
     "refundHits": 14,
     "refundRate": 0.1176,
@@ -330,6 +338,8 @@
     "randomAtLeastThree": 3,
     "randomAtLeastThreeAndRefund": 1,
     "randomAtLeastFour": 0,
+    "randomAtLeastFourRate": 0,
+    "randomAtLeastFourAndRefund": 0,
     "randomRefundHits": 10,
     "randomHistogram": [
       51,
@@ -364,6 +374,7 @@
       "refundHits": 6,
       "meanHits": 0.8235,
       "atLeastThree": 5,
+      "atLeastFour": 0,
       "refundBrier": 0.9,
       "refundLogLoss": 2.3026,
       "numberWeight": 0.1311,
@@ -375,6 +386,7 @@
       "refundHits": 14,
       "meanHits": 0.7311,
       "atLeastThree": 3,
+      "atLeastFour": 0,
       "refundBrier": 0.9156,
       "refundLogLoss": 2.3678,
       "numberWeight": 0.0424,
@@ -386,6 +398,7 @@
       "refundHits": 14,
       "meanHits": 0.7311,
       "atLeastThree": 3,
+      "atLeastFour": 0,
       "refundBrier": 0.9156,
       "refundLogLoss": 2.3678,
       "numberWeight": 0.0424,
@@ -397,6 +410,7 @@
       "refundHits": 14,
       "meanHits": 0.7227,
       "atLeastThree": 3,
+      "atLeastFour": 0,
       "refundBrier": 0.8998,
       "refundLogLoss": 2.2989,
       "numberWeight": 0.0605,
@@ -408,6 +422,7 @@
       "refundHits": 14,
       "meanHits": 0.7059,
       "atLeastThree": 2,
+      "atLeastFour": 0,
       "refundBrier": 0.9156,
       "refundLogLoss": 2.3678,
       "numberWeight": 0.0337,
@@ -419,6 +434,7 @@
       "refundHits": 14,
       "meanHits": 0.7311,
       "atLeastThree": 3,
+      "atLeastFour": 0,
       "refundBrier": 0.8988,
       "refundLogLoss": 2.2971,
       "numberWeight": 0.0424,
@@ -430,6 +446,7 @@
       "refundHits": 7,
       "meanHits": 0.8908,
       "atLeastThree": 3,
+      "atLeastFour": 0,
       "refundBrier": 0.9004,
       "refundLogLoss": 2.3043,
       "numberWeight": 0.6477,
@@ -10402,7 +10419,7 @@
     }
   ],
   "modelState": {
-    "version": "1.3.0",
+    "version": "1.4.0",
     "variant": "extended",
     "window": 7,
     "trainedThrough": "2026-10-19",
