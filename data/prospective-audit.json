@@ -4,7 +4,7 @@
     "protocol": "prospective-v1",
     "window": 7,
     "settled": 0,
-    "pending": 0,
+    "pending": 1,
     "comparable": 0,
     "modelAtLeastFour": 0,
     "modelAtLeastFourRate": null,
@@ -15,5 +15,38 @@
     "randomMeanHits": null,
     "lastSettledDate": null
   },
-  "records": []
+  "records": [
+    {
+      "targetDate": "2026-10-24",
+      "createdAt": "2026-10-22T21:36:40.495Z",
+      "version": "1.4.0",
+      "window": 7,
+      "trainedThrough": "2026-10-22",
+      "trainingCount": 127,
+      "numbers": [
+        22,
+        29,
+        35,
+        42,
+        45,
+        49
+      ],
+      "refund": 7,
+      "status": "pending",
+      "publishedAt": null,
+      "actual": null,
+      "hits": null,
+      "refundHit": null,
+      "randomNumbers": [
+        1,
+        10,
+        14,
+        18,
+        25,
+        44
+      ],
+      "randomHits": null,
+      "randomAtLeastFour": null
+    }
+  ]
 }
