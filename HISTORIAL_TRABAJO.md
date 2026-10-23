@@ -1,6 +1,6 @@
 # Historial de trabajo — PrimitivaGPT
 
-> Última revisión: 2026-10-19. Este registro se reconstruye a partir del historial de Git, la documentación y las ejecuciones de GitHub Actions disponibles. No sustituye ni pretende reproducir chats eliminados. Actualizarlo cuando se complete una tarea relevante.
+> Última revisión: 2026-10-23. Este registro se reconstruye a partir del historial de Git, la documentación y las ejecuciones de GitHub Actions disponibles. No sustituye ni pretende reproducir chats eliminados. Actualizarlo cuando se complete una tarea relevante.
 
 ## Objetivo y forma de trabajo
 
@@ -17,6 +17,7 @@
 
 | Fecha (UTC) | Commit | Cambio |
 |---|---|---|
+| 2026-10-23 | pendiente de commit | Alinear objetivo visible y metadatos: 4+ aciertos como objetivo principal; reintegro como métrica complementaria. |
 | 2026-10-19 | `e4dcd350e422d66b93420729808e37ce97793e67` | Mostrar el resultado oficial de una propuesta durante 24 horas desde que PrimitivaGPT lo detecta/confirma; conservar el histórico. PR #5. |
 | 2026-10-19 | `957d84f439aa9a90e5f5a2e79c689d116b961e38` | Explicar la combinación propuesta: criterios, puntuaciones y expertos con mayor peso, sin atribuir puntuaciones incorrectas a propuestas guardadas distintas del recálculo actual. |
 | 2026-10-19 | `92f11e0f7cdb12c79151a5955a7ac51166f52468` | Fijar Laboratorio IA en 15 sorteos en la interfaz pública/API y retirar el selector; conservar opciones internas para pruebas históricas. |
@@ -30,7 +31,7 @@
 ## Comportamiento y decisiones conocidas
 
 - La aplicación ofrece un archivo de sorteos oficiales y un Laboratorio IA.
-- El Laboratorio IA público utiliza una ventana fija de 15 sorteos.
+- El Laboratorio IA público utiliza una ventana fija de 7 sorteos.
 - El motor combina siete métodos: azar uniforme, frecuencia acumulada, frecuencia reciente, recencia ponderada, parejas/estructura, Bayes regularizado y Markov regularizado. El reintegro tiene pesos independientes.
 - La propuesta debe explicar los criterios realmente usados; no presentar como actuales puntuaciones que pertenecen a otra combinación.
 - Los paneles «Métodos y aprendizaje» y simulaciones históricas se mantienen ocultos en la interfaz según las decisiones registradas; el código de cálculo puede seguir siendo necesario para el motor y las pruebas.
