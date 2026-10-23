@@ -51,8 +51,8 @@
   "sourceLastDate": "2026-10-22",
   "drawCount": 127,
   "objective": {
-    "primary": "refund",
-    "secondary": "atLeastFour",
+    "primary": "atLeastFour",
+    "secondary": "refund",
     "joint": "atLeastFourAndRefund"
   },
   "method": "Aprendizaje secuencial sin acceso al resultado futuro; una combinación y un reintegro por sorteo.",
