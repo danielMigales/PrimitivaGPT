@@ -3,19 +3,51 @@
   "summary": {
     "protocol": "prospective-v1",
     "window": 7,
-    "settled": 0,
+    "settled": 1,
     "pending": 1,
-    "comparable": 0,
+    "comparable": 1,
     "modelAtLeastFour": 0,
-    "modelAtLeastFourRate": null,
+    "modelAtLeastFourRate": 0,
     "randomAtLeastFour": 0,
-    "randomAtLeastFourRate": null,
-    "expectedRandomAtLeastFour": 0,
-    "meanHits": null,
-    "randomMeanHits": null,
-    "lastSettledDate": null
+    "randomAtLeastFourRate": 0,
+    "expectedRandomAtLeastFour": 0.001,
+    "meanHits": 0,
+    "randomMeanHits": 1,
+    "lastSettledDate": "2026-10-24"
   },
   "records": [
+    {
+      "targetDate": "2026-10-26",
+      "createdAt": "2026-10-25T21:31:47.225Z",
+      "version": "1.4.0",
+      "window": 7,
+      "trainedThrough": "2026-10-24",
+      "trainingCount": 128,
+      "numbers": [
+        4,
+        5,
+        29,
+        31,
+        47,
+        49
+      ],
+      "refund": 4,
+      "status": "pending",
+      "publishedAt": null,
+      "actual": null,
+      "hits": null,
+      "refundHit": null,
+      "randomNumbers": [
+        12,
+        15,
+        23,
+        24,
+        29,
+        36
+      ],
+      "randomHits": null,
+      "randomAtLeastFour": null
+    },
     {
       "targetDate": "2026-10-24",
       "createdAt": "2026-10-22T21:36:40.495Z",
@@ -32,11 +64,24 @@
         49
       ],
       "refund": 7,
-      "status": "pending",
-      "publishedAt": null,
-      "actual": null,
-      "hits": null,
-      "refundHit": null,
+      "status": "published",
+      "publishedAt": "2026-10-25T21:31:47.225Z",
+      "actual": {
+        "date": "2026-10-24",
+        "numbers": [
+          4,
+          5,
+          10,
+          31,
+          47,
+          48
+        ],
+        "refund": 4,
+        "complementary": 37,
+        "source": "https://www.loteriasyapuestas.es/es/la-primitiva/resultados/la-primitiva-resultados-del-24-de-octubre-de-2026"
+      },
+      "hits": 0,
+      "refundHit": false,
       "randomNumbers": [
         1,
         10,
@@ -45,8 +90,8 @@
         25,
         44
       ],
-      "randomHits": null,
-      "randomAtLeastFour": null
+      "randomHits": 1,
+      "randomAtLeastFour": false
     }
   ]
 }

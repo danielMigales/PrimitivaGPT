@@ -2,9 +2,24 @@
   "schemaVersion": 1,
   "startDate": "2026-01-01",
   "source": "SELAE",
-  "checkedAt": "2026-10-22T21:33:28.000Z",
-  "latestDate": "2026-10-22",
+  "checkedAt": "2026-10-25T21:15:00.000Z",
+  "latestDate": "2026-10-24",
   "draws": [
+    {
+      "id": "20261024",
+      "date": "2026-10-24",
+      "numbers": [
+        4,
+        5,
+        10,
+        31,
+        47,
+        48
+      ],
+      "complementary": 37,
+      "refund": 4,
+      "source": "https://www.loteriasyapuestas.es/es/la-primitiva/resultados/la-primitiva-resultados-del-24-de-octubre-de-2026"
+    },
     {
       "id": "1326204127",
       "date": "2026-10-22",
