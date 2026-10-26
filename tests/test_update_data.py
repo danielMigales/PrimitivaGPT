@@ -2,7 +2,7 @@ import datetime as dt
 import unittest
 from zoneinfo import ZoneInfo
 
-from scripts.update_data import latest_scheduled_date, should_wait_for_results, sorted_draws
+from scripts.update_data import latest_scheduled_date, missing_expected_draw, should_wait_for_results, sorted_draws
 
 
 MADRID = ZoneInfo('Europe/Madrid')
@@ -40,6 +40,18 @@ class UpdateDataScheduleTests(unittest.TestCase):
         now = dt.datetime(2026, 10, 20, 10, 0, tzinfo=MADRID)
         wait, _ = should_wait_for_results(now, '2026-10-17')
         self.assertFalse(wait)
+
+    def test_fails_closed_when_expected_draw_is_missing_after_publication_day(self):
+        now = dt.datetime(2026, 10, 20, 10, 0, tzinfo=MADRID)
+        self.assertTrue(missing_expected_draw(now, '2026-10-17'))
+
+    def test_does_not_fail_before_results_time_on_draw_day(self):
+        now = dt.datetime(2026, 10, 19, 22, 59, tzinfo=MADRID)
+        self.assertFalse(missing_expected_draw(now, '2026-10-17'))
+
+    def test_fails_if_scheduled_draw_is_still_missing_after_2300(self):
+        now = dt.datetime(2026, 10, 19, 23, 1, tzinfo=MADRID)
+        self.assertTrue(missing_expected_draw(now, '2026-10-17'))
 
 
 if __name__ == '__main__':
