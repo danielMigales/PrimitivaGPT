@@ -67,6 +67,20 @@ def should_wait_for_results(now, latest_date):
     return False, ''
 
 
+def missing_expected_draw(now, latest_date):
+    """Indica si ya debería existir un sorteo que el histórico todavía no contiene."""
+    local_now = now.astimezone(MADRID)
+    expected = latest_scheduled_date(local_now.date())
+    if not latest_date or expected.isoformat() <= latest_date:
+        return False
+    # Si la fecha prevista ya pasó, el sorteo está atrasado; si es hoy,
+    # solo se considera fallo después de la hora prudente de publicación.
+    return expected < local_now.date() or (
+        expected == local_now.date()
+        and local_now.time().replace(tzinfo=None) >= RESULTS_AVAILABLE_AFTER
+    )
+
+
 def month_ranges(start, today):
     """Genera intervalos mensuales sin volver a pedir fechas ya archivadas."""
     cursor = start
@@ -161,6 +175,12 @@ def main():
     # Una respuesta vacía o sin sorteos posteriores no cuenta como actualización:
     # no se toca ni draws.json ni los ficheros brutos.
     if latest_date and max(merged, default='') <= latest_date:
+        if missing_expected_draw(now, latest_date):
+            expected = latest_scheduled_date(now.date()).isoformat()
+            raise RuntimeError(
+                f'SELAE no ha devuelto el sorteo previsto del {expected}; '
+                'se detiene la publicación para no desplegar datos antiguos.'
+            )
         print('SELAE todavía no publica un sorteo nuevo. Histórico sin cambios.')
         return
 
