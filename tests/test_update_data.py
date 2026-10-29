@@ -2,7 +2,7 @@ import datetime as dt
 import unittest
 from zoneinfo import ZoneInfo
 
-from scripts.update_data import latest_scheduled_date, missing_expected_draw, should_query_day, should_wait_for_results, sorted_draws
+from scripts.update_data import latest_scheduled_date, missing_expected_draw, parse_official_result_page, should_query_day, should_wait_for_results, sorted_draws
 
 
 MADRID = ZoneInfo('Europe/Madrid')
@@ -17,6 +17,20 @@ class UpdateDataScheduleTests(unittest.TestCase):
         now = dt.datetime(2026, 10, 29, 15, 0, tzinfo=MADRID)
         self.assertFalse(should_query_day(dt.date(2026, 10, 25), now))
         self.assertFalse(should_query_day(dt.date(2026, 10, 27), now))
+
+    def test_parses_official_result_page_without_changing_numbers(self):
+        day = dt.date(2026, 10, 26)
+        page = (
+            'En el sorteo de La Primitiva del 26 de octubre de 2026, '
+            'la combinación ganadora ha correspondido a los siguientes números: '
+            '04 - 09 - 33 - 37 - 39 - 49 '
+            'Complementario: C(18) Reintegro: R(4) Joker: J(0637237)'
+        )
+        record = parse_official_result_page(day, page)
+        self.assertEqual(record['date'], '2026-10-26')
+        self.assertEqual(record['numbers'], [4, 9, 33, 37, 39, 49])
+        self.assertEqual(record['complementary'], 18)
+        self.assertEqual(record['refund'], 4)
 
     def test_fallback_queries_previous_missing_draw_but_not_today_before_2300(self):
         now = dt.datetime(2026, 10, 29, 15, 0, tzinfo=MADRID)
