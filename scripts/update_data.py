@@ -56,17 +56,9 @@ MONTHS_ES = {
 }
 
 
-def fetch_official_result_page(day):
-    """Alternativa oficial cuando el buscador de SELAE responde con error."""
-    url = (
-        'https://www.loteriasyapuestas.es/es/la-primitiva/resultados/'
-        f'la-primitiva-resultados-del-{day.day}-de-{MONTHS_ES[day.month]}-de-{day.year}'
-    )
-    response = subprocess.run(
-        ['curl', '--fail', '--silent', '--show-error', '--location', '--max-time', '45', url],
-        check=True, capture_output=True, text=True,
-    )
-    page_text = html.unescape(response.stdout)
+def parse_official_result_page(day, page):
+    """Interpreta combinación, complementario y reintegro de la página oficial."""
+    page_text = html.unescape(page)
     page_text = re.sub(r'<[^>]+>', ' ', page_text)
     page_text = re.sub(r'\s+', ' ', page_text)
     match = re.search(
@@ -98,8 +90,24 @@ def fetch_official_result_page(day):
             + f' C({complementary}) R({refund})',
     }
     record = normalize(row)
-    record['source'] = url
+    record['source'] = (
+        'https://www.loteriasyapuestas.es/es/la-primitiva/resultados/'
+        f'la-primitiva-resultados-del-{day.day}-de-{MONTHS_ES[day.month]}-de-{day.year}'
+    )
     return record
+
+
+def fetch_official_result_page(day):
+    """Alternativa oficial cuando el buscador de SELAE responde con error."""
+    url = (
+        'https://www.loteriasyapuestas.es/es/la-primitiva/resultados/'
+        f'la-primitiva-resultados-del-{day.day}-de-{MONTHS_ES[day.month]}-de-{day.year}'
+    )
+    response = subprocess.run(
+        ['curl', '--fail', '--silent', '--show-error', '--location', '--max-time', '45', url],
+        check=True, capture_output=True, text=True,
+    )
+    return parse_official_result_page(day, response.stdout)
 
 
 def latest_scheduled_date(today):
