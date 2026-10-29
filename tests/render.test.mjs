@@ -28,9 +28,9 @@ for(const [name,refunds] of [['únicos',[0,1,2,3,4]],['mixtos',[0,0,2,3,4]],['ig
   assert.equal((els.get('draws').innerHTML.match(/<article /g)||[]).length,5);
  });
 }
-test('Muestra datos reales y permite paginar el histórico',async()=>{
+test('Muestra los últimos siete sorteos y permite paginar el histórico',async()=>{
  const els=await renderData(seed);
- assert.equal((els.get('draws').innerHTML.match(/<article /g)||[]).length,5);
+ assert.equal((els.get('draws').innerHTML.match(/<article /g)||[]).length,7);
  assert.equal(els.get('notice').hidden,true);
  els.get('history').onclick();const first=els.get('draws').innerHTML;
  els.get('next').onclick();assert.notEqual(els.get('draws').innerHTML,first);
