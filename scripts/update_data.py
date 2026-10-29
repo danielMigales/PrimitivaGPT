@@ -63,7 +63,12 @@ def should_wait_for_results(now, latest_date):
     if latest_date and dt.date.fromisoformat(latest_date) >= expected:
         return True, f'El histórico ya llega al último sorteo previsto ({expected})'
     if local_now.date() == expected and local_now.time().replace(tzinfo=None) < RESULTS_AVAILABLE_AFTER:
-        return True, f'Esperando a que se publiquen los resultados del sorteo del {expected}'
+        # Espera solo si el archivo ya contiene el sorteo anterior al de hoy.
+        # Si también falta ese sorteo anterior, hay que recuperar el histórico atrasado.
+        previous_day = local_now.date() - dt.timedelta(days=1)
+        previous_expected = latest_scheduled_date(previous_day)
+        if latest_date and latest_date >= previous_expected.isoformat():
+            return True, f'Esperando a que se publiquen los resultados del sorteo del {expected}'
     return False, ''
 
 
