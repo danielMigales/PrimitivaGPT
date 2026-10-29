@@ -31,7 +31,7 @@ assert.match(staticHtml, /<img src="\.\/icon\.svg" alt="">/);
 assert.match(staticHtml, /La actualización depende de la sincronización del histórico/);
 assert.doesNotMatch(staticHtml, /SELAE se consulta cada hora|tarea programada consulta SELAE cada hora/);
 assert.ok(staticHtml.includes("fetch('./data/draws.json'"), 'La web estática debe cargar el histórico versionado');
-assert.ok(staticHtml.includes("fetch('./data/ai-analysis-'+window+'.json'"), 'La web estática debe cargar el informe fijo de 7 sorteos');
+assert.ok(staticHtml.includes("import('./engine/model.js')"), 'La web estática debe recalcular la predicción con el motor local');
 assert.match(staticHtml, /Ventana de análisis[\s\S]*?7 sorteos/);
 assert.doesNotMatch(staticHtml, /id="ai-window"|Número de sorteos|<option value="(?:5|10|15|20|30|50)">/);
 assert.doesNotMatch(staticHtml, /fetch\(['"]\/api\/(?:draws|ai)/, 'La web estática no debe depender de rutas API del Worker');
