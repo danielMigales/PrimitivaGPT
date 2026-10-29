@@ -2,7 +2,7 @@ import datetime as dt
 import unittest
 from zoneinfo import ZoneInfo
 
-from scripts.update_data import latest_scheduled_date, missing_expected_draw, should_wait_for_results, sorted_draws
+from scripts.update_data import latest_scheduled_date, missing_expected_draw, should_query_day, should_wait_for_results, sorted_draws
 
 
 MADRID = ZoneInfo('Europe/Madrid')
@@ -12,6 +12,16 @@ class UpdateDataScheduleTests(unittest.TestCase):
     def test_empty_archive_fails_clearly_instead_of_index_error(self):
         with self.assertRaisesRegex(ValueError, 'ningún sorteo válido'):
             sorted_draws({})
+
+    def test_fallback_skips_non_draw_days(self):
+        now = dt.datetime(2026, 10, 29, 15, 0, tzinfo=MADRID)
+        self.assertFalse(should_query_day(dt.date(2026, 10, 25), now))
+        self.assertFalse(should_query_day(dt.date(2026, 10, 27), now))
+
+    def test_fallback_queries_previous_missing_draw_but_not_today_before_2300(self):
+        now = dt.datetime(2026, 10, 29, 15, 0, tzinfo=MADRID)
+        self.assertTrue(should_query_day(dt.date(2026, 10, 26), now))
+        self.assertFalse(should_query_day(dt.date(2026, 10, 29), now))
 
     def test_latest_scheduled_date_is_previous_saturday_on_sunday(self):
         self.assertEqual(
