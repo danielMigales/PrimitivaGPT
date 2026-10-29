@@ -46,10 +46,8 @@ def parse_issue(body, archive):
     if latest and day.isoformat() <= latest:
         raise ValueError(f'La fecha debe ser posterior al último sorteo guardado ({latest}).')
     months = ('enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre')
-    source = ('https://www.loteriasyapuestas.es/es/la-primitiva/resultados/'
-              f'la-primitiva-resultados-del-{day.day}-de-{months[day.month-1]}-de-{day.year}')
     return {'id': day.strftime('%Y%m%d'), 'date': day.isoformat(), 'numbers': sorted(numbers),
-            'complementary': complementary, 'refund': refund, 'source': source, 'entryMethod': 'manual'}
+            'complementary': complementary, 'refund': refund, 'source': '', 'manual': True, 'entryMethod': 'manual'}
 
 def main():
     body = os.environ.get('ISSUE_BODY', '')
