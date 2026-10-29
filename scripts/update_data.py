@@ -1,6 +1,7 @@
 """Actualiza el histórico SELAE solo cuando ya debería existir un sorteo nuevo."""
 import calendar
 import datetime as dt
+import html
 import json
 import pathlib
 import re
@@ -65,14 +66,15 @@ def fetch_official_result_page(day):
         ['curl', '--fail', '--silent', '--show-error', '--location', '--max-time', '45', url],
         check=True, capture_output=True, text=True,
     )
-    page_text = re.sub(r'<[^>]+>', ' ', response.stdout)
-    page_text = re.sub(r'\\s+', ' ', page_text)
+    page_text = html.unescape(response.stdout)
+    page_text = re.sub(r'<[^>]+>', ' ', page_text)
+    page_text = re.sub(r'\s+', ' ', page_text)
     match = re.search(
-        r'combinaci[oó]n ganadora.*?n[uú]meros:\\s*'
-        r'(\\d{2})\\s*-\\s*(\\d{2})\\s*-\\s*(\\d{2})\\s*-\\s*'
-        r'(\\d{2})\\s*-\\s*(\\d{2})\\s*-\\s*(\\d{2})'
-        r'.*?Complementario:\\s*C\\((\\d+)\\)\\s*'
-        r'Reintegro:\\s*R\\((\\d+)\\)',
+        r'combinaci[oó]n ganadora.*?n[uú]meros:\s*'
+        r'(\d{2})\s*-\s*(\d{2})\s*-\s*(\d{2})\s*-\s*'
+        r'(\d{2})\s*-\s*(\d{2})\s*-\s*(\d{2})'
+        r'.*?Complementario:\s*C\((\d+)\)\s*'
+        r'Reintegro:\s*R\((\d+)\)',
         page_text,
         re.IGNORECASE,
     )
