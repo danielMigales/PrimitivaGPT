@@ -41,6 +41,18 @@ class UpdateDataScheduleTests(unittest.TestCase):
         wait, _ = should_wait_for_results(now, '2026-10-17')
         self.assertFalse(wait)
 
+    def test_catches_up_previous_missing_draw_before_today_results_time(self):
+        # El jueves 29 aún no hay resultado de ese día, pero falta el lunes 26.
+        now = dt.datetime(2026, 10, 29, 22, 0, tzinfo=MADRID)
+        wait, _ = should_wait_for_results(now, '2026-10-24')
+        self.assertFalse(wait)
+
+    def test_waits_for_today_only_when_previous_scheduled_draw_is_archived(self):
+        now = dt.datetime(2026, 10, 29, 22, 0, tzinfo=MADRID)
+        wait, reason = should_wait_for_results(now, '2026-10-26')
+        self.assertTrue(wait)
+        self.assertIn('Esperando', reason)
+
     def test_fails_closed_when_expected_draw_is_missing_after_publication_day(self):
         now = dt.datetime(2026, 10, 20, 10, 0, tzinfo=MADRID)
         self.assertTrue(missing_expected_draw(now, '2026-10-17'))
