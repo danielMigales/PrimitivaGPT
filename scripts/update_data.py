@@ -104,7 +104,7 @@ def fetch_official_result_page(day):
         f'la-primitiva-resultados-del-{day.day}-de-{MONTHS_ES[day.month]}-de-{day.year}'
     )
     response = subprocess.run(
-        ['curl', '--fail', '--silent', '--show-error', '--location', '--max-time', '45', url],
+        ['curl', '--fail', '--silent', '--show-error', '--location', '--max-time', '45', '--user-agent', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36', '--header', 'Accept: text/html,application/xhtml+xml,application/json;q=0.9,*/*;q=0.8', url],
         check=True, capture_output=True, text=True,
     )
     return parse_official_result_page(day, response.stdout)
@@ -204,7 +204,7 @@ def main():
         """Consulta un intervalo y valida cada registro recibido."""
         url = BASE + f'?game_id=LAPR&celebrados=true&fechaInicioInclusiva={begin:%Y%m%d}&fechaFinInclusiva={end:%Y%m%d}'
         response = subprocess.run(
-            ['curl', '--fail', '--silent', '--show-error', '--location', '--max-time', '45', url],
+            ['curl', '--fail', '--silent', '--show-error', '--location', '--max-time', '45', '--user-agent', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36', '--header', 'Accept: text/html,application/xhtml+xml,application/json;q=0.9,*/*;q=0.8', url],
             check=True, capture_output=True, text=True,
         )
         rows = json.loads(response.stdout)
