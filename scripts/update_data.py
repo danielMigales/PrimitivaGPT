@@ -56,6 +56,16 @@ def latest_scheduled_date(today):
     return day
 
 
+def should_query_day(day, now):
+    """No consulta días sin sorteo ni el sorteo de hoy antes de su hora prudente."""
+    local_now = now.astimezone(MADRID)
+    if day.weekday() not in DRAW_WEEKDAYS:
+        return False
+    if day == local_now.date() and local_now.time().replace(tzinfo=None) < RESULTS_AVAILABLE_AFTER:
+        return False
+    return True
+
+
 def should_wait_for_results(now, latest_date):
     """Evita consultas antes de hora y cuando el archivo ya está al día."""
     local_now = now.astimezone(MADRID)
@@ -163,6 +173,11 @@ def main():
             print(f'Activando alternativa: consulta individual por fecha entre {begin} y {end}', flush=True)
             day = begin
             while day <= end:
+                # SELAE puede responder 4xx en días sin sorteo y antes de publicar
+                # el resultado de hoy. Consultar solo fechas que deben tener resultado.
+                if not should_query_day(day, now):
+                    day += dt.timedelta(days=1)
+                    continue
                 last_error = None
                 for attempt in range(3):
                     try:
