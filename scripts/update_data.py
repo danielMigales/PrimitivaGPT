@@ -243,7 +243,15 @@ def main():
                         if attempt < 2:
                             time.sleep(2)
                 if last_error is not None:
-                    raise RuntimeError(f'No se pudo consultar SELAE para {day} ni siquiera con intervalo de un día: {last_error}') from last_error
+                    try:
+                        record = fetch_official_result_page(day)
+                        merged[record['date']] = record
+                        print(f'{day}: resultado recuperado de la página oficial de SELAE', flush=True)
+                    except Exception as page_error:
+                        raise RuntimeError(
+                            f'No se pudo consultar SELAE para {day} ni con el buscador ni con la página oficial: '
+                            f'{last_error}; {page_error}'
+                        ) from page_error
                 day += dt.timedelta(days=1)
 
     # Una respuesta vacía o sin sorteos posteriores no cuenta como actualización:
