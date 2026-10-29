@@ -1,11 +1,12 @@
 # PrimitivaGPT · Archivo de sorteos
 
-Aplicación web en español para consultar los cinco últimos sorteos de La Primitiva y el histórico oficial desde el **1 de enero de 2026**.
+Aplicación web en español para consultar los siete últimos sorteos de La Primitiva y el histórico oficial desde el **1 de enero de 2026**.
 
 - Seis números, complementario y reintegro.
-- Colores por número repetido e insignias ×N según sus apariciones entre los cinco resultados visibles.
+- Colores por número repetido e insignias ×N según sus apariciones entre los siete resultados visibles.
 - El reintegro tiene su propio recuento. El complementario queda fuera del cálculo.
-- Histórico por fechas, paginación de cinco sorteos y exportación JSON.
+- Histórico por fechas, paginación de cinco sorteos, etiquetas C/R y exportación JSON.
+- El formulario de introducción guarda resultados manuales en el navegador y los marca como no verificados; no altera el histórico oficial compartido.
 - Resultados de SELAE, conservados como JSON normalizado y respuestas mensuales originales.
 - Worker de Cloudflare con almacenamiento R2, lectura del archivo persistente y carga privada del histórico validado.
 - Alternativa estática para GitHub Pages con generación de una versión estática y validación mediante GitHub Actions.
