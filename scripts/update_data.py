@@ -48,6 +48,58 @@ def expected_dates(end):
         day += dt.timedelta(days=1)
 
 
+MONTHS_ES = {
+    1: 'enero', 2: 'febrero', 3: 'marzo', 4: 'abril',
+    5: 'mayo', 6: 'junio', 7: 'julio', 8: 'agosto',
+    9: 'septiembre', 10: 'octubre', 11: 'noviembre', 12: 'diciembre',
+}
+
+
+def fetch_official_result_page(day):
+    """Alternativa oficial cuando el buscador de SELAE responde con error."""
+    url = (
+        'https://www.loteriasyapuestas.es/es/la-primitiva/resultados/'
+        f'la-primitiva-resultados-del-{day.day}-de-{MONTHS_ES[day.month]}-de-{day.year}'
+    )
+    response = subprocess.run(
+        ['curl', '--fail', '--silent', '--show-error', '--location', '--max-time', '45', url],
+        check=True, capture_output=True, text=True,
+    )
+    page_text = re.sub(r'<[^>]+>', ' ', response.stdout)
+    page_text = re.sub(r'\\s+', ' ', page_text)
+    match = re.search(
+        r'combinaci[oó]n ganadora.*?n[uú]meros:\\s*'
+        r'(\\d{2})\\s*-\\s*(\\d{2})\\s*-\\s*(\\d{2})\\s*-\\s*'
+        r'(\\d{2})\\s*-\\s*(\\d{2})\\s*-\\s*(\\d{2})'
+        r'.*?Complementario:\\s*C\\((\\d+)\\)\\s*'
+        r'Reintegro:\\s*R\\((\\d+)\\)',
+        page_text,
+        re.IGNORECASE,
+    )
+    if not match:
+        raise ValueError(f'No se pudo interpretar el resultado oficial de SELAE para {day}')
+    values = list(map(int, match.groups()))
+    numbers, complementary, refund = values[:6], values[6], values[7]
+    if (
+        len(set(numbers)) != 6
+        or not all(1 <= number <= 49 for number in numbers)
+        or not 1 <= complementary <= 49
+        or complementary in numbers
+        or not 0 <= refund <= 9
+    ):
+        raise ValueError(f'Resultado oficial inválido para {day}')
+    row = {
+        'id_sorteo': day.strftime('%Y%m%d'),
+        'fecha_sorteo': day.isoformat(),
+        'game_id': 'LAPR',
+        'combinacion': ' - '.join(f'{number:02d}' for number in numbers)
+            + f' C({complementary}) R({refund})',
+    }
+    record = normalize(row)
+    record['source'] = url
+    return record
+
+
 def latest_scheduled_date(today):
     """Última fecha de sorteo prevista en o antes de today."""
     day = today
