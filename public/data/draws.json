@@ -2,9 +2,24 @@
   "schemaVersion": 1,
   "startDate": "2026-01-01",
   "source": "SELAE",
-  "checkedAt": "2026-10-25T21:15:00.000Z",
-  "latestDate": "2026-10-24",
+  "checkedAt": "2026-10-29T13:39:14.709Z",
+  "latestDate": "2026-10-26",
   "draws": [
+    {
+      "id": "20261026",
+      "date": "2026-10-26",
+      "numbers": [
+        4,
+        9,
+        33,
+        37,
+        39,
+        49
+      ],
+      "complementary": 18,
+      "refund": 4,
+      "source": "https://www.loteriasyapuestas.es/es/la-primitiva/resultados/la-primitiva-resultados-del-26-de-octubre-de-2026"
+    },
     {
       "id": "20261024",
       "date": "2026-10-24",
