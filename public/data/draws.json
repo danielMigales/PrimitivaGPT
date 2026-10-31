@@ -2,9 +2,24 @@
   "schemaVersion": 1,
   "startDate": "2026-01-01",
   "source": "SELAE",
-  "checkedAt": "2026-10-29T13:39:14.709Z",
-  "latestDate": "2026-10-26",
+  "checkedAt": "2026-10-31T23:12:00+01:00",
+  "latestDate": "2026-10-29",
   "draws": [
+    {
+      "id": "20261029",
+      "date": "2026-10-29",
+      "numbers": [
+        2,
+        18,
+        19,
+        28,
+        31,
+        44
+      ],
+      "complementary": 9,
+      "refund": 9,
+      "source": "https://www.loteriasyapuestas.es/es/resultados?drawId=1315304080"
+    },
     {
       "id": "20261026",
       "date": "2026-10-26",

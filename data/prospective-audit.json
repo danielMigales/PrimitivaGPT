@@ -3,17 +3,17 @@
   "summary": {
     "protocol": "prospective-v1",
     "window": 7,
-    "settled": 2,
-    "pending": 1,
-    "comparable": 2,
+    "settled": 3,
+    "pending": 0,
+    "comparable": 3,
     "modelAtLeastFour": 0,
     "modelAtLeastFourRate": 0,
     "randomAtLeastFour": 0,
     "randomAtLeastFourRate": 0,
-    "expectedRandomAtLeastFour": 0.002,
+    "expectedRandomAtLeastFour": 0.003,
     "meanHits": 1,
-    "randomMeanHits": 0.5,
-    "lastSettledDate": "2026-10-26"
+    "randomMeanHits": 0.6667,
+    "lastSettledDate": "2026-10-29"
   },
   "records": [
     {
@@ -32,11 +32,24 @@
         49
       ],
       "refund": 4,
-      "status": "pending",
-      "publishedAt": null,
-      "actual": null,
-      "hits": null,
-      "refundHit": null,
+      "status": "published",
+      "publishedAt": "2026-10-31T22:13:25.427Z",
+      "actual": {
+        "date": "2026-10-29",
+        "numbers": [
+          2,
+          18,
+          19,
+          28,
+          31,
+          44
+        ],
+        "refund": 9,
+        "complementary": 9,
+        "source": "https://www.loteriasyapuestas.es/es/resultados?drawId=1315304080"
+      },
+      "hits": 1,
+      "refundHit": false,
       "randomNumbers": [
         4,
         14,
@@ -45,8 +58,8 @@
         31,
         48
       ],
-      "randomHits": null,
-      "randomAtLeastFour": null
+      "randomHits": 1,
+      "randomAtLeastFour": false
     },
     {
       "targetDate": "2026-10-26",
