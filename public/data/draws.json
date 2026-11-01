@@ -2,9 +2,24 @@
   "schemaVersion": 1,
   "startDate": "2026-01-01",
   "source": "SELAE",
-  "checkedAt": "2026-10-31T23:12:00+01:00",
-  "latestDate": "2026-10-29",
+  "checkedAt": "2026-11-01T12:04:00+01:00",
+  "latestDate": "2026-10-31",
   "draws": [
+    {
+      "id": "20261031",
+      "date": "2026-10-31",
+      "numbers": [
+        2,
+        6,
+        8,
+        17,
+        27,
+        30
+      ],
+      "complementary": 47,
+      "refund": 1,
+      "source": "https://www.loteriasyapuestas.es/es/la-primitiva/resultados/la-primitiva-resultados-del-31-de-octubre-de-2026"
+    },
     {
       "id": "20261029",
       "date": "2026-10-29",
