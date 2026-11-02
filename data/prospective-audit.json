@@ -3,19 +3,51 @@
   "summary": {
     "protocol": "prospective-v1",
     "window": 7,
-    "settled": 3,
+    "settled": 4,
     "pending": 1,
-    "comparable": 3,
+    "comparable": 4,
     "modelAtLeastFour": 0,
     "modelAtLeastFourRate": 0,
     "randomAtLeastFour": 0,
     "randomAtLeastFourRate": 0,
-    "expectedRandomAtLeastFour": 0.003,
+    "expectedRandomAtLeastFour": 0.0039,
     "meanHits": 1,
-    "randomMeanHits": 0.6667,
-    "lastSettledDate": "2026-10-29"
+    "randomMeanHits": 0.75,
+    "lastSettledDate": "2026-11-02"
   },
   "records": [
+    {
+      "targetDate": "2026-11-05",
+      "createdAt": "2026-11-02T20:58:35.014Z",
+      "version": "1.4.0",
+      "window": 7,
+      "trainedThrough": "2026-11-02",
+      "trainingCount": 132,
+      "numbers": [
+        2,
+        4,
+        31,
+        44,
+        47,
+        49
+      ],
+      "refund": 1,
+      "status": "pending",
+      "publishedAt": null,
+      "actual": null,
+      "hits": null,
+      "refundHit": null,
+      "randomNumbers": [
+        2,
+        5,
+        12,
+        17,
+        23,
+        34
+      ],
+      "randomHits": null,
+      "randomAtLeastFour": null
+    },
     {
       "targetDate": "2026-11-02",
       "createdAt": "2026-11-01T11:04:56.822Z",
@@ -32,11 +64,24 @@
         49
       ],
       "refund": 4,
-      "status": "pending",
-      "publishedAt": null,
-      "actual": null,
-      "hits": null,
-      "refundHit": null,
+      "status": "published",
+      "publishedAt": "2026-11-02T20:58:35.014Z",
+      "actual": {
+        "date": "2026-11-02",
+        "numbers": [
+          12,
+          25,
+          32,
+          44,
+          46,
+          47
+        ],
+        "refund": 2,
+        "complementary": 2,
+        "source": "resultado manual facilitado por el usuario"
+      },
+      "hits": 1,
+      "refundHit": false,
       "randomNumbers": [
         4,
         5,
@@ -45,8 +90,8 @@
         44,
         48
       ],
-      "randomHits": null,
-      "randomAtLeastFour": null
+      "randomHits": 1,
+      "randomAtLeastFour": false
     },
     {
       "targetDate": "2026-10-29",
