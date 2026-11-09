@@ -1,10 +1,10 @@
 # Investigación de métodos para PrimitivaGPT
 
-Consulta de fuentes: 22/10/2026. Aplicación experimental: modelo 1.4.0; ventana operativa fija de 7 sorteos.
+Actualización: 09/11/2026. Aplicación experimental: modelo 1.6.0; ventana operativa fija de 7 sorteos. Histórico consultado: 134 sorteos hasta el 07/11/2026.
 
 ## Conclusión
 
-Se incorporan dos expertos conservadores —Bayes regularizado y Markov regularizado— y aprendizaje del reintegro por pérdida de Brier. Son técnicas estadísticas generales: las fuentes no demuestran que puedan predecir La Primitiva ni garantizar premios. La muestra disponible contiene 125 sorteos; comparar muchas variantes sobre el mismo archivo produce evidencia exploratoria, no validación independiente.
+Se incorporan dos expertos conservadores —Bayes regularizado y transición ponderada por similitud— y aprendizaje del reintegro por pérdida de Brier. Son técnicas estadísticas generales: las fuentes no demuestran que puedan predecir La Primitiva ni garantizar premios. La muestra disponible contiene 125 sorteos; comparar muchas variantes sobre el mismo archivo produce evidencia exploratoria, no validación independiente.
 
 ## Métodos estudiados y decisión
 
@@ -12,7 +12,7 @@ Se incorporan dos expertos conservadores —Bayes regularizado y Markov regulari
 | --- | --- | --- |
 | Frecuencia y recencia | Descripción de apariciones y cambios recientes | Ya disponible; se conserva como referencia |
 | Bayes con prior simétrico | Reduce la confianza en fluctuaciones pequeñas | Añadido con regularización fuerte |
-| Transiciones de Markov | Comprueba si un estado anterior aporta información sobre el siguiente | Añadido como hipótesis experimental, con suavizado fuerte |
+| Transición por similitud | Pondera transiciones históricas según el solapamiento entre el sorteo previo y el último observado; para reintegro condiciona por el dígito previo | Hipótesis experimental con suavizado fuerte; no es un modelo Markov convencional |
 | Agregación de expertos | Combina distribuciones y ajusta pesos tras conocer cada resultado | Ampliada de cinco a siete métodos |
 | Brier y pérdida logarítmica | Evalúan la distribución completa del reintegro | Añadidas; Brier guía sus pesos |
 | Redes neuronales, LSTM, Transformer y bosques | Modelos de mayor capacidad para relaciones complejas | No integrados en esta versión; con 125 eventos independientes de reintegro, mi criterio es priorizar modelos pequeños antes de ampliar la complejidad |
@@ -38,12 +38,12 @@ Se incorporan dos expertos conservadores —Bayes regularizado y Markov regulari
 6. **John Haigh (1997), The Statistics of the National Lottery.** El resumen informa que las primeras 96 extracciones británicas estudiadas eran compatibles con el azar en frecuencias y tiempos de espera. Es evidencia de ese estudio, no certificación de todas las loterías.
    https://rss.onlinelibrary.wiley.com/doi/abs/10.1111/1467-985X.00056
 
-7. **vietvudanh/vietlott-data — Markov strategy.** Código primario de un experimento abierto que describe transiciones entre sorteos y reconoce que no existiría dependencia de primer orden en una lotería justa. Sirve de ejemplo de la hipótesis, no de evidencia de ganancias. La implementación de PrimitivaGPT es propia y simplificada: para reintegro cuenta transiciones desde el último dígito; para números agrega transiciones desde los seis valores del último sorteo. Todas las transiciones usan únicamente el pasado.
+7. **vietvudanh/vietlott-data — Markov strategy.** Código primario de un experimento abierto que describe transiciones entre sorteos y reconoce que no existiría dependencia de primer orden en una lotería justa. Sirve de ejemplo de la hipótesis, no de evidencia de ganancias. La implementación actual de PrimitivaGPT no es un modelo Markov convencional: para números pondera transiciones históricas por el solapamiento entre el sorteo previo y el último observado; para reintegro cuenta transiciones cuyo dígito previo coincide con el último. Todas las transiciones usan únicamente el pasado.
    https://github.com/vietvudanh/vietlott-data/blob/main/src/machine_learning/strategies/markov_chain.py
 
 ## Protocolo de combinación
 
-Los siete expertos comienzan con el mismo peso. Los modelos de números y reintegro siguen separados. Para reintegro, después del resultado se actualiza el peso exponencial según la pérdida Brier de las diez categorías; el conteo de aciertos continúa siendo el criterio principal visible. Para números, la versión 1.4.0 añade un incentivo moderado por cuatro o más aciertos, conservando una señal menor para tres o más. La referencia legacy mantiene la regla anterior para que la comparación histórica siga siendo reproducible. Los parámetros de suavizado y aprendizaje son fijos en esta versión; no se buscaron hasta encontrar una combinación ganadora del pasado.
+Los siete expertos comienzan con el mismo peso. Los modelos de números y reintegro siguen separados. Para reintegro, después del resultado se actualiza el peso exponencial según la pérdida Brier de las diez categorías; el conteo de aciertos continúa siendo el criterio principal visible. Para números, la versión 1.6.0 añade un incentivo moderado por cuatro o más aciertos, conservando una señal menor para tres o más. La referencia legacy mantiene la regla anterior para que la comparación histórica siga siendo reproducible. Los parámetros de suavizado y aprendizaje son fijos en esta versión; no se buscaron hasta encontrar una combinación ganadora del pasado.
 
 La referencia 1.1.0 se reproduce con sus cinco expertos y su regla previa sobre las mismas fechas y el mismo número de boletos. Se conserva también el control aleatorio. Las ventanas 20, 30 y 50 son experimentos solapados: no se suman como observaciones independientes ni se elige la ventana de 50 como predicción ganadora porque produjo un caso favorable en el histórico.
 
@@ -58,7 +58,7 @@ La referencia 1.1.0 se reproduce con sus cinco expertos y su regla previa sobre 
 El error Brier disminuye frente a la versión anterior, pero el uniforme sigue obteniendo menor pérdida. La ventana por defecto mantiene los mismos reintegros acertados. No se declara una ventaja predictiva. Las primeras propuestas emitidas quedan registradas por versión, ventana y fecha de entrenamiento para poder contrastarlas con sorteos futuros sin reescribirlas.
 
 
-## Auditoría del objetivo de cuatro o más aciertos (modelo 1.4.0)
+## Auditoría del objetivo de cuatro o más aciertos (modelo 1.6.0)
 
 - La ventana de entrada y entrenamiento inmediato es de siete sorteos. La evaluación se hace cronológicamente: cada boleto se genera solo con los sorteos anteriores a su objetivo.
 - Se registran el número y la tasa de pruebas con 4+ aciertos, los casos en que coinciden 4+ y reintegro, y las mismas métricas de una combinación aleatoria reproducible sobre las mismas fechas.
