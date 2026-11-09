@@ -62,8 +62,17 @@ export function reconcileProspectiveAudit(existingRecords, report, draws, now = 
   const comparable = settled.filter(record => Array.isArray(record.randomNumbers));
   const baseline = randomBaseline();
   const count = settled.length;
+  const firstTrackedDate = records.length ? records.map(record => record.targetDate).sort()[0] : null;
+  const recordedDates = new Set(records.map(record => record.targetDate));
+  const missingForecastDates = firstTrackedDate
+    ? draws.map(draw => draw.date).filter(date => date >= firstTrackedDate && date <= report.sourceLastDate && !recordedDates.has(date)).sort()
+    : [];
   const summary = {
     protocol: 'prospective-v1',
+    missingForecastDates,
+    integrityWarning: missingForecastDates.length
+      ? `Faltan predicciones prospectivas para: ${missingForecastDates.join(', ')}. No se reconstruyen retroactivamente.`
+      : null,
     window: 7,
     settled: count,
     pending: records.filter(record => record.status === 'pending').length,
