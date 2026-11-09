@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';import {readFile} from 'node:fs/promises';
-import {analyze,patterns,randomBaseline,MODEL_VERSION,brierScore} from '../engine/model.js';
+import {analyze,patterns,randomBaseline,MODEL_VERSION,brierScore,distributions} from '../engine/model.js';
 import worker,{getAnalysis} from '../worker/index.js';
 const archive=JSON.parse(await readFile(new URL('../data/draws.json',import.meta.url),'utf8'));
 const chronological=archive.draws.slice().reverse();
@@ -20,7 +20,7 @@ test('Resultados deterministas, sin modificar el histórico; aprende pesos disti
  assert.ok(report.experts.some(e=>e.numberWeight!==.2));assert.ok(Math.abs(report.modelState.numberWeights.reduce((a,b)=>a+b,0)-1)<1e-9);assert.ok(Math.abs(report.modelState.refundWeights.reduce((a,b)=>a+b,0)-1)<1e-9);
 });
 test('Referencia de azar exacta y probabilidades normalizadas',()=>{const b=randomBaseline();assert.equal(b.expectedHits,36/49);assert.ok(Math.abs(b.hitProbabilities.reduce((a,b)=>a+b,0)-1)<1e-10);assert.ok(b.atLeastFourProbability>0&&b.atLeastFourProbability<.01);assert.equal(b.refundProbability,.1);});
-test('Frecuencias acumulada y reciente usan horizontes distintos, siempre dentro del pasado',()=>{const synthetic=Array.from({length:10},(_,i)=>({date:`2026-01-${String(i+1).padStart(2,'0')}`,numbers:i<3?[1,2,3,4,5,6]:[7,8,9,10,11,12],refund:i<3?1:2}));const full=analyze(synthetic);const short=analyze(synthetic.slice(-8));assert.notDeepEqual(full.rows.at(-1).predicted,short.rows.at(-1).predicted);assert.equal(full.rows.at(-1).trainingEnd,'2026-01-09');});
+test('Frecuencias acumulada y reciente usan horizontes distintos, siempre dentro del pasado',()=>{const synthetic=Array.from({length:10},(_,i)=>({date:`2026-01-${String(i+1).padStart(2,'0')}`,numbers:i<5?[1,2,3,4,5,6]:[7,8,9,10,11,12],refund:i<5?1:2}));const d=distributions(synthetic.slice(0,9),7,7);assert.notDeepEqual(d.numbers[1],d.numbers[2]);assert.notDeepEqual(d.refunds[1],d.refunds[2]);const full=analyze(synthetic);assert.equal(full.rows.at(-1).trainingEnd,'2026-01-09');});
 test('Frecuencias, parejas, paridad y distancias se calculan de las combinaciones',()=>{
  const p=patterns([{numbers:[1,2,3,4,5,6],refund:0},{numbers:[1,2,10,20,30,40],refund:0}]);assert.equal(p.frequency[0].count,2);assert.equal(p.refunds[0].count,2);assert.equal(p.pairs.find(x=>x.numbers.join('-')==='1-2').count,2);assert.equal(p.parity.find(x=>x.even===3).count,1);assert.equal(p.parity.find(x=>x.even===5).count,1);assert.equal(p.gaps[0].count,6);
 });
