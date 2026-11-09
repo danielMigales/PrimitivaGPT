@@ -1,7 +1,7 @@
 // Aprendizaje secuencial: ninguna predicción recibe el resultado que evalúa.
 // Las puntuaciones son rangos internos para explicar la selección, no probabilidades de premio.
-export const MODEL_VERSION='1.5.0';
-const EXPERTS=['Azar uniforme','Frecuencia acumulada','Frecuencia reciente','Recencia ponderada','Parejas y estructura','Bayes regularizado','Transición condicionada'];
+export const MODEL_VERSION='1.6.0';
+const EXPERTS=['Azar uniforme','Frecuencia acumulada','Frecuencia reciente','Recencia ponderada','Parejas y estructura','Bayes regularizado','Transición por similitud'];
 const range=n=>Array.from({length:n},(_,i)=>i);
 const normalize=v=>{const total=v.reduce((a,b)=>a+b,0);return v.map(x=>x/total);};
 const softmax=v=>{const max=Math.max(...v);return normalize(v.map(x=>Math.exp(x-max)));};
@@ -28,11 +28,17 @@ export function distributions(history,window,count){
  // en reintegro es la predictiva categórica Dirichlet-multinomial.
  nums[5].fill(20);refs[5].fill(10);nums[6].fill(20);refs[6].fill(10);
  for(const d of recent){for(const n of d.numbers)nums[5][n-1]++;refs[5][d.refund]++;}
+ // Estimador de transición por similitud: pondera cada transición histórica
+ // según el solapamiento entre su estado previo y el último sorteo observado.
+ // Para el reintegro usa una transición categórica condicionada al último dígito.
  const last=recent.at(-1);
  for(let i=1;i<recent.length;i++){
   const previous=recent[i-1],current=recent[i];
   const overlap=previous.numbers.filter(n=>last.numbers.includes(n)).length;
-  for(const n of current.numbers)nums[6][n-1]+=overlap/6;
+  const transitionWeight=overlap/6;
+  if(transitionWeight>0){
+   for(const n of current.numbers)nums[6][n-1]+=transitionWeight;
+  }
   if(previous.refund===last.refund)refs[6][current.refund]++;
  }
  return {numbers:nums.slice(0,count).map(normalize),refunds:refs.slice(0,count).map(normalize),recent};
