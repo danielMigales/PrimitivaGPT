@@ -3,19 +3,51 @@
   "summary": {
     "protocol": "prospective-v1",
     "window": 7,
-    "settled": 4,
+    "settled": 5,
     "pending": 1,
-    "comparable": 4,
+    "comparable": 5,
     "modelAtLeastFour": 0,
     "modelAtLeastFourRate": 0,
     "randomAtLeastFour": 0,
     "randomAtLeastFourRate": 0,
-    "expectedRandomAtLeastFour": 0.0039,
-    "meanHits": 1,
-    "randomMeanHits": 0.75,
-    "lastSettledDate": "2026-11-02"
+    "expectedRandomAtLeastFour": 0.0049,
+    "meanHits": 1.2,
+    "randomMeanHits": 0.6,
+    "lastSettledDate": "2026-11-05"
   },
   "records": [
+    {
+      "targetDate": "2026-11-09",
+      "createdAt": "2026-11-09T19:20:51.058Z",
+      "version": "1.4.0",
+      "window": 7,
+      "trainedThrough": "2026-11-07",
+      "trainingCount": 134,
+      "numbers": [
+        4,
+        9,
+        25,
+        30,
+        31,
+        32
+      ],
+      "refund": 4,
+      "status": "pending",
+      "publishedAt": null,
+      "actual": null,
+      "hits": null,
+      "refundHit": null,
+      "randomNumbers": [
+        3,
+        7,
+        11,
+        17,
+        25,
+        41
+      ],
+      "randomHits": null,
+      "randomAtLeastFour": null
+    },
     {
       "targetDate": "2026-11-05",
       "createdAt": "2026-11-02T20:58:35.014Z",
@@ -32,11 +64,24 @@
         49
       ],
       "refund": 1,
-      "status": "pending",
-      "publishedAt": null,
-      "actual": null,
-      "hits": null,
-      "refundHit": null,
+      "status": "published",
+      "publishedAt": "2026-11-09T19:20:51.058Z",
+      "actual": {
+        "date": "2026-11-05",
+        "numbers": [
+          4,
+          8,
+          9,
+          15,
+          31,
+          32
+        ],
+        "refund": 3,
+        "complementary": 2,
+        "source": "https://www.loteriasyapuestas.es/es/resultados?drawId=1325206057"
+      },
+      "hits": 2,
+      "refundHit": false,
       "randomNumbers": [
         2,
         5,
@@ -45,8 +90,8 @@
         23,
         34
       ],
-      "randomHits": null,
-      "randomAtLeastFour": null
+      "randomHits": 0,
+      "randomAtLeastFour": false
     },
     {
       "targetDate": "2026-11-02",

@@ -2,9 +2,39 @@
   "schemaVersion": 1,
   "startDate": "2026-01-01",
   "source": "SELAE",
-  "checkedAt": "2026-11-02T21:56:00+01:00",
-  "latestDate": "2026-11-02",
+  "checkedAt": "2026-11-09T19:20:35.023Z",
+  "latestDate": "2026-11-07",
   "draws": [
+    {
+      "id": "20261107",
+      "date": "2026-11-07",
+      "numbers": [
+        9,
+        13,
+        19,
+        25,
+        26,
+        30
+      ],
+      "complementary": 34,
+      "refund": 4,
+      "source": "https://www.loteriasyapuestas.es/es/resultados?drawId=1305601088"
+    },
+    {
+      "id": "20261105",
+      "date": "2026-11-05",
+      "numbers": [
+        4,
+        8,
+        9,
+        15,
+        31,
+        32
+      ],
+      "complementary": 2,
+      "refund": 3,
+      "source": "https://www.loteriasyapuestas.es/es/resultados?drawId=1325206057"
+    },
     {
       "id": "20261102",
       "date": "2026-11-02",
