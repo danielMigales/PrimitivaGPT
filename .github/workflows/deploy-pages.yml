@@ -3,10 +3,6 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
-  schedule:
-    # Hora peninsular española; GitHub ajusta automáticamente el horario de verano.
-    - cron: '0 23 * * *'
-      timezone: Europe/Madrid
 permissions:
   contents: write
   pages: write
@@ -31,21 +27,17 @@ jobs:
         uses: actions/setup-node@v7
         with:
           node-version: '22'
-      - name: Actualizar resultados oficiales (bloquear publicación si SELAE falla)
-        if: (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && !contains(github.event.head_commit.message, '[manual-draw]')
-        run: python scripts/update_data.py
       - name: Construir artefactos generados y ejecutar pruebas
         run: |
           npm run build
           npm test
-      - name: Guardar datos y artefactos generados
-        if: github.event_name == 'schedule' || github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+      - name: Guardar artefactos generados
         run: |
           git add data/ public/ worker/index.js
           if ! git diff --cached --quiet; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git commit -m "Actualizar datos y artefactos de PrimitivaGPT [skip ci]"
+            git commit -m "Actualizar artefactos de PrimitivaGPT [skip ci]"
             git push
           else
             echo "No hay cambios generados que guardar."
