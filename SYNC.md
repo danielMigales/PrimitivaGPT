@@ -1,15 +1,23 @@
-# Actualización de PrimitivaGPT
+# Actualización manual de PrimitivaGPT
 
-El workflow `.github/workflows/deploy-pages.yml` programa la sincronización y publicación diaria a las 23:00 en `Europe/Madrid`. En cada ejecución programada, ejecuta `scripts/update_data.py`, valida y construye la web, guarda los archivos generados que hayan cambiado y publica `public/` en GitHub Pages. Las ejecuciones manuales y los cambios en `main` también construyen y publican la versión estática. La hora programada no garantiza que SELAE haya publicado un resultado ni que GitHub Actions no sufra retrasos; revisar los registros de Actions ante cualquier fallo.
+La actualización automática de resultados está desactivada. El workflow `.github/workflows/deploy-pages.yml` no tiene programación `schedule`: publica al recibir cambios en `main` o cuando se inicia manualmente desde GitHub Actions.
 
-1. Obtener un checkout de la rama main actual. Ejecutar `python scripts/update_data.py`, `npm test` y `npm run build`. Requiere Python 3.12+, Node 22+ y curl.
-2. Tras descarga y validación completas, guardar en GitHub solo los cambios de `data/`, `worker/index.js` y `public/`. Conservar el resto del árbol y comprobar el head actual. Usar el conector GitHub para escribir; no hacen falta claves personales en el proyecto. Ante un cambio concurrente, releer y mezclar sin force push.
-3. El importador conserva los resultados anteriores y añade/corrige los oficiales. No publicar resultados incompletos ni sustituirlos por ejemplos. Si los archivos no cambian no se necesita commit.
-4. Para el sitio privado `appgprj_6ad47d5e88c88191ab3a55378b7ce93e`, obtener `get_site`, conservar su audiencia y usar el acceso efímero devuelto únicamente en su URL, con la cabecera `OAI-Sites-Authorization: Bearer <valor>`; nunca imprimirlo ni guardarlo.
-5. Tras descarga y pruebas satisfactorias, ejecutar `python scripts/sync_site.py`. El programa espera por stdin un objeto JSON con `url` (la URL devuelta por get_site) y `token` (su acceso de servicio efímero). Pasarlo solo por stdin con el eco de terminal desactivado; nunca guardar ni imprimir el acceso. El script envía `data/draws.json` por POST `/api/sync` y realiza dos GET `/api/draws`, verificando ausencia de avisos, misma fecha de consulta e identificadores persistidos. Después consulta `/api/ai?window=30`, que reconstruye y guarda el modelo si el histórico ha cambiado; exige análisis listo, sin avisos y entrenado hasta el último sorteo oficial. `npm run build` genera `data/ai-analysis.json` y `data/ai-model.json` con ventana 30, además de los informes estáticos de 5/10/15 sorteos que corresponden al selector HTML.
-6. Cargar en el sitio incluso cuando no haya sorteos nuevos: confirma una consulta real a SELAE. En GitHub, si solo cambió `checkedAt`, no crear un commit por la marca temporal. Si cambiaron resultados o respuestas originales, guardar solo `data/`, `worker/index.js` y `public/`, preservando el head actual.
-7. No llamar a SELAE desde el Worker: la descarga validada la realiza el importador. GET `/api/draws` lee el archivo persistente y avisa si lleva más de tres horas sin confirmar una consulta. Ante fallos mantener el archivo anterior y reportarlos.
+## Publicar la web
 
-GitHub Actions ejecuta `scripts/update_data.py` en la ejecución programada diaria antes de validar y construir la versión estática. Si SELAE no ofrece resultados nuevos, se conserva el histórico existente; si la descarga o la validación falla, la ejecución falla y no debe publicarse información inventada. Comprueba los registros del workflow para confirmar que la sincronización y la publicación terminaron correctamente.
+1. Actualiza de forma explícita `data/draws.json` con resultados oficiales verificados de SELAE. No inventes sorteos ni completes resultados por inferencia.
+2. Comprueba que `data/draws.json` y `public/data/draws.json` contienen el mismo histórico.
+3. Haz commit y push a `main`, o inicia **Publicar PrimitivaGPT en GitHub Pages** desde Actions.
+4. El workflow ejecuta `npm run build` y `npm test`. El build regenera los análisis, el seguimiento prospectivo, los archivos públicos y `worker/index.js`.
+5. Solo si compilación y pruebas terminan correctamente, guarda los artefactos generados, prepara `public/` y despliega GitHub Pages.
+6. Comprueba la conclusión de la ejecución y la URL publicada. No des por publicada la web solo porque el commit exista.
 
-Las lecturas de `/api/ai?window=20|30|50` también reconcilian `ai/tracking/{window}.json`: evalúan las propuestas guardadas para las fechas publicadas y registran la siguiente antes de su sorteo. El registro es independiente de la caché y conserva los números originales. No borrar ni reemplazar este historial durante la sincronización; no atribuir propuestas a sorteos ya celebrados. El panel muestra el resultado oficial y los aciertos separados de las simulaciones.
+## Comprobaciones
+
+- Requisitos locales: Node.js 22+ y Python 3.12+.
+- `npm test`: pruebas JavaScript y Python.
+- `npm run build`: genera artefactos, prepara `dist/` y valida los artefactos.
+- La copia estática usa los JSON versionados; no consulta SELAE durante la carga de la página.
+- La auditoría prospectiva conserva las combinaciones emitidas antes de cada sorteo. Los huecos se señalan; nunca se inventan predicciones retroactivas.
+- Si falla SELAE al realizar una actualización manual, conserva el histórico válido anterior y no publiques datos parciales.
+
+La aplicación no garantiza premios ni demuestra una ventaja sobre el azar. Las métricas históricas son descriptivas y deben contrastarse con seguimiento prospectivo.
