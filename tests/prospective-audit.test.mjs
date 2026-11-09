@@ -61,4 +61,12 @@ test('Rechaza fechas duplicadas o combinaciones guardadas inválidas',()=>{
   assert.throws(()=>reconcileProspectiveAudit([{...record,numbers:[1,1,2,3,4,5]}],report,archive.draws,new Date('2026-10-20T10:00:00.000Z')),/inválida/);
 });
 
-test('Detecta sorteos oficiales sin pronóstico prospectivo y no los inventa',()=>{\n  const tracked={targetDate:'2026-10-24',numbers:[1,2,3,4,5,6],refund:1};\n  const draws=archive.draws.filter(draw=>draw.date<='2026-11-07');\n  const report=analyze(draws,{window:7});\n  const audit=reconcileProspectiveAudit([tracked],report,draws,new Date('2026-11-09T12:00:00.000Z'));\n  assert.ok(audit.summary.missingForecastDates.includes('2026-11-07'));\n  assert.match(audit.summary.integrityWarning,/No se reconstruyen retroactivamente/);\n  assert.equal(audit.records.some(record=>record.targetDate==='2026-11-07'),false);\n});\n
+test('Detecta sorteos oficiales sin pronóstico prospectivo y no los inventa',()=>{
+  const tracked={targetDate:'2026-10-24',numbers:[1,2,3,4,5,6],refund:1};
+  const draws=archive.draws.filter(draw=>draw.date<='2026-11-07');
+  const report=analyze(draws,{window:7});
+  const audit=reconcileProspectiveAudit([tracked],report,draws,new Date('2026-11-09T12:00:00.000Z'));
+  assert.ok(audit.summary.missingForecastDates.includes('2026-11-07'));
+  assert.match(audit.summary.integrityWarning,/No se reconstruyen retroactivamente/);
+  assert.equal(audit.records.some(record=>record.targetDate==='2026-11-07'),false);
+});
