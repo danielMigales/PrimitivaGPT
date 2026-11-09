@@ -44,11 +44,11 @@ La audiencia permanece privada: la autorización del escritor depende de la puer
 
 ## 5. Actualización desatendida y GitHub
 
-La tarea vinculada a Sites está habilitada cada hora en el minuto 35 (Europe/Madrid). Descarga desde SELAE con `scripts/update_data.py`, valida el histórico y las pruebas y sincroniza `data/`, `worker/index.js` y `public/` en `danielMigales/PrimitivaGPT` usando la conexión autorizada de GitHub. Mantiene además el archivo alojado mediante el endpoint privado. El procedimiento completo está en `SYNC.md` y en la tarea.
+Históricamente existió una tarea de sincronización para Sites. Ya no debe considerarse activa ni forma parte del flujo actual de GitHub Pages. La actualización de resultados es manual; la publicación estática usa exclusivamente los datos versionados. El procedimiento vigente está en `SYNC.md`.
 
 `.github/workflows/update.yml` valida cada cambio en main y ofrece la versión estática como artefacto descargable. La consulta a SELAE se ejecuta en la tarea vinculada: los dos primeros intentos de descarga desde Actions fallaron (HTTP 403 con urllib y código 22 con curl). La importación desde el entorno de trabajo sí ha funcionado; se mantiene el error explícito y no se simula una actualización exitosa.
 
-La versión estática usa `public/data/draws.json`; no consulta SELAE desde el teléfono. Sites mantiene su copia persistente y la renueva con las visitas y la tarea. Los cambios de código en GitHub no redespliegan Sites automáticamente. Los commits conservan el historial y permiten revisar correcciones.
+La versión estática usa `public/data/draws.json`; no consulta SELAE desde el teléfono. GitHub Pages se publica desde el workflow al hacer push a `main` o al iniciarlo manualmente. Los commits conservan el historial y permiten revisar correcciones.
 
 ## 6. Estructura
 
@@ -64,7 +64,7 @@ La versión estática usa `public/data/draws.json`; no consulta SELAE desde el t
 | `data/raw/` | Respuestas originales oficiales |
 | `public/` | Versión para GitHub Pages |
 | `tests/` | Pruebas de cálculos, descarga, cobertura y errores |
-| `.github/workflows/update.yml` | Actualización y publicación programadas |
+| `.github/workflows/update.yml` | Validación y generación de artefactos (sin programación) |
 | `.openai/hosting.json` | Configuración de Sites |
 
 ## 7. Verificación y límites
@@ -81,14 +81,14 @@ El entorno no dispone del controlador de navegador exigido para QA de Sites; no 
 - Histórico importado: 125 sorteos, del 01/01/2026 al 17/10/2026.
 - 11 pruebas automatizadas superadas y módulo de despliegue validado.
 - Dos lecturas autenticadas del archivo alojado devolvieron el mismo histórico y fecha de consulta, sin avisos: persistencia inicial y lectura verificadas.
-- Tarea de Sites habilitada cada hora en el minuto 35, zona Europe/Madrid. Su creación está confirmada; aún no se ha observado una ejecución programada. El escritor inicial y la lectura ya se comprobaron de forma directa.
+- Estado vigente (09/11/2026): no hay automatización activa de actualización SELAE. La publicación de GitHub Pages es manual o por push a `main`; no tiene cron.
 - Repositorio autorizado: https://github.com/danielMigales/PrimitivaGPT. Se incorpora la aplicación completa, las respuestas oficiales de SELAE, las pruebas y esta memoria. La validación final del workflow se documenta a continuación. GitHub Pages no es necesario: la aplicación ya está alojada en Sites.
 
 ## 9. Verificación en GitHub
 
 La primera subida quedó registrada en el commit `f00df297842b0c20c3fd09d9b6017aad5e4b3c9b`. Actions se activó automáticamente. Su primera ejecución devolvió HTTP 403 desde SELAE usando el cliente HTTP de Python. Se adapta el importador a curl, disponible en los runners de Ubuntu y usado con éxito para la descarga oficial durante la importación inicial. Ante un rechazo de SELAE se mantiene la copia histórica anterior y la tarea señala el error.
 
-La programación horaria se ha actualizado para sincronizar el histórico tanto en el sitio como en GitHub. El cambio de curl no resolvió la descarga desde Actions; por ello el workflow final solo valida y genera el proyecto.
+Nota histórica: se retiró la programación horaria. El flujo actual no descarga datos de SELAE; solo valida, genera y publica el histórico versionado.
 
 Validación final confirmada en GitHub Actions: ejecución https://github.com/danielMigales/PrimitivaGPT/actions/runs/39110984165 completada con éxito para el commit `a8cc5200ec14014500a4e918835dc066791b69fc`. Ejecutó las once pruebas, generó la aplicación y subió el artefacto estático. La nueva descarga completa de SELAE realizada desde el entorno de trabajo también validó los 125 sorteos y se guardó en ese commit. La tarea horaria está configurada para repetir el procedimiento; aún no se ha observado una ocurrencia programada.
 
@@ -130,7 +130,7 @@ Con los 125 sorteos oficiales hasta 17/10/2026 y ventana inicial 30: 95 predicci
 
 `engine/model.js` contiene el cálculo puro. La construcción genera `data/ai-analysis.json`, `data/ai-model.json` y los tres informes estáticos en `public/data/`. El Worker incluye el motor y expone `/api/ai?window=20|30|50`. Guarda informes y estados en `ai/reports/` y `ai/models/` de R2. Conserva además la primera propuesta emitida por versión, ventana y fecha de entrenamiento en `ai/forecasts/`, sin reemplazar esa propuesta al recalcular. Esto permite distinguir una propuesta ya emitida de una simulación reconstruida. Su firma incluye versión y resultados oficiales; cualquier incorporación o corrección invalida el informe anterior. Una consulta con la misma firma reutiliza lo guardado. Las advertencias de antigüedad proceden del archivo oficial y se mantienen en el análisis.
 
-La tarea existente descarga SELAE, valida, genera y sincroniza el histórico. `scripts/sync_site.py` confirma además que el análisis alojado corresponde al último sorteo, haciendo que el modelo por defecto se reconstruya y conserve sin redesplegar. Los modelos de otras ventanas se guardan al consultarlos. Si no cambian resultados ni respuestas originales no se crea un commit por una nueva marca temporal.
+El procedimiento de actualización SELAE descrito en versiones anteriores quedó deshabilitado; consulta `SYNC.md` para el flujo manual vigente. `scripts/sync_site.py` confirma además que el análisis alojado corresponde al último sorteo, haciendo que el modelo por defecto se reconstruya y conserve sin redesplegar. Los modelos de otras ventanas se guardan al consultarlos. Si no cambian resultados ni respuestas originales no se crea un commit por una nueva marca temporal.
 
 ### Pruebas
 
@@ -183,3 +183,8 @@ Al existir resultados, la proporción de reintegros incluye un intervalo descrip
 La fecha de consulta a SELAE, la fecha del último sorteo y los problemas de actualización quedan visibles dentro del laboratorio. Se conservan los avisos y los datos previos ante fallos.
 
 Validación: 42 pruebas Node y 3 Python superadas, compilación del Worker y del sitio estático. Las pruebas nuevas cubren exclusión de pendientes, recálculo desde el resultado oficial, separación por versiones, ausencia de porcentajes sin observaciones y actualización de las tarjetas reales. Se comprueba además el intervalo de Wilson con un caso conocido. No se ha realizado inspección visual en navegador en este entorno.
+
+
+## 14. Estado vigente del flujo de publicación (09/11/2026)
+
+La actualización automática de resultados está desactivada. No existe `schedule` en los workflows activos y no hay una automatización de ChatGPT activa para sincronizar SELAE. `.github/workflows/deploy-pages.yml` publica en GitHub Pages al recibir cambios en `main` o mediante `workflow_dispatch`; no descarga resultados externos. El histórico debe actualizarse manualmente con resultados oficiales y verificarse antes de hacer commit. La compilación regenera los informes, el registro prospectivo y el Worker, y las pruebas son requisito previo a la publicación.
