@@ -16,7 +16,7 @@ export function patterns(draws){
  for(const d of draws){const ns=d.numbers.slice().sort((a,b)=>a-b);refunds[d.refund]++;parity[ns.filter(x=>x%2===0).length]++;for(const n of ns){frequency[n-1]++;sum+=n;}for(let i=0;i<6;i++){for(let j=i+1;j<6;j++){const key=ns[i]+'-'+ns[j];pairs.set(key,(pairs.get(key)||0)+1);}if(i){const g=ns[i]-ns[i-1];gaps[g-1]++;gapSum+=g;gapCount++;}}}
  return {drawCount:draws.length,frequency:frequency.map((count,i)=>({number:i+1,count})),refunds:refunds.map((count,i)=>({number:i,count})),parity:parity.map((count,even)=>({even,odd:6-even,count})),pairs:[...pairs].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).slice(0,12).map(([key,count])=>({numbers:key.split('-').map(Number),count})),gaps:gaps.map((count,i)=>({gap:i+1,count})),meanGap:round(gapCount?gapSum/gapCount:0),meanSum:round(draws.length?sum/draws.length:0)};
 }
-function distributions(history,window,count){
+export function distributions(history,window,count){
  const recent=history.slice(-window),nums=Array.from({length:7},()=>Array(49).fill(1)),refs=Array.from({length:7},()=>Array(10).fill(1));
  nums[0].fill(1);refs[0].fill(1);
  for(const d of history){for(const n of d.numbers)nums[1][n-1]++;refs[1][d.refund]++;}
