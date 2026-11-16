@@ -18,7 +18,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   save-draw:
-    if: github.event_name == 'workflow_dispatch' || (github.event.issue.user.login == 'danielMigales' && startsWith(github.event.issue.title, '[SORTEO MANUAL PRIMITIVA]'))
+    if: github.event_name == 'workflow_dispatch' || (github.event.issue.user.login == 'danielMigales' && startsWith(github.event.issue.title, '[RESULTADO PRIMITIVA]'))
     runs-on: ubuntu-latest
     steps:
       - name: Obtener código
