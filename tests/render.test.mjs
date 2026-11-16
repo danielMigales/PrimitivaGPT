@@ -86,6 +86,14 @@ test('La propuesta muestra fecha y resultado pendiente, y conserva la comparaci�
  const history=els.get('ai-forecast-history').innerHTML;assert.match(history,/15 de octubre de 2026/);assert.ok(history.indexOf('Propuesta guardada')<history.indexOf('Resultado oficial'));assert.match(history,/3 de 6 aciertos · Reintegro acertado/);assert.match(history,/refund-gold/);
 });
 
+test('La combinación propuesta muestra los marcadores de repetición en sus seis bolas',async()=>{
+ const report=structuredClone(analyze(seed.draws));report.forecast.numbers=[1,2,3,4,5,6];
+ const data={...seed,draws:seed.draws.slice(0,7).map((d,i)=>({...d,numbers:[1,2,3,4,5,6],date:`2026-10-${String(18-i).padStart(2,'0')}`}))};
+ const els=await renderData(data,report);els.get('view-ai').onclick();await new Promise(resolve=>setImmediate(resolve));
+ const forecast=els.get('ai-forecast').innerHTML;
+ assert.equal((forecast.match(/class="ball repeat/g)||[]).length,6);
+ assert.equal((forecast.match(/×7/g)||[]).length,6);
+});
 test('La propuesta explica criterios reales y evita atribuir puntuaciones a una combinación distinta',async()=>{
  const report=analyze(seed.draws);
  const els=await renderData(seed,report);els.get('view-ai').onclick();await new Promise(resolve=>setImmediate(resolve));
