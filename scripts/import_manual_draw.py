@@ -50,14 +50,13 @@ def parse_issue(body, archive):
                 and existing.get('refund') == refund)
         if same:
             return {'id': day.strftime('%Y%m%d'), 'date': day.isoformat(), 'numbers': sorted(numbers),
-                    'complementary': complementary, 'refund': refund, 'source': '', 'manual': True,
-                    'entryMethod': 'manual', '_already_present': True}
+                    'complementary': complementary, 'refund': refund, '_already_present': True}
         raise ValueError(f'Ya existe un sorteo para {day.isoformat()} con datos diferentes; no se sobrescribirá.')
     if latest and day.isoformat() <= latest:
         raise ValueError(f'La fecha debe ser posterior al último sorteo guardado ({latest}).')
     months = ('enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre')
     return {'id': day.strftime('%Y%m%d'), 'date': day.isoformat(), 'numbers': sorted(numbers),
-            'complementary': complementary, 'refund': refund, 'source': '', 'manual': True, 'entryMethod': 'manual'}
+            'complementary': complementary, 'refund': refund}
 
 def main():
     body = os.environ.get('ISSUE_BODY', '')
