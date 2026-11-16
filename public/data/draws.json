@@ -2,9 +2,26 @@
   "schemaVersion": 1,
   "startDate": "2026-01-01",
   "source": "SELAE",
-  "checkedAt": "2026-11-16T10:26:10Z",
-  "latestDate": "2026-11-12",
+  "checkedAt": "2026-11-16T10:26:37Z",
+  "latestDate": "2026-11-14",
   "draws": [
+    {
+      "id": "20261114",
+      "date": "2026-11-14",
+      "numbers": [
+        3,
+        22,
+        24,
+        30,
+        48,
+        49
+      ],
+      "complementary": 37,
+      "refund": 1,
+      "source": "",
+      "manual": true,
+      "entryMethod": "manual"
+    },
     {
       "id": "20261112",
       "date": "2026-11-12",

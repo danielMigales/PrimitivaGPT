@@ -5,12 +5,13 @@
     "missingForecastDates": [
       "2026-10-31",
       "2026-11-07",
-      "2026-11-12"
+      "2026-11-12",
+      "2026-11-14"
     ],
-    "integrityWarning": "Faltan predicciones prospectivas para: 2026-10-31, 2026-11-07, 2026-11-12. No se reconstruyen retroactivamente.",
+    "integrityWarning": "Faltan predicciones prospectivas para: 2026-10-31, 2026-11-07, 2026-11-12, 2026-11-14. No se reconstruyen retroactivamente.",
     "window": 7,
     "settled": 6,
-    "pending": 0,
+    "pending": 1,
     "comparable": 6,
     "modelAtLeastFour": 0,
     "modelAtLeastFourRate": 0,
@@ -22,6 +23,38 @@
     "lastSettledDate": "2026-11-09"
   },
   "records": [
+    {
+      "targetDate": "2026-11-16",
+      "createdAt": "2026-11-16T10:26:37.987Z",
+      "version": "1.6.0",
+      "window": 7,
+      "trainedThrough": "2026-11-14",
+      "trainingCount": 137,
+      "numbers": [
+        4,
+        6,
+        9,
+        25,
+        30,
+        32
+      ],
+      "refund": 2,
+      "status": "pending",
+      "publishedAt": null,
+      "actual": null,
+      "hits": null,
+      "refundHit": null,
+      "randomNumbers": [
+        12,
+        33,
+        36,
+        39,
+        44,
+        48
+      ],
+      "randomHits": null,
+      "randomAtLeastFour": null
+    },
     {
       "targetDate": "2026-11-09",
       "createdAt": "2026-11-09T19:20:51.058Z",
