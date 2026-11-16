@@ -9,6 +9,13 @@ test('Ventana reciente de 7 sorteos; frecuencia acumulada usa todo el pasado dis
  for(const row of report.rows){assert.ok(row.trainingEnd<row.date);assert.equal(row.predicted.length,6);assert.equal(new Set(row.predicted).size,6);assert.ok(row.predicted.every(n=>n>=1&&n<=49));assert.ok(row.refund>=0&&row.refund<=9);assert.equal(row.hits,row.predicted.filter(n=>row.actual.includes(n)).length);}
  assert.equal(report.metrics.atLeastFour,report.rows.filter(r=>r.hits>=4).length);assert.equal(report.metrics.atLeastFourRate,Math.round(report.metrics.atLeastFour/report.metrics.simulations*10000)/10000);assert.equal(report.metrics.atLeastFourAndRefund,report.rows.filter(r=>r.hits>=4&&r.refundHit).length);assert.equal(report.metrics.randomAtLeastFour,report.rows.filter(r=>r.randomHits>=4).length);assert.equal(report.metrics.randomAtLeastFourRate,Math.round(report.metrics.randomAtLeastFour/report.metrics.simulations*10000)/10000);assert.equal(report.metrics.randomAtLeastFourAndRefund,report.rows.filter(r=>r.randomHits>=4&&r.randomRefundHit).length);assert.equal(report.metrics.expectedRandomAtLeastFour,Math.round(report.metrics.simulations*report.baseline.atLeastFourProbability*10000)/10000);assert.equal(report.metrics.refundHits,report.rows.filter(r=>r.refund===r.actualRefund).length);
 });
+test('La propuesta nueva no repite los seis números de la predicción inmediatamente anterior',()=>{
+ const prior=report.rows.at(-1).predicted;
+ assert.notDeepEqual(report.forecast.numbers,prior);
+ assert.equal(report.forecast.numbers.length,6);
+ assert.equal(new Set(report.forecast.numbers).size,6);
+ assert.ok(report.forecast.numbers.every(n=>n>=1&&n<=49));
+});
 test('Modificar el resultado objetivo y los futuros no altera la predicción previa',()=>{
  const data=structuredClone(chronological);data[7].numbers=[1,2,3,4,5,6];data[7].refund=9;
  for(let i=8;i<data.length;i++){data[i].numbers=[2,4,6,8,10,12];data[i].refund=8;}
