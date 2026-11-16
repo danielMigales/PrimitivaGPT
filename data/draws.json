@@ -17,10 +17,7 @@
         49
       ],
       "complementary": 37,
-      "refund": 1,
-      "source": "",
-      "manual": true,
-      "entryMethod": "manual"
+      "refund": 1
     },
     {
       "id": "20261112",
@@ -34,10 +31,7 @@
         45
       ],
       "complementary": 24,
-      "refund": 9,
-      "source": "",
-      "manual": true,
-      "entryMethod": "manual"
+      "refund": 9
     },
     {
       "id": "20261109",
@@ -51,10 +45,7 @@
         39
       ],
       "complementary": 36,
-      "refund": 2,
-      "source": "",
-      "manual": true,
-      "entryMethod": "manual"
+      "refund": 2
     },
     {
       "id": "20261107",
