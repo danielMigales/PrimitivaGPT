@@ -4,9 +4,10 @@
     "protocol": "prospective-v1",
     "missingForecastDates": [
       "2026-10-31",
-      "2026-11-07"
+      "2026-11-07",
+      "2026-11-12"
     ],
-    "integrityWarning": "Faltan predicciones prospectivas para: 2026-10-31, 2026-11-07. No se reconstruyen retroactivamente.",
+    "integrityWarning": "Faltan predicciones prospectivas para: 2026-10-31, 2026-11-07, 2026-11-12. No se reconstruyen retroactivamente.",
     "window": 7,
     "settled": 6,
     "pending": 0,
