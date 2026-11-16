@@ -11,8 +11,6 @@ on:
 permissions:
   contents: write
   issues: write
-  pages: write
-  id-token: write
 concurrency:
   group: primitiva-manual-draw
   cancel-in-progress: false
@@ -25,12 +23,15 @@ jobs:
         uses: actions/checkout@v7
         with:
           ref: main
+      - name: Configurar Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '22'
       - name: Configurar Python
         uses: actions/setup-python@v7
         with:
           python-version: '3.12'
       - name: Validar e incorporar el sorteo
-        id: save
         env:
           ISSUE_BODY: ${{ github.event.issue.body }}
           INPUT_RESULTADO: ${{ inputs.resultado }}
@@ -43,26 +44,20 @@ jobs:
           fi
       - name: Construir y ejecutar pruebas
         run: |
-          npm ci
           npm run build
           npm test
-      - name: Guardar histórico validado
+      - name: Guardar histórico y artefactos validados
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/draws.json
+          git add data/ public/ worker/index.js
           git diff --cached --check
-          git commit -m "Añadir sorteo manual validado [manual-draw]"
-          git push origin HEAD:main
-      - name: Configurar GitHub Pages
-        uses: actions/configure-pages@v6
-      - name: Preparar archivos públicos
-        uses: actions/upload-pages-artifact@v5
-        with:
-          path: public
-      - name: Publicar web actualizada
-        id: deployment
-        uses: actions/deploy-pages@v5
+          if ! git diff --cached --quiet; then
+            git commit -m "Actualizar histórico y análisis [manual-draw]"
+            git push origin HEAD:main
+          else
+            echo "El sorteo ya estaba incorporado; no hay cambios."
+          fi
       - name: Confirmar resultado en la incidencia
         if: always() && github.event_name == 'issues'
         uses: actions/github-script@v8
@@ -70,7 +65,7 @@ jobs:
           script: |
             const success = '${{ job.status }}' === 'success';
             const body = success
-              ? ' **Sorteo guardado correctamente.** El histórico compartido se ha actualizado, se han ejecutado las pruebas y la web se ha publicado.'
-              : ' **No se ha guardado el sorteo.** La validación, las pruebas o la publicación han fallado. Revisa los registros de esta ejecución.';
+              ? ' **Sorteo guardado correctamente.** El histórico y los artefactos se han actualizado; el despliegue de GitHub Pages se inicia automáticamente con el commit.'
+              : ' **No se ha guardado el sorteo.** Revisa los registros de esta ejecución.';
             await github.rest.issues.createComment({ owner: context.repo.owner, repo: context.repo.repo, issue_number: context.issue.number, body });
             await github.rest.issues.update({ owner: context.repo.owner, repo: context.repo.repo, issue_number: context.issue.number, state: 'closed' });
