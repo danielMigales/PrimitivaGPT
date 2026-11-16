@@ -17,6 +17,14 @@ test('Guarda una propuesta pendiente sin inventar resultado ni aciertos',()=>{
  const changed={...report,version:'otra',forecast:{...report.forecast,numbers:[1,2,3,4,5,6],refund:9}};
  assert.deepEqual(reconcileForecasts(r.records,changed,archive.draws,new Date('2026-10-19T10:00:00Z')).records,r.records);
 });
+test('La propuesta prospectiva cambia al menos un número si coincide con la última propuesta guardada',()=>{
+ const previous={targetDate:'2026-10-15',numbers:[...report.forecast.numbers],refund:report.forecast.refund,status:'published'};
+ const next=reconcileForecasts([previous],structuredClone(report),archive.draws,before);
+ assert.ok(next.active);
+ assert.notDeepEqual(next.active.numbers,previous.numbers);
+ assert.equal(next.active.numbers.length,6);
+ assert.equal(new Set(next.active.numbers).size,6);
+});
 test('Publicación oficial evalúa la propuesta original y crea la siguiente; conserva ambas',()=>{
  const pending=reconcileForecasts([],report,archive.draws,before);
  const ticket=pending.active;const other=Array.from({length:49},(_,i)=>i+1).filter(n=>!ticket.numbers.includes(n));
