@@ -25,6 +25,15 @@ test('La propuesta prospectiva cambia al menos un número si coincide con la úl
  assert.equal(next.active.numbers.length,6);
  assert.equal(new Set(next.active.numbers).size,6);
 });
+test('Corrige una propuesta pendiente que duplicaba la predicción histórica del sorteo anterior',()=>{
+ const prior=report.rows.at(-1).predicted;
+ const pending={targetDate:nextDrawDate(report.sourceLastDate),createdAt:before.toISOString(),numbers:[...prior],refund:report.forecast.refund,status:'pending'};
+ const next=reconcileForecasts([pending],structuredClone(report),archive.draws,before);
+ assert.notDeepEqual(next.active.numbers,prior);
+ assert.equal(next.active.revisions.length,1);
+ assert.deepEqual(next.active.revisions[0].previousNumbers,prior);
+ assert.deepEqual(next.active.numbers,report.forecast.numbers);
+});
 test('Publicación oficial evalúa la propuesta original y crea la siguiente; conserva ambas',()=>{
  const pending=reconcileForecasts([],report,archive.draws,before);
  const ticket=pending.active;const other=Array.from({length:49},(_,i)=>i+1).filter(n=>!ticket.numbers.includes(n));
