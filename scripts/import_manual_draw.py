@@ -43,6 +43,16 @@ def parse_issue(body, archive):
         raise ValueError('El reintegro debe estar entre 0 y 9.')
     draws = archive.get('draws', [])
     latest = max((str(row.get('date', '')) for row in draws), default='')
+    existing = next((row for row in draws if row.get('date') == day.isoformat()), None)
+    if existing:
+        same = (sorted(existing.get('numbers', [])) == sorted(numbers)
+                and existing.get('complementary') == complementary
+                and existing.get('refund') == refund)
+        if same:
+            return {'id': day.strftime('%Y%m%d'), 'date': day.isoformat(), 'numbers': sorted(numbers),
+                    'complementary': complementary, 'refund': refund, 'source': '', 'manual': True,
+                    'entryMethod': 'manual', '_already_present': True}
+        raise ValueError(f'Ya existe un sorteo para {day.isoformat()} con datos diferentes; no se sobrescribirá.')
     if latest and day.isoformat() <= latest:
         raise ValueError(f'La fecha debe ser posterior al último sorteo guardado ({latest}).')
     months = ('enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre')
@@ -54,6 +64,9 @@ def main():
     path = ROOT / 'data/draws.json'
     archive = json.loads(path.read_text(encoding='utf-8'))
     record = parse_issue(body, archive)
+    if record.pop('_already_present', False):
+        print(f"Sorteo ya incorporado: {record['date']} · no se duplica; se continúa con las pruebas y la publicación.")
+        return
     archive['draws'].append(record)
     archive['draws'].sort(key=lambda row: row['date'], reverse=True)
     archive['latestDate'] = archive['draws'][0]['date']
