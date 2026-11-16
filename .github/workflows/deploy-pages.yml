@@ -55,3 +55,31 @@ jobs:
       - name: Publicar PrimitivaGPT
         id: deployment
         uses: actions/deploy-pages@v5
+      - name: Diagnosticar publicación pública
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SITE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          set -euo pipefail
+          echo "URL oficial comunicada por GitHub Pages: $SITE_URL"
+          echo "Configuración real de Pages:"
+          curl --fail --silent --show-error \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/${GITHUB_REPOSITORY}/pages \
+            | tee /tmp/pages-config.json
+          echo
+          echo "Comprobando respuesta HTTP pública:"
+          for attempt in {1..12}; do
+            code=$(curl --silent --show-error --output /tmp/site-response.html --write-out "%{http_code}" "$SITE_URL")
+            echo "Intento $attempt: HTTP $code"
+            if [ "$code" = "200" ]; then
+              grep -qi "<html" /tmp/site-response.html
+              echo "La web responde HTTP 200 y entrega HTML."
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "La publicación no está accesible públicamente en $SITE_URL"
+          head -c 1000 /tmp/site-response.html || true
+          exit 1
