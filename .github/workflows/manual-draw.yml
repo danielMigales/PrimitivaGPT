@@ -14,7 +14,7 @@ permissions:
   pages: write
   id-token: write
 concurrency:
-  group: primitiva-manual-draw
+  group: github-pages
   cancel-in-progress: false
 jobs:
   save-draw:
@@ -60,8 +60,10 @@ jobs:
           else
             echo "El sorteo ya estaba incorporado; no hay cambios."
           fi
-      - name: Configurar GitHub Pages
+      - name: Activar y configurar GitHub Pages
         uses: actions/configure-pages@v6
+        with:
+          enablement: true
       - name: Preparar archivos públicos
         uses: actions/upload-pages-artifact@v5
         with:
