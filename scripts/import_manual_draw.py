@@ -51,10 +51,6 @@ def parse_issue(body, archive):
         if same:
             return {'id': day.strftime('%Y%m%d'), 'date': day.isoformat(), 'numbers': sorted(numbers),
                     'complementary': complementary, 'refund': refund, '_already_present': True}
-        raise ValueError(f'Ya existe un sorteo para {day.isoformat()} con datos diferentes; no se sobrescribirá.')
-    if latest and day.isoformat() <= latest:
-        raise ValueError(f'La fecha debe ser posterior al último sorteo guardado ({latest}).')
-    months = ('enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre')
     return {'id': day.strftime('%Y%m%d'), 'date': day.isoformat(), 'numbers': sorted(numbers),
             'complementary': complementary, 'refund': refund}
 
@@ -66,8 +62,9 @@ def main():
     if record.pop('_already_present', False):
         print(f"Sorteo ya incorporado: {record['date']} · no se duplica; se continúa con las pruebas y la publicación.")
         return
-    archive['draws'].append(record)
-    archive['draws'].sort(key=lambda row: row['date'], reverse=True)
+    by_date = {row['date']: row for row in archive['draws']}
+    by_date[record['date']] = record
+    archive['draws'] = sorted(by_date.values(), key=lambda row: row['date'], reverse=True)
     archive['latestDate'] = archive['draws'][0]['date']
     archive['checkedAt'] = dt.datetime.now(dt.timezone.utc).isoformat(timespec='seconds').replace('+00:00', 'Z')
     path.write_text(json.dumps(archive, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
