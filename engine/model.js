@@ -124,7 +124,10 @@ export function reconcileForecasts(records,report,draws,now=new Date()){
  const today=part('year')+'-'+part('month')+'-'+part('day'),time=part('hour')+':'+part('minute');
  const next=records.map(r=>({...r,numbers:[...r.numbers]}));
  if(!next.some(r=>r.targetDate===targetDate)&&!report.warning&&(targetDate>today||(targetDate===today&&time<'20:30'))){
-  next.push({targetDate,createdAt:now.toISOString(),version:report.version,window:report.window,trainedThrough:report.sourceLastDate,trainingCount:report.drawCount,numbers:[...report.forecast.numbers],refund:report.forecast.refund});
+  const previous=next.slice().sort((a,b)=>b.targetDate.localeCompare(a.targetDate))[0];
+  const numbers=avoidExactRepeat(report.forecast.numbers,previous?.numbers,report.forecast.numberScores);
+  report.forecast={...report.forecast,numbers:[...numbers]};
+  next.push({targetDate,createdAt:now.toISOString(),version:report.version,window:report.window,trainedThrough:report.sourceLastDate,trainingCount:report.drawCount,numbers:[...numbers],refund:report.forecast.refund});
  }
  const reconciled=next.map(r=>{
   const actual=official.get(r.targetDate);
