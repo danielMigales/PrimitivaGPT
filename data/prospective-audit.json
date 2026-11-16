@@ -84,8 +84,7 @@
           39
         ],
         "refund": 2,
-        "complementary": 36,
-        "source": ""
+        "complementary": 36
       },
       "hits": 1,
       "refundHit": false,
@@ -174,8 +173,7 @@
           47
         ],
         "refund": 2,
-        "complementary": 2,
-        "source": "resultado manual facilitado por el usuario"
+        "complementary": 2
       },
       "hits": 1,
       "refundHit": false,
