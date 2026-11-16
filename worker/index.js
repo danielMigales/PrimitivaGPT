@@ -69,17 +69,17 @@ function predict(history,window,numberWeights,refundWeights,step){
  return {numbers:best(mixed),refund:digit(refs),experts,expertRefunds,refundDistributions:data.refunds,refundDistribution:refs,numberScores:mixed.map((score,i)=>({number:i+1,score:round(score)})).sort((a,b)=>b.score-a.score),refundScores:refs.map((score,i)=>({number:i,score:round(score)}))};
 }
 function avoidExactRepeat(numbers,previous,scores=[]){
- if(!Array.isArray(previous)||previous.length!==6)return numbers;
- const same=a=>a.slice().sort((x,y)=>x-y).every((n,i)=>n===previous.slice().sort((x,y)=>x-y)[i]);
- if(!same(numbers))return numbers;
+ const tickets=(Array.isArray(previous?.[0])?previous:[previous]).filter(p=>Array.isArray(p)&&p.length===6);
+ const same=(a,b)=>a.slice().sort((x,y)=>x-y).every((n,i)=>n===b.slice().sort((x,y)=>x-y)[i]);
+ if(!tickets.some(ticket=>same(numbers,ticket)))return numbers;
  const ranked=scores.slice().sort((a,b)=>b.score-a.score||a.number-b.number).map(x=>x.number);
- const replacement=ranked.find(n=>!numbers.includes(n));
- if(replacement===undefined)return numbers;
- const weakest=numbers.slice().sort((a,b)=>{
-  const sa=scores.find(x=>x.number===a)?.score??0,sb=scores.find(x=>x.number===b)?.score??0;
-  return sa-sb||b-a;
- })[0];
- return numbers.filter(n=>n!==weakest).concat(replacement).sort((a,b)=>a-b);
+ const positions=numbers.map((n,i)=>({n,i,score:scores.find(x=>x.number===n)?.score??0})).sort((a,b)=>a.score-b.score||b.n-a.n);
+ for(const position of positions)for(const replacement of ranked){
+  if(numbers.includes(replacement))continue;
+  const candidate=numbers.map((n,i)=>i===position.i?replacement:n).sort((a,b)=>a-b);
+  if(!tickets.some(ticket=>same(candidate,ticket)))return candidate;
+ }
+ return numbers;
 }
 function choose(n,k){if(k<0||k>n)return 0;let v=1;for(let i=1;i<=k;i++)v=v*(n-i+1)/i;return v;}
 function randomBaseline(){return {expectedHits:36/49,refundProbability:.1,atLeastThreeProbability:[3,4,5,6].reduce((s,k)=>s+choose(6,k)*choose(43,6-k),0)/choose(49,6),threeAndRefundProbability:.1*[3,4,5,6].reduce((s,k)=>s+choose(6,k)*choose(43,6-k),0)/choose(49,6),atLeastFourProbability:[4,5,6].reduce((s,k)=>s+choose(6,k)*choose(43,6-k),0)/choose(49,6),hitProbabilities:range(7).map(k=>choose(6,k)*choose(43,6-k)/choose(49,6))};}
@@ -123,11 +123,16 @@ function reconcileForecasts(records,report,draws,now=new Date()){
  const part=type=>parts.find(p=>p.type===type).value;
  const today=part('year')+'-'+part('month')+'-'+part('day'),time=part('hour')+':'+part('minute');
  const next=records.map(r=>({...r,numbers:[...r.numbers]}));
- if(!next.some(r=>r.targetDate===targetDate)&&!report.warning&&(targetDate>today||(targetDate===today&&time<'20:30'))){
-  const previous=next.slice().sort((a,b)=>b.targetDate.localeCompare(a.targetDate))[0];
-  const numbers=avoidExactRepeat(report.forecast.numbers,previous?.numbers,report.forecast.numberScores);
-  report.forecast={...report.forecast,numbers:[...numbers]};
-  next.push({targetDate,createdAt:now.toISOString(),version:report.version,window:report.window,trainedThrough:report.sourceLastDate,trainingCount:report.drawCount,numbers:[...numbers],refund:report.forecast.refund});
+ const priorTickets=[...next.filter(r=>r.targetDate<targetDate).map(r=>r.numbers),...(report.rows||[]).map(r=>r.predicted)];
+ const safeNumbers=avoidExactRepeat(report.forecast.numbers,priorTickets,report.forecast.numberScores);
+ report.forecast={...report.forecast,numbers:[...safeNumbers]};
+ const existing=next.find(r=>r.targetDate===targetDate);
+ if(existing&&existing.status==='pending'&&priorTickets.some(ticket=>ticket.length===6&&ticket.every((n,i)=>n===existing.numbers[i]))&&!safeNumbers.every((n,i)=>n===existing.numbers[i])){
+  existing.revisions=[...(existing.revisions||[]),{revisedAt:now.toISOString(),previousNumbers:[...existing.numbers],reason:'La propuesta duplicaba una combinación histórica del propio modelo.'}];
+  existing.numbers=[...safeNumbers];existing.version=report.version;existing.trainedThrough=report.sourceLastDate;existing.trainingCount=report.drawCount;
+ }
+ if(!existing&&!report.warning&&(targetDate>today||(targetDate===today&&time<'20:30'))){
+  next.push({targetDate,createdAt:now.toISOString(),version:report.version,window:report.window,trainedThrough:report.sourceLastDate,trainingCount:report.drawCount,numbers:[...safeNumbers],refund:report.forecast.refund});
  }
  const reconciled=next.map(r=>{
   const actual=official.get(r.targetDate);
