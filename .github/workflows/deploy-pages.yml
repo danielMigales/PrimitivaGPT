@@ -38,7 +38,13 @@ jobs:
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git commit -m "Actualizar artefactos de PrimitivaGPT [skip ci]"
-            git push
+            for attempt in 1 2 3; do
+              git pull --rebase origin main && git push && exit 0
+              git rebase --abort || true
+              sleep 2
+            done
+            echo "No se pudieron guardar los artefactos tras tres intentos por cambios concurrentes."
+            exit 1
           else
             echo "No hay cambios generados que guardar."
           fi
