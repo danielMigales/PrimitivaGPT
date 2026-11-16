@@ -11,6 +11,8 @@ on:
 permissions:
   contents: write
   issues: write
+  pages: write
+  id-token: write
 concurrency:
   group: primitiva-manual-draw
   cancel-in-progress: false
@@ -58,6 +60,15 @@ jobs:
           else
             echo "El sorteo ya estaba incorporado; no hay cambios."
           fi
+      - name: Configurar GitHub Pages
+        uses: actions/configure-pages@v6
+      - name: Preparar archivos públicos
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: public
+      - name: Publicar web actualizada
+        id: deployment
+        uses: actions/deploy-pages@v5
       - name: Confirmar resultado en la incidencia
         if: always() && github.event_name == 'issues'
         uses: actions/github-script@v8
@@ -65,7 +76,7 @@ jobs:
           script: |
             const success = '${{ job.status }}' === 'success';
             const body = success
-              ? ' **Sorteo guardado correctamente.** El histórico y los artefactos se han actualizado; el despliegue de GitHub Pages se inicia automáticamente con el commit.'
+              ? ' **Sorteo guardado correctamente.** El histórico se ha actualizado, las pruebas han pasado y GitHub Pages ha confirmado la publicación.'
               : ' **No se ha guardado el sorteo.** Revisa los registros de esta ejecución.';
             await github.rest.issues.createComment({ owner: context.repo.owner, repo: context.repo.repo, issue_number: context.issue.number, body });
             await github.rest.issues.update({ owner: context.repo.owner, repo: context.repo.repo, issue_number: context.issue.number, state: 'closed' });
