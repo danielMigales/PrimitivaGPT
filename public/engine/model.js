@@ -68,6 +68,19 @@ function predict(history,window,numberWeights,refundWeights,step){
  // La combinación final sigue el ranking agregado; no añade bonificaciones de parejas/huecos que no son probabilidades calibradas.
  return {numbers:best(mixed),refund:digit(refs),experts,expertRefunds,refundDistributions:data.refunds,refundDistribution:refs,numberScores:mixed.map((score,i)=>({number:i+1,score:round(score)})).sort((a,b)=>b.score-a.score),refundScores:refs.map((score,i)=>({number:i,score:round(score)}))};
 }
+function avoidExactRepeat(numbers,previous,scores=[]){
+ if(!Array.isArray(previous)||previous.length!==6)return numbers;
+ const same=a=>a.slice().sort((x,y)=>x-y).every((n,i)=>n===previous.slice().sort((x,y)=>x-y)[i]);
+ if(!same(numbers))return numbers;
+ const ranked=scores.slice().sort((a,b)=>b.score-a.score||a.number-b.number).map(x=>x.number);
+ const replacement=ranked.find(n=>!numbers.includes(n));
+ if(replacement===undefined)return numbers;
+ const weakest=numbers.slice().sort((a,b)=>{
+  const sa=scores.find(x=>x.number===a)?.score??0,sb=scores.find(x=>x.number===b)?.score??0;
+  return sa-sb||b-a;
+ })[0];
+ return numbers.filter(n=>n!==weakest).concat(replacement).sort((a,b)=>a-b);
+}
 function choose(n,k){if(k<0||k>n)return 0;let v=1;for(let i=1;i<=k;i++)v=v*(n-i+1)/i;return v;}
 export function randomBaseline(){return {expectedHits:36/49,refundProbability:.1,atLeastThreeProbability:[3,4,5,6].reduce((s,k)=>s+choose(6,k)*choose(43,6-k),0)/choose(49,6),threeAndRefundProbability:.1*[3,4,5,6].reduce((s,k)=>s+choose(6,k)*choose(43,6-k),0)/choose(49,6),atLeastFourProbability:[4,5,6].reduce((s,k)=>s+choose(6,k)*choose(43,6-k),0)/choose(49,6),hitProbabilities:range(7).map(k=>choose(6,k)*choose(43,6-k)/choose(49,6))};}
 export function brierScore(probabilities,actual){return probabilities.reduce((sum,p,i)=>sum+(p-Number(i===actual))**2,0);}
@@ -90,7 +103,7 @@ export function analyze(draws,{window=7,variant='extended'}={}){
   histogram[count]++;totalHits+=count;totalRefunds+=Number(refundHit);totalRandom+=randomHits;randomHistogram[randomHits]++;randomRefunds+=Number(randomRefund===actual.refund);
   for(let j=0;j<countExperts;j++){const loss=brierScore(prediction.refundDistributions[j],actual.refund);expertStats[j].refundHits+=Number(prediction.expertRefunds[j]===actual.refund);expertStats[j].numberHits+=expertHits[j];expertStats[j].atLeastThree+=Number(expertHits[j]>=3);expertStats[j].atLeastFour+=Number(expertHits[j]>=4);expertStats[j].brier+=loss;expertStats[j].logLoss-=Math.log(prediction.refundDistributions[j][actual.refund]);numberLog[j]=.99*numberLog[j]+.2*(expertHits[j]-36/49)+.1*Number(expertHits[j]>=3)+(variant==='extended'?.2*Number(expertHits[j]>=4):0);refundLog[j]=.99*refundLog[j]+(variant==='extended'?-.5*loss:.3*(Number(prediction.expertRefunds[j]===actual.refund)-.1));}
  }
- const nw=softmax(numberLog),rw=softmax(refundLog),next=predict(ordered,window,nw,rw,ordered.length),n=rows.length,baseline=randomBaseline();
+ const nw=softmax(numberLog),rw=softmax(refundLog),rawNext=predict(ordered,window,nw,rw,ordered.length),next={...rawNext,numbers:avoidExactRepeat(rawNext.numbers,rows.at(-1)?.predicted,rawNext.numberScores)},n=rows.length,baseline=randomBaseline();
  const reference=variant==='extended'?analyze(ordered,{window,variant:'legacy'}):null;
  return {version:variant==='extended'?MODEL_VERSION:'1.1.0',variant,reference:reference?{version:reference.version,metrics:reference.metrics}:null,status:'ready',window,sourceLastDate:ordered.at(-1).date,drawCount:ordered.length,objective:{primary:'atLeastFour',secondary:'refund',joint:'atLeastFourAndRefund'},method:'Aprendizaje secuencial sin acceso al resultado futuro; una combinación y un reintegro por sorteo.',forecast:{targetDate:nextDrawDate(ordered.at(-1).date),afterDate:ordered.at(-1).date,numbers:next.numbers,refund:next.refund,numberScores:next.numberScores,refundScores:next.refundScores},metrics:{refundBrier:round(rows.reduce((s,r)=>s+r.refundBrier,0)/n),refundLogLoss:round(rows.reduce((s,r)=>s+r.refundLogLoss,0)/n),uniformBrier:.9,uniformLogLoss:Math.log(10),simulations:n,meanHits:round(totalHits/n),atLeastThree:histogram.slice(3).reduce((a,b)=>a+b,0),atLeastThreeAndRefund:rows.filter(r=>r.hits>=3&&r.refundHit).length,atLeastFour:histogram.slice(4).reduce((a,b)=>a+b,0),atLeastFourRate:round(histogram.slice(4).reduce((a,b)=>a+b,0)/n),atLeastFourAndRefund:rows.filter(r=>r.hits>=4&&r.refundHit).length,expectedRandomAtLeastFour:round(n*baseline.atLeastFourProbability),maxHits:Math.max(...rows.map(r=>r.hits)),refundHits:totalRefunds,refundRate:round(totalRefunds/n),histogram,randomMeanHits:round(totalRandom/n),randomAtLeastThree:randomHistogram.slice(3).reduce((a,b)=>a+b,0),randomAtLeastThreeAndRefund:rows.filter(r=>r.randomHits>=3&&r.randomRefundHit).length,randomAtLeastFour:randomHistogram.slice(4).reduce((a,b)=>a+b,0),randomAtLeastFourRate:round(randomHistogram.slice(4).reduce((a,b)=>a+b,0)/n),randomAtLeastFourAndRefund:rows.filter(r=>r.randomHits>=4&&r.randomRefundHit).length,randomRefundHits:randomRefunds,randomHistogram},baseline,experts:EXPERTS.slice(0,countExperts).map((name,i)=>({name,initialWeight:1/countExperts,refundHits:expertStats[i].refundHits,meanHits:round(expertStats[i].numberHits/n),atLeastThree:expertStats[i].atLeastThree,atLeastFour:expertStats[i].atLeastFour,refundBrier:round(expertStats[i].brier/n),refundLogLoss:round(expertStats[i].logLoss/n),numberWeight:round(nw[i]),refundWeight:round(rw[i])})),patterns:patterns(ordered.slice(-window)),rows,modelState:{version:variant==='extended'?MODEL_VERSION:'1.1.0',variant,window,trainedThrough:ordered.at(-1).date,numberLogWeights:numberLog,refundLogWeights:refundLog,numberWeights:nw,refundWeights:rw}};
 }
